@@ -12,11 +12,24 @@ export function ReactQueryProvider({
   children: React.ReactNode;
 }) {
   const [showDevtools, setShowDevtools] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
-  // Check debug status on mount and when it changes
+  // Check if we're on the client side
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Check debug status on mount and when it changes (client-side only)
+  useEffect(() => {
+    if (!isClient) return;
+
     const checkDebugStatus = () => {
-      setShowDevtools(isDebugEnabled());
+      try {
+        setShowDevtools(isDebugEnabled());
+      } catch (_error) {
+        // Fallback if debug check fails
+        setShowDevtools(false);
+      }
     };
 
     // Check initial status
@@ -26,7 +39,7 @@ export function ReactQueryProvider({
     const interval = setInterval(checkDebugStatus, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isClient]);
 
   const [queryClient] = useState(
     () =>
@@ -55,7 +68,7 @@ export function ReactQueryProvider({
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {showDevtools && <ReactQueryDevtools initialIsOpen={false} />}
+      {showDevtools && isClient && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );
 }

@@ -12,68 +12,46 @@
   "categories": ["health", "fitness", "sports", "education"],
   "icons": [
     {
-      "src": "/icon-72x72.svg",
-      "sizes": "72x72",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icon-96x96.svg",
-      "sizes": "96x96",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icon-128x128.svg",
-      "sizes": "128x128",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icon-144x144.svg",
-      "sizes": "144x144",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icon-152x152.svg",
-      "sizes": "152x152",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icon-192x192.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icon-384x384.svg",
-      "sizes": "384x384",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icon-512x512.svg",
+      "src": "/logos/smartfyt-brain.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshot-mobile.png",
-      "sizes": "390x844",
       "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Student Dashboard"
+      "purpose": "maskable any"
     },
     {
-      "src": "/screenshot-desktop.png",
-      "sizes": "1280x720",
+      "src": "/logos/smartfyt-brain.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "form_factor": "wide",
-      "label": "Desktop Dashboard"
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/logos/smartfyt-brain.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/logos/smartfyt-brain.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/logos/smartfyt-brain.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/logos/smartfyt-brain.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/logos/smartfyt-brain.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
     }
   ],
   "shortcuts": [
@@ -84,7 +62,7 @@
       "url": "/dashboard",
       "icons": [
         {
-          "src": "/icon-96x96.png",
+          "src": "/logos/smartfyt-brain.png",
           "sizes": "96x96"
         }
       ]
@@ -96,7 +74,7 @@
       "url": "/journal",
       "icons": [
         {
-          "src": "/icon-96x96.png",
+          "src": "/logos/smartfyt-brain.png",
           "sizes": "96x96"
         }
       ]
@@ -108,7 +86,7 @@
       "url": "/health",
       "icons": [
         {
-          "src": "/icon-96x96.png",
+          "src": "/logos/smartfyt-brain.png",
           "sizes": "96x96"
         }
       ]

@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
     },
   },
 
+  // Development configuration
+  devIndicators: {
+    buildActivity: false,
+  },
+
   // Webpack configuration to fix WASM hash issues
   webpack: (config, { isServer }) => {
     // Fix for WASM hash issues with Node.js 22

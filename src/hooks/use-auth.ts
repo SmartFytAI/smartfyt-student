@@ -1,4 +1,7 @@
 import { useKindeAuth } from '@kinde-oss/kinde-auth-nextjs';
+import { useEffect } from 'react';
+
+import { authLogger } from '@/lib/logger';
 
 export interface AuthUser {
   id: string;
@@ -11,6 +14,16 @@ export interface AuthUser {
 
 export function useAuth() {
   const { user, isLoading, isAuthenticated, getToken } = useKindeAuth();
+
+  // Debug logging for auth state changes
+  useEffect(() => {
+    authLogger.debug('Auth state changed:', {
+      isLoading,
+      isAuthenticated,
+      hasUser: !!user,
+      userId: user?.id,
+    });
+  }, [isLoading, isAuthenticated, user]);
 
   // Transform Kinde user to our auth user format
   const authUser: AuthUser | null = user
@@ -27,26 +40,10 @@ export function useAuth() {
       }
     : null;
 
-  // Auth action URLs
-  const login = () => {
-    window.location.href = '/api/auth/login';
-  };
-
-  const logout = () => {
-    window.location.href = '/api/auth/logout';
-  };
-
-  const register = () => {
-    window.location.href = '/api/auth/register';
-  };
-
   return {
     user: authUser,
     isLoading,
     isAuthenticated,
-    login,
-    logout,
-    register,
     getToken,
   };
 }

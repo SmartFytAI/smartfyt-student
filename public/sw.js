@@ -6,8 +6,7 @@ const API_CACHE_NAME = 'smartfyt-api-v1';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
-  '/icon-192x192.svg',
-  '/icon-512x512.svg',
+  '/logos/smartfyt-brain.png',
   '/offline.html'
 ];
 
@@ -211,8 +210,8 @@ self.addEventListener('push', (event) => {
   
   const options = {
     body: event.data ? event.data.text() : 'New SmartFyt notification',
-    icon: '/icon-192x192.svg',
-    badge: '/icon-96x96.svg',
+    icon: '/logos/smartfyt-brain.png',
+    badge: '/logos/smartfyt-brain.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -222,12 +221,12 @@ self.addEventListener('push', (event) => {
       {
         action: 'explore',
         title: 'Open App',
-        icon: '/icon-96x96.svg'
+        icon: '/logos/smartfyt-brain.png'
       },
       {
         action: 'close',
         title: 'Close',
-        icon: '/icon-96x96.svg'
+        icon: '/logos/smartfyt-brain.png'
       }
     ]
   };

@@ -4,6 +4,13 @@ import { useEffect, useState } from 'react';
 
 import { pwaLogger } from '@/lib/logger';
 
+// Type for the beforeinstallprompt event
+interface BeforeInstallPromptEvent extends Event {
+  preventDefault(): void;
+  prompt(): Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
 export function PWAInstaller() {
   const [_isOnline, setIsOnline] = useState(true);
   const [swRegistration, setSwRegistration] =
@@ -30,10 +37,10 @@ export function PWAInstaller() {
                   newWorker.state === 'installed' &&
                   navigator.serviceWorker.controller
                 ) {
-                  // New content is available
-                  if (confirm('New version available! Refresh to update?')) {
-                    window.location.reload();
-                  }
+                  // New content is available - just log it, don't prompt
+                  pwaLogger.info(
+                    'New version available - will update on next reload'
+                  );
                 }
               });
             }
@@ -107,4 +114,70 @@ export function useOnlineStatus() {
   }, []);
 
   return isOnline;
+}
+
+// Hook to get PWA install functionality
+export function usePWAInstall() {
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
+  const [showInstallButton, setShowInstallButton] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Check if device is mobile
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isMobileDevice =
+        /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+          userAgent
+        ) || window.innerWidth <= 768;
+      setIsMobile(isMobileDevice);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      // Only show install button on mobile devices
+      if (isMobile) {
+        setShowInstallButton(true);
+      }
+    };
+
+    window.addEventListener(
+      'beforeinstallprompt',
+      handleBeforeInstallPrompt as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        'beforeinstallprompt',
+        handleBeforeInstallPrompt as EventListener
+      );
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, [isMobile]);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+
+    if (outcome === 'accepted') {
+      pwaLogger.info('User accepted the install prompt');
+    } else {
+      pwaLogger.info('User dismissed the install prompt');
+    }
+
+    setDeferredPrompt(null);
+    setShowInstallButton(false);
+  };
+
+  return {
+    showInstallButton: showInstallButton && isMobile,
+    handleInstallClick,
+  };
 }

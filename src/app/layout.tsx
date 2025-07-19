@@ -3,10 +3,6 @@ import { Geist, Geist_Mono } from 'next/font/google';
 
 import './globals.css';
 import { AuthProvider } from '@/components/auth/auth-provider';
-import { AppErrorBoundary } from '@/components/error/error-boundary';
-import { PWAInstaller } from '@/components/pwa-installer';
-import { ThemeProvider } from '@/components/theme/theme-provider';
-import { ReactQueryProvider } from '@/lib/react-query';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -78,7 +74,7 @@ export const metadata: Metadata = {
       'Track your athletic performance, health metrics, and achieve your goals on mobile.',
     images: [
       {
-        url: '/icon-512x512.svg',
+        url: '/logos/smartfyt-brain.png',
         width: 512,
         height: 512,
         alt: 'SmartFyt Student App',
@@ -92,17 +88,17 @@ export const metadata: Metadata = {
     title: 'SmartFyt Student Athlete - Mobile Performance Tracking',
     description:
       'Track your athletic performance, health metrics, and achieve your goals on mobile.',
-    images: ['/icon-512x512.svg'],
+    images: ['/logos/smartfyt-brain.png'],
   },
 
   // Icons for PWA
   icons: {
     icon: [
-      { url: '/icon-192x192.svg', sizes: '192x192', type: 'image/svg+xml' },
-      { url: '/icon-512x512.svg', sizes: '512x512', type: 'image/svg+xml' },
+      { url: '/logos/smartfyt-brain.png', sizes: '192x192', type: 'image/png' },
+      { url: '/logos/smartfyt-brain.png', sizes: '512x512', type: 'image/png' },
     ],
     apple: [
-      { url: '/icon-180x180.svg', sizes: '180x180', type: 'image/svg+xml' },
+      { url: '/logos/smartfyt-brain.png', sizes: '180x180', type: 'image/png' },
     ],
     other: [
       {
@@ -123,37 +119,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en' className='h-full' suppressHydrationWarning>
-      <head>
-        {/* PWA Meta Tags */}
-        <meta name='mobile-web-app-capable' content='yes' />
-        <meta name='apple-mobile-web-app-capable' content='yes' />
-        <meta name='apple-mobile-web-app-status-bar-style' content='default' />
-        <meta
-          name='apple-mobile-web-app-title'
-          content='SmartFyt Student Athlete'
-        />
+    <AuthProvider>
+      <html lang='en' className='h-full' suppressHydrationWarning>
+        <head>
+          {/* PWA Meta Tags */}
+          <meta name='mobile-web-app-capable' content='yes' />
+          <meta name='apple-mobile-web-app-capable' content='yes' />
+          <meta
+            name='apple-mobile-web-app-status-bar-style'
+            content='default'
+          />
+          <meta
+            name='apple-mobile-web-app-title'
+            content='SmartFyt Student Athlete'
+          />
 
-        {/* Preconnect to API */}
-        <link
-          rel='preconnect'
-          href={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}
-        />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} h-full text-gray-900 antialiased dark:text-gray-100`}
-      >
-        <AppErrorBoundary>
-          <ThemeProvider>
-            <AuthProvider>
-              <ReactQueryProvider>
-                <PWAInstaller />
-                <div className='safe-area-inset min-h-screen'>{children}</div>
-              </ReactQueryProvider>
-            </AuthProvider>
-          </ThemeProvider>
-        </AppErrorBoundary>
-      </body>
-    </html>
+          {/* Preconnect to API */}
+          <link
+            rel='preconnect'
+            href={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}
+          />
+        </head>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} h-full text-gray-900 antialiased dark:text-gray-100`}
+        >
+          <div className='safe-area-inset min-h-screen'>{children}</div>
+        </body>
+      </html>
+    </AuthProvider>
   );
 }

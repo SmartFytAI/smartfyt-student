@@ -10,28 +10,49 @@ interface LoggerConfig {
 declare global {
   interface Window {
     ENABLE_DEBUG: (level?: LogLevel) => void;
+    DISABLE_DEBUG: () => void;
     __LOGGER_CONFIG__: LoggerConfig;
+    __LOGGER_INITIALIZED__: boolean;
   }
 }
 
-// Default configuration
+// Check if we're in development mode
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+// Default configuration - auto-enable debug in development
 const defaultConfig: LoggerConfig = {
-  enabled: false,
-  level: 'error',
+  enabled: isDevelopment,
+  level: isDevelopment ? 'debug' : 'error',
 };
 
-// Initialize global configuration
-if (typeof window !== 'undefined') {
+// Initialize global configuration only once
+if (typeof window !== 'undefined' && !window.__LOGGER_INITIALIZED__) {
   window.__LOGGER_CONFIG__ = { ...defaultConfig };
+  window.__LOGGER_INITIALIZED__ = true;
 
   // Global debug function
   window.ENABLE_DEBUG = (level: LogLevel = 'debug') => {
-    window.__LOGGER_CONFIG__ = {
-      enabled: true,
-      level,
-    };
-    console.log(`🔧 Debug logging enabled at level: ${level}`);
+    // Only update if config actually changed
+    const currentConfig = window.__LOGGER_CONFIG__;
+    if (!currentConfig.enabled || currentConfig.level !== level) {
+      window.__LOGGER_CONFIG__ = {
+        enabled: true,
+        level,
+      };
+      console.log(`🔧 Debug logging enabled at level: ${level}`);
+    }
   };
+
+  // Global disable function
+  window.DISABLE_DEBUG = () => {
+    window.__LOGGER_CONFIG__ = { enabled: false, level: 'error' };
+    console.log('🔧 Debug logging disabled');
+  };
+
+  // Auto-enable debug in development
+  if (isDevelopment) {
+    console.log('🔧 Debug logging auto-enabled in development mode');
+  }
 }
 
 // Log level priorities
@@ -130,7 +151,7 @@ export const enableDebug = (level: LogLevel = 'debug'): void => {
 // Utility function to disable debug logging
 export const disableDebug = (): void => {
   if (typeof window !== 'undefined') {
-    window.__LOGGER_CONFIG__ = { enabled: false, level: 'error' };
+    window.DISABLE_DEBUG();
   }
 };
 
