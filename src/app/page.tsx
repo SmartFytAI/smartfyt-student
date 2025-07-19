@@ -64,10 +64,10 @@ export default function HomePage() {
   if (authLoading) {
     logger.debug('Homepage showing loading state');
     return (
-      <div className='flex min-h-screen items-center justify-center bg-gray-50'>
+      <div className='flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900'>
         <div className='text-center'>
           <div className='mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600'></div>
-          <p className='mt-4 text-gray-600'>Loading...</p>
+          <p className='mt-4 text-gray-600 dark:text-gray-400'>Loading...</p>
         </div>
       </div>
     );
@@ -81,7 +81,7 @@ export default function HomePage() {
 
   return (
     <PageErrorBoundary>
-      <div className='min-h-screen bg-white'>
+      <div className='min-h-screen bg-white dark:bg-gray-900'>
         {/* Scroll-based Header with Logo */}
         <div
           className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
@@ -113,9 +113,14 @@ export default function HomePage() {
                   onClick={() => {
                     logger.debug('🔑 Header Sign In button clicked');
                   }}
-                  className='text-white transition-colors hover:text-gray-300'
                 >
-                  Sign In
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    className='border-white text-white hover:bg-orange-500 hover:text-white'
+                  >
+                    Sign In
+                  </Button>
                 </LoginLink>
                 <RegisterLink
                   authUrlParams={{
@@ -125,9 +130,13 @@ export default function HomePage() {
                   onClick={() => {
                     logger.debug('🚀 Header Get Started button clicked');
                   }}
-                  className='rounded-md bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600'
                 >
-                  Get Started
+                  <Button
+                    size='sm'
+                    className='bg-orange-500 text-white hover:bg-orange-600'
+                  >
+                    Get Started
+                  </Button>
                 </RegisterLink>
               </div>
             )}
@@ -192,10 +201,10 @@ export default function HomePage() {
                     size='lg'
                     className='w-full bg-orange-500 px-8 py-4 text-lg font-semibold text-white hover:bg-orange-600 sm:w-auto'
                     onClick={() => {
-                      logger.debug('🚀 Hero Start Free Trial button clicked');
+                      logger.debug('🚀 Hero Get Started button clicked');
                     }}
                   >
-                    Start Free Trial
+                    Get Started
                   </Button>
                 </RegisterLink>
                 <LoginLink

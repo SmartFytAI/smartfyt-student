@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 
 import './globals.css';
 import { AuthProvider } from '@/components/auth/auth-provider';
+import { ThemeProvider } from '@/components/theme/theme-provider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -119,33 +120,35 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <AuthProvider>
-      <html lang='en' className='h-full' suppressHydrationWarning>
-        <head>
-          {/* PWA Meta Tags */}
-          <meta name='mobile-web-app-capable' content='yes' />
-          <meta name='apple-mobile-web-app-capable' content='yes' />
-          <meta
-            name='apple-mobile-web-app-status-bar-style'
-            content='default'
-          />
-          <meta
-            name='apple-mobile-web-app-title'
-            content='SmartFyt Student Athlete'
-          />
+    <html lang='en' className='h-full' suppressHydrationWarning>
+      <head>
+        {/* PWA Meta Tags */}
+        <meta name='mobile-web-app-capable' content='yes' />
+        <meta name='apple-mobile-web-app-capable' content='yes' />
+        <meta
+          name='apple-mobile-web-app-status-bar-style'
+          content='default'
+        />
+        <meta
+          name='apple-mobile-web-app-title'
+          content='SmartFyt Student Athlete'
+        />
 
-          {/* Preconnect to API */}
-          <link
-            rel='preconnect'
-            href={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}
-          />
-        </head>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} h-full text-gray-900 antialiased dark:text-gray-100`}
-        >
-          <div className='safe-area-inset min-h-screen'>{children}</div>
-        </body>
-      </html>
-    </AuthProvider>
+        {/* Preconnect to API */}
+        <link
+          rel='preconnect'
+          href={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}
+        />
+      </head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} h-full text-gray-900 antialiased dark:text-gray-100`}
+      >
+        <AuthProvider>
+          <ThemeProvider>
+            <div className='safe-area-inset min-h-screen'>{children}</div>
+          </ThemeProvider>
+        </AuthProvider>
+      </body>
+    </html>
   );
 }

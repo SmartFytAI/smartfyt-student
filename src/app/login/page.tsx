@@ -45,18 +45,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-orange-50 p-4'>
+    <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-orange-50 dark:from-gray-900 dark:to-gray-800 p-4'>
       {/* Back to Home Button */}
       <Link
         href='/'
-        className='absolute left-4 top-4 flex items-center gap-2 text-gray-600 transition-colors hover:text-gray-800'
+        className='absolute left-4 top-4 flex items-center gap-2 text-gray-600 dark:text-gray-400 transition-colors hover:text-gray-800 dark:hover:text-gray-200'
       >
         <ArrowLeft className='h-5 w-5' />
         <span>Back to Home</span>
       </Link>
 
       {/* Main Card */}
-      <div className='w-full max-w-md rounded-2xl bg-white p-8 shadow-xl'>
+      <div className='w-full max-w-md rounded-2xl bg-white dark:bg-gray-800 p-8 shadow-xl'>
         {/* Header with Logo */}
         <div className='mb-8 text-center'>
           <div className='mb-6 flex flex-col items-center justify-center'>
@@ -68,13 +68,13 @@ export default function LoginPage() {
               className='mb-3 h-16 w-auto'
             />
             <div className='text-center'>
-              <h1 className='text-3xl font-bold text-gray-900'>SmartFyt</h1>
+              <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>SmartFyt</h1>
             </div>
           </div>
-          <h2 className='mb-2 text-2xl font-semibold text-gray-900'>
+          <h2 className='mb-2 text-2xl font-semibold text-gray-900 dark:text-white'>
             {mode === 'register' ? 'Create Account' : 'Welcome Back'}
           </h2>
-          <p className='text-gray-600'>
+          <p className='text-gray-600 dark:text-gray-400'>
             {mode === 'register'
               ? 'Join SmartFyt to start your performance journey'
               : 'Sign in to continue your performance journey'}
@@ -135,10 +135,10 @@ export default function LoginPage() {
         {/* Divider */}
         <div className='relative mb-6'>
           <div className='absolute inset-0 flex items-center'>
-            <div className='w-full border-t border-gray-300' />
+            <div className='w-full border-t border-gray-300 dark:border-gray-600' />
           </div>
           <div className='relative flex justify-center text-sm'>
-            <span className='bg-white px-3 text-gray-500'>
+            <span className='bg-white dark:bg-gray-800 px-3 text-gray-500 dark:text-gray-400'>
               Or continue with email
             </span>
           </div>
@@ -149,7 +149,7 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor='email'
-              className='mb-2 block text-sm font-medium text-gray-700'
+              className='mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300'
             >
               Email
             </label>
@@ -161,7 +161,7 @@ export default function LoginPage() {
                 placeholder='Enter your email'
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className='w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500'
+                className='w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 pl-10 pr-3 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500'
                 required
               />
             </div>
@@ -170,7 +170,7 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor='password'
-              className='mb-2 block text-sm font-medium text-gray-700'
+              className='mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300'
             >
               Password
             </label>
@@ -182,12 +182,12 @@ export default function LoginPage() {
                 placeholder='Enter your password'
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className='w-full rounded-lg border border-gray-300 py-3 pl-10 pr-12 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500'
+                className='w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 pl-10 pr-12 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500'
                 required
               />
               <button
                 type='button'
-                className='absolute right-3 top-3 text-gray-400 hover:text-gray-600'
+                className='absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
@@ -224,21 +224,21 @@ export default function LoginPage() {
         {/* Footer */}
         <div className='mt-8 text-center'>
           {mode === 'login' ? (
-            <p className='text-sm text-gray-600'>
+            <p className='text-sm text-gray-600 dark:text-gray-400'>
               Don&apos;t have an account?{' '}
               <Link
                 href='/login?mode=register'
-                className='font-medium text-blue-600 hover:underline'
+                className='font-medium text-blue-600 hover:underline dark:text-blue-400'
               >
                 Sign up
               </Link>
             </p>
           ) : (
-            <p className='text-sm text-gray-600'>
+            <p className='text-sm text-gray-600 dark:text-gray-400'>
               Already have an account?{' '}
               <Link
                 href='/login?mode=login'
-                className='font-medium text-blue-600 hover:underline'
+                className='font-medium text-blue-600 hover:underline dark:text-blue-400'
               >
                 Sign in
               </Link>
