@@ -1,27 +1,48 @@
 {
-  "name": "smartfyt-student-app",
-  "version": "0.1.0",
+  "name": "smartfyt-student",
+  "version": "1.0.0",
+  "description": "SmartFyt Student Experience - Modern Next.js 15 app for student-athletes",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
+    "dev:local": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "next": "15.4.2"
+    "@tanstack/react-query": "^5.0.0",
+    "@tanstack/react-query-devtools": "^5.0.0",
+    "next": "15.2.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "15.4.2",
-    "@eslint/eslintrc": "^3"
-  }
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.3.14",
+    "@types/react-dom": "^18.3.0",
+    "@tailwindcss/postcss": "^15.2.3",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "15.2.3",
+    "postcss": "^8.0.0",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "nextjs",
+    "react",
+    "typescript",
+    "tailwind",
+    "student-athlete",
+    "performance-tracking",
+    "health-dashboard",
+    "smartfyt"
+  ],
+  "author": "SmartFyt Team",
+  "license": "MIT"
 }

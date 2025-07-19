@@ -1,103 +1,221 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useHealthCheck, useSports, useSchools } from '@/hooks/use-api';
+
+export default function HomePage() {
+  const { data: healthCheck, isLoading: healthLoading, error: healthError } = useHealthCheck();
+  const { data: sports, isLoading: sportsLoading } = useSports();
+  const { data: schools, isLoading: schoolsLoading } = useSchools();
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <main className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            🎯 SmartFyt Student Dashboard
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Welcome to your personalized student-athlete performance tracking platform. 
+            Modern, fast, and built specifically for your success.
+          </p>
+        </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        {/* API Status Card */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+            🔌 API Connection Status
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Health Check */}
+            <div className="border rounded-lg p-4">
+              <h3 className="font-medium text-gray-700 mb-2">Backend Health</h3>
+              {healthLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm text-gray-500">Checking...</span>
+                </div>
+              ) : healthError ? (
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+                  <span className="text-sm text-red-600">Disconnected</span>
+                </div>
+              ) : healthCheck?.data ? (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+                    <span className="text-sm text-green-600">Connected</span>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Status: {healthCheck.data.status}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Version: {healthCheck.data.version}
+                  </div>
+                </div>
+              ) : (
+                <span className="text-sm text-gray-400">No response</span>
+              )}
+            </div>
+
+            {/* Sports Data */}
+            <div className="border rounded-lg p-4">
+              <h3 className="font-medium text-gray-700 mb-2">Sports Data</h3>
+              {sportsLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm text-gray-500">Loading...</span>
+                </div>
+              ) : sports?.data ? (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+                    <span className="text-sm text-green-600">Loaded</span>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {sports.data.length} sports available
+                  </div>
+                </div>
+              ) : (
+                <span className="text-sm text-gray-400">No data</span>
+              )}
+            </div>
+
+            {/* Schools Data */}
+            <div className="border rounded-lg p-4">
+              <h3 className="font-medium text-gray-700 mb-2">Schools Data</h3>
+              {schoolsLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm text-gray-500">Loading...</span>
+                </div>
+              ) : schools?.data ? (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+                    <span className="text-sm text-green-600">Loaded</span>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {schools.data.length} schools available
+                  </div>
+                </div>
+              ) : (
+                <span className="text-sm text-gray-400">No data</span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Student Features Preview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Health Tracking */}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                📊
+              </div>
+              <h3 className="text-lg font-semibold">Health Tracking</h3>
+            </div>
+            <p className="text-gray-600 text-sm mb-4">
+              Monitor sleep, activity, and wellness metrics with real-time data from your wearable devices.
+            </p>
+            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+              Coming soon: Live health dashboard
+            </div>
+          </div>
+
+          {/* Journal Entries */}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                📝
+              </div>
+              <h3 className="text-lg font-semibold">Daily Journals</h3>
+            </div>
+            <p className="text-gray-600 text-sm mb-4">
+              Reflect on your day, track goals, and receive AI-powered insights to improve performance.
+            </p>
+            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+              Coming soon: Smart journal interface
+            </div>
+          </div>
+
+          {/* Quest System */}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                🎮
+              </div>
+              <h3 className="text-lg font-semibold">Quest System</h3>
+            </div>
+            <p className="text-gray-600 text-sm mb-4">
+              Complete challenges, earn points, and level up your athletic and academic performance.
+            </p>
+            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+              Coming soon: Interactive quest board
+            </div>
+          </div>
+
+          {/* Performance Metrics */}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                📈
+              </div>
+              <h3 className="text-lg font-semibold">Performance Analytics</h3>
+            </div>
+            <p className="text-gray-600 text-sm mb-4">
+              Visualize your progress with comprehensive charts and insights into your athletic development.
+            </p>
+            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+              Coming soon: Advanced analytics dashboard
+            </div>
+          </div>
+
+          {/* Goal Setting */}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                🎯
+              </div>
+              <h3 className="text-lg font-semibold">Goal Management</h3>
+            </div>
+            <p className="text-gray-600 text-sm mb-4">
+              Set, track, and achieve your athletic and academic goals with personalized action plans.
+            </p>
+            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+              Coming soon: Smart goal planning
+            </div>
+          </div>
+
+          {/* Team Connection */}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                👥
+              </div>
+              <h3 className="text-lg font-semibold">Team Integration</h3>
+            </div>
+            <p className="text-gray-600 text-sm mb-4">
+              Stay connected with your team, coaches, and compete in friendly challenges with teammates.
+            </p>
+            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+              Coming soon: Team collaboration tools
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-12 pt-8 border-t">
+          <p className="text-gray-500 text-sm">
+            Built with Next.js 15, TypeScript, Tailwind CSS, and React Query
+          </p>
+          <p className="text-gray-400 text-xs mt-2">
+            🚀 Phase 3: Student Experience Repository - In Development
+          </p>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }

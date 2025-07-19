@@ -1,0 +1,196 @@
+/**
+ * TypeScript types for SmartFyt Student Experience
+ */
+
+// User types
+export interface User {
+  id: string;
+  given_name: string;
+  family_name: string;
+  email: string;
+  picture?: string;
+  phone_number?: string;
+}
+
+export interface UserInfo extends User {
+  name: string;
+  age: string;
+  phoneNumber: string;
+  school: string;
+  grade: string;
+  sleepHours: number;
+  studyHours: number;
+  activeHours: number;
+  stressLevel: number;
+  sport: string;
+  wearable: string;
+  screenTime: number;
+  athleticGoals: string;
+  academicGoals: string;
+  coachName: string;
+  coachEmail: string;
+  terraProvider?: string;
+}
+
+// Health types
+export interface HealthData {
+  dailySummaries: DailyHealthSummary[];
+  sleepDetails: SleepDetail[];
+  activityDetails: ActivityDetail[];
+}
+
+export interface DailyHealthSummary {
+  id: string;
+  userId: string;
+  date: string;
+  steps?: number;
+  calories?: number;
+  activeMinutes?: number;
+  sleepScore?: number;
+  readinessScore?: number;
+}
+
+export interface SleepDetail {
+  id: string;
+  userId: string;
+  startTime: string;
+  endTime: string;
+  duration: number;
+  efficiency?: number;
+  restlessCount?: number;
+  deepSleepMinutes?: number;
+  lightSleepMinutes?: number;
+  remSleepMinutes?: number;
+}
+
+export interface ActivityDetail {
+  id: string;
+  userId: string;
+  startTime: string;
+  endTime: string;
+  activityType: string;
+  duration: number;
+  calories?: number;
+  distance?: number;
+  averageHeartRate?: number;
+  maxHeartRate?: number;
+}
+
+// Journal types
+export interface Journal {
+  id: string;
+  title: string;
+  wentWell: string;
+  notWell: string;
+  goals: string;
+  authorID: string;
+  createdAt: string;
+  updatedAt: string;
+  response: string;
+  sleepHours: number;
+  activeHours: number;
+  stress: number;
+  screenTime: number;
+  studyHours: number;
+}
+
+// Quest types
+export interface Quest {
+  id: string;
+  title: string;
+  description: string;
+  points: number;
+  categoryId: string;
+  isActive: boolean;
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+  category: QuestCategory;
+}
+
+export interface QuestCategory {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+}
+
+export interface UserQuest {
+  id: string;
+  userId: string;
+  questId: string;
+  status: 'assigned' | 'completed' | 'skipped';
+  completedAt?: string;
+  quest: Quest;
+}
+
+// Performance types
+export interface UserMetrics {
+  focus: number;
+  effort: number;
+  readiness: number;
+  motivation: number;
+  updatedAt: string;
+}
+
+// Dashboard types
+export interface DashboardData {
+  user: UserInfo;
+  healthData: HealthData;
+  quests: UserQuest[];
+  recentJournals: Journal[];
+  metrics: UserMetrics;
+  stats: UserStat[];
+}
+
+export interface UserStat {
+  id: string;
+  userId: string;
+  categoryId: string;
+  points: number;
+  level: number;
+  lastUpdated: string;
+  category: QuestCategory;
+}
+
+// Form types
+export interface UserForm {
+  id: string;
+  title: string;
+  name: string;
+  age: string;
+  email: string;
+  phone: string;
+  sleepHours: number;
+  studyHours: number;
+  activeHours: number;
+  stress: number;
+  sport?: { id: string; name: string };
+  wearable: string;
+  screenTime: number;
+  athleticGoals: string;
+  academicGoals: string;
+  podcast?: string;
+  response: string;
+  createdAt: string;
+  updatedAt: string;
+  team?: { id: string; name: string };
+  teamID?: string;
+  grade: string;
+}
+
+// Sports and Schools
+export interface Sport {
+  id: string;
+  name: string;
+}
+
+export interface School {
+  id: string;
+  name: string;
+}
+
+// API Response wrapper
+export interface ApiResponse<T> {
+  data?: T;
+  error?: string;
+  status: number;
+} 
