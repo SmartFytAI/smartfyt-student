@@ -37,7 +37,7 @@ export class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
-    
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...(options.headers as Record<string, string>),
@@ -67,7 +67,7 @@ export class ApiClient {
       });
 
       const status = response.status;
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         return {
@@ -88,7 +88,9 @@ export class ApiClient {
 
   // Health check
   async healthCheck() {
-    return this.request<{ status: string; timestamp: string; version: string }>('/health');
+    return this.request<{ status: string; timestamp: string; version: string }>(
+      '/health'
+    );
   }
 
   // Sports endpoints
@@ -162,4 +164,4 @@ export const API_ENDPOINTS = {
   USER_FORMS: (userId: string) => `/users/${userId}/forms`,
   DASHBOARD: (userId: string) => `/users/${userId}/dashboard`,
   USER_METRICS: (userId: string) => `/users/${userId}/metrics`,
-} as const; 
+} as const;

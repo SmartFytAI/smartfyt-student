@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import './globals.css';
-import { ReactQueryProvider } from '@/lib/react-query';
-import { PWAInstaller } from '@/components/pwa-installer';
-import { AuthProvider } from '@/components/auth/auth-provider';
-import { ThemeProvider } from '@/components/theme/theme-provider';
 
+import './globals.css';
+import { AuthProvider } from '@/components/auth/auth-provider';
 import { AppErrorBoundary } from '@/components/error/error-boundary';
+import { PWAInstaller } from '@/components/pwa-installer';
+import { ThemeProvider } from '@/components/theme/theme-provider';
+import { ReactQueryProvider } from '@/lib/react-query';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,21 +33,24 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  ),
   title: {
     default: 'SmartFyt Student Athlete',
     template: '%s | SmartFyt Student Athlete',
   },
-  description: 'SmartFyt Student Athlete - Performance tracking and wellness dashboard for student-athletes - now on mobile!',
+  description:
+    'SmartFyt Student Athlete - Performance tracking and wellness dashboard for student-athletes - now on mobile!',
   keywords: [
-    'student-athlete', 
-    'performance', 
-    'wellness', 
-    'tracking', 
+    'student-athlete',
+    'performance',
+    'wellness',
+    'tracking',
     'health',
     'mobile app',
     'fitness',
-    'sports'
+    'sports',
   ],
   authors: [{ name: 'SmartFyt Team' }],
   creator: 'SmartFyt Team',
@@ -57,39 +60,41 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  
+
   // PWA Metadata
   applicationName: 'SmartFyt Student Athlete',
-      appleWebApp: {
-      capable: true,
-      statusBarStyle: 'default',
-      title: 'SmartFyt Student Athlete',
-    },
-  
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'SmartFyt Student Athlete',
+  },
+
   // Open Graph
   openGraph: {
     type: 'website',
     siteName: 'SmartFyt Student Athlete',
     title: 'SmartFyt Student Athlete - Mobile Performance Tracking',
-    description: 'Track your athletic performance, health metrics, and achieve your goals on mobile.',
-          images: [
-        {
-          url: '/icon-512x512.svg',
-          width: 512,
-          height: 512,
-          alt: 'SmartFyt Student App',
-        },
-      ],
+    description:
+      'Track your athletic performance, health metrics, and achieve your goals on mobile.',
+    images: [
+      {
+        url: '/icon-512x512.svg',
+        width: 512,
+        height: 512,
+        alt: 'SmartFyt Student App',
+      },
+    ],
   },
-  
+
   // Twitter
   twitter: {
     card: 'summary_large_image',
     title: 'SmartFyt Student Athlete - Mobile Performance Tracking',
-    description: 'Track your athletic performance, health metrics, and achieve your goals on mobile.',
+    description:
+      'Track your athletic performance, health metrics, and achieve your goals on mobile.',
     images: ['/icon-512x512.svg'],
   },
-  
+
   // Icons for PWA
   icons: {
     icon: [
@@ -107,7 +112,7 @@ export const metadata: Metadata = {
       },
     ],
   },
-  
+
   // Web App Manifest
   manifest: '/manifest.json',
 };
@@ -118,34 +123,32 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang='en' className='h-full' suppressHydrationWarning>
       <head>
         {/* PWA Meta Tags */}
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="SmartFyt Student Athlete" />
-        
+        <meta name='mobile-web-app-capable' content='yes' />
+        <meta name='apple-mobile-web-app-capable' content='yes' />
+        <meta name='apple-mobile-web-app-status-bar-style' content='default' />
+        <meta
+          name='apple-mobile-web-app-title'
+          content='SmartFyt Student Athlete'
+        />
+
         {/* Preconnect to API */}
-        <link rel="preconnect" href={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'} />
+        <link
+          rel='preconnect'
+          href={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}
+        />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased text-gray-900 dark:text-gray-100 h-full`}
+        className={`${geistSans.variable} ${geistMono.variable} h-full text-gray-900 antialiased dark:text-gray-100`}
       >
         <AppErrorBoundary>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+          <ThemeProvider>
             <AuthProvider>
               <ReactQueryProvider>
-
                 <PWAInstaller />
-                <div className="min-h-screen safe-area-inset">
-                  {children}
-                </div>
+                <div className='safe-area-inset min-h-screen'>{children}</div>
               </ReactQueryProvider>
             </AuthProvider>
           </ThemeProvider>

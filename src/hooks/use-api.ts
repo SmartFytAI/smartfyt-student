@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { apiClient } from '@/lib/api-client';
 
 // Query keys
@@ -136,10 +137,12 @@ export function useUserMetrics(userId: string | null) {
 // Invalidation helpers
 export function useInvalidateQueries() {
   const queryClient = useQueryClient();
-  
+
   return {
     invalidateUserData: (userId: string) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.userDashboard(userId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.userDashboard(userId),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.userInfo(userId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.healthData(userId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.journals(userId) });
@@ -150,4 +153,4 @@ export function useInvalidateQueries() {
       queryClient.invalidateQueries();
     },
   };
-} 
+}

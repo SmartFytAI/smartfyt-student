@@ -2,24 +2,34 @@
 
 import { useEffect, useState } from 'react';
 
+import { pwaLogger } from '@/lib/logger';
+
 export function PWAInstaller() {
-  const [isOnline, setIsOnline] = useState(true);
-  const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
+  const [_isOnline, setIsOnline] = useState(true);
+  const [swRegistration, setSwRegistration] =
+    useState<ServiceWorkerRegistration | null>(null);
 
   useEffect(() => {
     // Register service worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then((registration) => {
-          console.log('[PWA] Service worker registered successfully:', registration);
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then(registration => {
+          pwaLogger.info(
+            'Service worker registered successfully:',
+            registration
+          );
           setSwRegistration(registration);
-          
+
           // Listen for updates
           registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
             if (newWorker) {
               newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                if (
+                  newWorker.state === 'installed' &&
+                  navigator.serviceWorker.controller
+                ) {
                   // New content is available
                   if (confirm('New version available! Refresh to update?')) {
                     window.location.reload();
@@ -29,14 +39,14 @@ export function PWAInstaller() {
             }
           });
         })
-        .catch((error) => {
-          console.error('[PWA] Service worker registration failed:', error);
+        .catch(error => {
+          pwaLogger.error('Service worker registration failed:', error);
         });
 
       // Listen for service worker messages
-      navigator.serviceWorker.addEventListener('message', (event) => {
+      navigator.serviceWorker.addEventListener('message', event => {
         if (event.data.type === 'SYNC_COMPLETE') {
-          console.log('[PWA] Background sync completed:', event.data.message);
+          pwaLogger.debug('Background sync completed:', event.data.message);
         }
       });
     }
@@ -44,18 +54,20 @@ export function PWAInstaller() {
     // Monitor online/offline status
     const handleOnline = () => {
       setIsOnline(true);
-      console.log('[PWA] App is back online');
-      
+      pwaLogger.info('App is back online');
+
       // Trigger background sync if service worker is available
       if (swRegistration && 'serviceWorker' in navigator) {
         // Background sync will be handled by the service worker
-        console.log('[PWA] Connection restored - service worker will handle sync');
+        pwaLogger.debug(
+          'Connection restored - service worker will handle sync'
+        );
       }
     };
 
     const handleOffline = () => {
       setIsOnline(false);
-      console.log('[PWA] App is offline');
+      pwaLogger.warn('App is offline');
     };
 
     // Set initial state
@@ -95,4 +107,4 @@ export function useOnlineStatus() {
   }, []);
 
   return isOnline;
-} 
+}

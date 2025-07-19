@@ -10,24 +10,22 @@ export interface AuthUser {
 }
 
 export function useAuth() {
-  const { 
-    user, 
-    isLoading, 
-    isAuthenticated, 
-    getToken 
-  } = useKindeAuth();
+  const { user, isLoading, isAuthenticated, getToken } = useKindeAuth();
 
   // Transform Kinde user to our auth user format
-  const authUser: AuthUser | null = user ? {
-    id: user.id,
-    email: user.email || '',
-    given_name: user.given_name,
-    family_name: user.family_name,
-    picture: user.picture,
-    name: user.given_name && user.family_name 
-      ? `${user.given_name} ${user.family_name}`.trim()
-      : user.given_name || user.email || 'User'
-  } : null;
+  const authUser: AuthUser | null = user
+    ? {
+        id: user.id,
+        email: user.email || '',
+        given_name: user.given_name,
+        family_name: user.family_name,
+        picture: user.picture,
+        name:
+          user.given_name && user.family_name
+            ? `${user.given_name} ${user.family_name}`.trim()
+            : user.given_name || user.email || 'User',
+      }
+    : null;
 
   // Auth action URLs
   const login = () => {
@@ -56,4 +54,4 @@ export function useAuth() {
 export function useAuthToken() {
   const { getToken } = useKindeAuth();
   return { getToken };
-} 
+}

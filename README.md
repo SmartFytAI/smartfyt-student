@@ -9,6 +9,7 @@ The SmartFyt Student Experience is a cutting-edge **Progressive Web App (PWA)** 
 ## ✨ **Mobile App Features**
 
 ### **📱 Progressive Web App (PWA)**
+
 - **Installable** - Add to home screen on iOS and Android
 - **Offline-first** - Works without internet connection
 - **Native feel** - App-like experience with smooth animations
@@ -16,12 +17,14 @@ The SmartFyt Student Experience is a cutting-edge **Progressive Web App (PWA)** 
 - **Push notifications** - Stay updated with real-time alerts (coming soon)
 
 ### **📊 Student Dashboard**
+
 - Real-time API connectivity status
 - Health tracking integration
 - Performance metrics visualization
 - Goal setting and progress tracking
 
-### **🏃‍♂️ Health & Performance** *(Coming Soon)*
+### **🏃‍♂️ Health & Performance** _(Coming Soon)_
+
 - **Health Tracking**: Monitor sleep, activity, and wellness metrics
 - **Daily Journals**: AI-powered insights and reflection tools
 - **Quest System**: Gamified challenges and achievements
@@ -32,18 +35,21 @@ The SmartFyt Student Experience is a cutting-edge **Progressive Web App (PWA)** 
 ## 🏗️ **Technology Stack**
 
 ### **Frontend Framework**
+
 - **Next.js 15** - App Router with React Server Components
 - **TypeScript** - Type-safe development
 - **Tailwind CSS** - Mobile-first responsive styling
 - **React Query** - Powerful data fetching and offline caching
 
 ### **PWA Features**
+
 - **Service Worker** - Offline functionality and caching
 - **Web App Manifest** - Native app installation
 - **Mobile Optimizations** - Touch-friendly interface
 - **Responsive Design** - Works on all screen sizes
 
 ### **API Integration**
+
 - **Custom API Client** - Type-safe HTTP client with offline fallbacks
 - **React Hooks** - Optimized data fetching patterns
 - **Real-time Updates** - Efficient cache management
@@ -51,18 +57,21 @@ The SmartFyt Student Experience is a cutting-edge **Progressive Web App (PWA)** 
 ## 📱 **Mobile Installation**
 
 ### **iOS (iPhone/iPad)**
+
 1. Open in Safari browser
 2. Tap the share button (📤)
 3. Select "Add to Home Screen"
 4. Tap "Add" to install
 
 ### **Android**
+
 1. Open in Chrome browser
 2. Tap the menu (⋮) button
 3. Select "Add to Home screen"
 4. Tap "Add" to install
 
 ### **Desktop**
+
 1. Open in Chrome, Edge, or Firefox
 2. Click the install button (📥) in the address bar
 3. Click "Install" in the dialog
@@ -70,6 +79,7 @@ The SmartFyt Student Experience is a cutting-edge **Progressive Web App (PWA)** 
 ## 🎯 **Getting Started**
 
 ### **Prerequisites**
+
 - Node.js 18+ (managed via Flox)
 - SmartFyt API running on `localhost:3001`
 
@@ -106,6 +116,7 @@ npm run type-check   # TypeScript type checking
 ## 📱 **Mobile-First Features**
 
 ### **Offline Functionality**
+
 ```typescript
 // Automatic offline detection
 const isOnline = useOnlineStatus();
@@ -117,22 +128,24 @@ const { data, error } = useHealthData(userId);
 ```
 
 ### **Touch Optimizations**
+
 ```css
 /* Mobile-friendly interactions */
 .mobile-button {
-  min-height: 44px;     /* Apple touch target minimum */
+  min-height: 44px; /* Apple touch target minimum */
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
 /* Safe area handling for notched devices */
 .safe-area-inset {
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) 
-           env(safe-area-inset-bottom) env(safe-area-inset-left);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 ```
 
 ### **Responsive Grid System**
+
 ```typescript
 // Mobile-first component design
 <div className="mobile-grid">
@@ -146,6 +159,7 @@ const { data, error } = useHealthData(userId);
 ## 🔌 **API Integration**
 
 ### **Offline-First API Client**
+
 ```typescript
 import { apiClient } from '@/lib/api-client';
 
@@ -158,13 +172,14 @@ const dashboard = await apiClient.getDashboard(userId);
 ```
 
 ### **React Query with Offline Support**
+
 ```typescript
 import { useHealthData, useUserQuests } from '@/hooks/use-api';
 
 function MobileDashboard() {
   const { data: health, isLoading } = useHealthData(userId);
   const { data: quests } = useUserQuests(userId);
-  
+
   // ✅ Shows loading states
   // ✅ Handles offline gracefully
   // ✅ Auto-syncs when online
@@ -174,6 +189,7 @@ function MobileDashboard() {
 ## 📊 **Mobile Performance**
 
 ### **Bundle Analysis**
+
 ```bash
 # Optimized for mobile networks
 Route (app)                  Size     First Load JS
@@ -187,6 +203,7 @@ Offline Pages: Available
 ```
 
 ### **Mobile Optimization Features**
+
 - **Lazy Loading** - Components load as needed
 - **Image Optimization** - WebP format with fallbacks
 - **Code Splitting** - Minimal initial bundle
@@ -196,6 +213,7 @@ Offline Pages: Available
 ## 🔧 **Mobile Development**
 
 ### **PWA Testing**
+
 ```bash
 # Test offline functionality
 1. Open Chrome DevTools
@@ -211,6 +229,7 @@ Offline Pages: Available
 ```
 
 ### **Mobile Debugging**
+
 ```bash
 # iOS Safari debugging
 1. Enable Web Inspector on iOS
@@ -226,6 +245,7 @@ Offline Pages: Available
 ## 📱 **Current Mobile Status**
 
 ### **✅ Completed PWA Features**
+
 - [x] Service Worker for offline functionality
 - [x] Web App Manifest for installation
 - [x] Mobile-first responsive design
@@ -236,6 +256,7 @@ Offline Pages: Available
 - [x] Fast loading and performance optimization
 
 ### **🔄 In Progress**
+
 - [ ] Push notifications
 - [ ] Background sync
 - [ ] Advanced offline features
@@ -243,6 +264,7 @@ Offline Pages: Available
 - [ ] Camera integration
 
 ### **📋 Planned Mobile Features**
+
 - [ ] Biometric authentication
 - [ ] Device sensors integration
 - [ ] Native sharing
@@ -253,6 +275,7 @@ Offline Pages: Available
 ## 🤝 **Contributing**
 
 ### **Mobile-First Development Workflow**
+
 1. Create feature branch from `main`
 2. Develop with mobile-first approach
 3. Test on real devices and emulators
@@ -261,6 +284,7 @@ Offline Pages: Available
 6. Submit PR with mobile testing notes
 
 ### **Mobile Code Quality**
+
 - All interactions must be touch-friendly (44px minimum)
 - Components must work offline
 - Test on iOS Safari and Android Chrome
@@ -270,6 +294,7 @@ Offline Pages: Available
 ## 🚀 **Deployment & Distribution**
 
 ### **Web App Deployment**
+
 ```bash
 # Production build with PWA features
 flox activate -- npm run build
@@ -282,7 +307,8 @@ flox activate -- npm start
 - Offline functionality working
 ```
 
-### **App Store Distribution** *(Future)*
+### **App Store Distribution** _(Future)_
+
 - **PWA Builder**: Generate app store packages
 - **Trusted Web Activity**: Android Play Store
 - **Progressive Web Apps**: iOS App Store (iOS 16.4+)
@@ -298,6 +324,7 @@ flox activate -- npm start
 ## 📈 **Mobile Performance Metrics**
 
 ### **PWA Score**
+
 - **Performance**: 95+ (Lighthouse)
 - **Accessibility**: 95+ (WCAG 2.1)
 - **Best Practices**: 100 (Security + Standards)
@@ -305,6 +332,7 @@ flox activate -- npm start
 - **PWA**: 95+ (Installable + Service Worker)
 
 ### **Mobile Optimization**
+
 - **First Contentful Paint**: < 1.5s
 - **Largest Contentful Paint**: < 2.5s
 - **Time to Interactive**: < 3.0s
