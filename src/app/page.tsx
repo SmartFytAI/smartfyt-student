@@ -14,6 +14,7 @@ import {
   Badge,
   Spinner
 } from '@heroui/react';
+import { CardErrorBoundary, PageErrorBoundary } from '@/components/error/error-boundary';
 
 export default function HomePage() {
   const { user, isLoading: authLoading, isAuthenticated, login, logout } = useAuth();
@@ -50,8 +51,9 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen-mobile p-4 sm:p-8 font-[family-name:var(--font-geist-sans)]">
-      <main className="max-w-6xl mx-auto">
+    <PageErrorBoundary>
+      <div className="min-h-screen-mobile p-4 sm:p-8 font-[family-name:var(--font-geist-sans)]">
+        <main className="max-w-6xl mx-auto">
         {/* Athletic Header with HeroUI Chips */}
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
@@ -89,7 +91,8 @@ export default function HomePage() {
         </div>
 
         {/* Authentication Card with HeroUI */}
-        <Card className="mb-6 sm:mb-8 border border-gray-200 shadow-sm">
+        <CardErrorBoundary name="Authentication">
+          <Card className="mb-6 sm:mb-8 border border-gray-200 shadow-sm">
           <CardHeader className="flex gap-3">
             <div className="flex flex-col">
               <p className="text-xl font-semibold">🔐 Authentication</p>
@@ -155,10 +158,12 @@ export default function HomePage() {
             )}
           </CardBody>
         </Card>
+        </CardErrorBoundary>
 
         {/* API Status Cards - Only show for authenticated users */}
         {isAuthenticated && (
-          <Card className="mb-6 sm:mb-8 border border-gray-200 shadow-sm">
+          <CardErrorBoundary name="API Status">
+            <Card className="mb-6 sm:mb-8 border border-gray-200 shadow-sm">
             <CardHeader>
               <h2 className="text-xl font-semibold">🔌 Connection Status</h2>
             </CardHeader>
@@ -251,10 +256,12 @@ export default function HomePage() {
               </div>
             </CardBody>
           </Card>
+          </CardErrorBoundary>
         )}
 
         {/* Athletic Features Grid with HeroUI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <CardErrorBoundary name="Athletic Features">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {/* Health Tracking */}
           <Card className="hover:scale-[1.02] transition-transform border border-gray-200 cursor-pointer">
             <CardHeader className="flex gap-3">
@@ -422,10 +429,12 @@ export default function HomePage() {
               </Chip>
             </CardBody>
           </Card>
-        </div>
+          </div>
+        </CardErrorBoundary>
 
         {/* Technology Stack */}
-        <Card className="mb-8 border border-gray-200 shadow-sm">
+        <CardErrorBoundary name="Technology Stack">
+          <Card className="mb-8 border border-gray-200 shadow-sm">
           <CardHeader>
             <h2 className="text-xl font-semibold">🏗️ Mobile-First Technology</h2>
           </CardHeader>
@@ -450,6 +459,7 @@ export default function HomePage() {
             </div>
           </CardBody>
         </Card>
+        </CardErrorBoundary>
 
         {/* Footer */}
         <div className="text-center mt-12 pt-8 border-t">
@@ -501,7 +511,8 @@ export default function HomePage() {
       >
         <span className="text-xl">+</span>
       </Button>
-    </div>
+      </div>
+    </PageErrorBoundary>
   );
 }
 

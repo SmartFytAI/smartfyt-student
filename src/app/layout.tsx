@@ -5,6 +5,7 @@ import { ReactQueryProvider } from '@/lib/react-query';
 import { PWAInstaller } from '@/components/pwa-installer';
 import { AuthProvider } from '@/components/auth/auth-provider';
 import { HeroUIClientProvider } from '@/components/providers/heroui-provider';
+import { AppErrorBoundary } from '@/components/error/error-boundary';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -130,16 +131,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900 h-full`}
       >
-        <AuthProvider>
-          <ReactQueryProvider>
-            <HeroUIClientProvider>
-              <PWAInstaller />
-              <div className="min-h-screen safe-area-inset">
-                {children}
-              </div>
-            </HeroUIClientProvider>
-          </ReactQueryProvider>
-        </AuthProvider>
+        <AppErrorBoundary>
+          <AuthProvider>
+            <ReactQueryProvider>
+              <HeroUIClientProvider>
+                <PWAInstaller />
+                <div className="min-h-screen safe-area-inset">
+                  {children}
+                </div>
+              </HeroUIClientProvider>
+            </ReactQueryProvider>
+          </AuthProvider>
+        </AppErrorBoundary>
       </body>
     </html>
   );
