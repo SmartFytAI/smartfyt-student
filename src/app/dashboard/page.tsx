@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 
 import { PWAInstaller } from '@/components/pwa-installer';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { UserAvatar } from '@/components/user-avatar';
 import { useAuth } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
 import { handleLogoutCacheClear } from '@/utils/cache-utils';
@@ -71,7 +72,9 @@ export default function DashboardPage() {
       <div className='flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900'>
         <div className='text-center'>
           <div className='mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600'></div>
-          <p className='mt-4 text-gray-600 dark:text-gray-400'>Loading dashboard...</p>
+          <p className='mt-4 text-gray-600 dark:text-gray-400'>
+            Loading dashboard...
+          </p>
         </div>
       </div>
     );
@@ -116,7 +119,7 @@ export default function DashboardPage() {
             </div>
             <div className='flex items-center gap-3'>
               <ThemeToggle />
-              <LogoutLink onClick={handleLogout}>Sign Out</LogoutLink>
+              <UserAvatar userId={user.id} onSignOut={handleLogout} />
             </div>
           </div>
         </div>
@@ -127,10 +130,14 @@ export default function DashboardPage() {
         <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
           {/* Today's Workout */}
           <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-            <h3 className='mb-4 text-lg font-semibold dark:text-white'>Today&apos;s Workout</h3>
+            <h3 className='mb-4 text-lg font-semibold dark:text-white'>
+              Today&apos;s Workout
+            </h3>
             <div className='py-8 text-center'>
               <div className='mb-2 text-4xl'>🏃‍♂️</div>
-              <p className='text-gray-600 dark:text-gray-400'>No workout scheduled</p>
+              <p className='text-gray-600 dark:text-gray-400'>
+                No workout scheduled
+              </p>
               <button className='mt-4 rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700'>
                 Plan Workout
               </button>
@@ -139,7 +146,9 @@ export default function DashboardPage() {
 
           {/* Weekly Progress */}
           <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-            <h3 className='mb-4 text-lg font-semibold dark:text-white'>Weekly Progress</h3>
+            <h3 className='mb-4 text-lg font-semibold dark:text-white'>
+              Weekly Progress
+            </h3>
             <div className='space-y-3'>
               <div className='flex justify-between'>
                 <span className='dark:text-gray-300'>Workouts</span>
@@ -156,15 +165,17 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-            <h3 className='mb-4 text-lg font-semibold dark:text-white'>Quick Actions</h3>
+            <h3 className='mb-4 text-lg font-semibold dark:text-white'>
+              Quick Actions
+            </h3>
             <div className='space-y-3'>
-              <button className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700 dark:text-gray-300'>
+              <button className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'>
                 📝 Log Workout
               </button>
-              <button className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700 dark:text-gray-300'>
+              <button className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'>
                 📊 View Progress
               </button>
-              <button className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700 dark:text-gray-300'>
+              <button className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'>
                 🎯 Set Goals
               </button>
             </div>
@@ -172,45 +183,65 @@ export default function DashboardPage() {
 
           {/* Health Metrics */}
           <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-            <h3 className='mb-4 text-lg font-semibold dark:text-white'>Health Metrics</h3>
+            <h3 className='mb-4 text-lg font-semibold dark:text-white'>
+              Health Metrics
+            </h3>
             <div className='space-y-4'>
               <div className='flex items-center justify-between'>
                 <span className='dark:text-gray-300'>Sleep</span>
-                <span className='font-semibold text-green-600 dark:text-green-400'>8h</span>
+                <span className='font-semibold text-green-600 dark:text-green-400'>
+                  8h
+                </span>
               </div>
               <div className='flex items-center justify-between'>
                 <span className='dark:text-gray-300'>Steps</span>
-                <span className='font-semibold text-blue-600 dark:text-blue-400'>6,420</span>
+                <span className='font-semibold text-blue-600 dark:text-blue-400'>
+                  6,420
+                </span>
               </div>
               <div className='flex items-center justify-between'>
                 <span className='dark:text-gray-300'>Hydration</span>
-                <span className='font-semibold text-purple-600 dark:text-purple-400'>64oz</span>
+                <span className='font-semibold text-purple-600 dark:text-purple-400'>
+                  64oz
+                </span>
               </div>
             </div>
           </div>
 
           {/* Recent Activity */}
           <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-            <h3 className='mb-4 text-lg font-semibold dark:text-white'>Recent Activity</h3>
+            <h3 className='mb-4 text-lg font-semibold dark:text-white'>
+              Recent Activity
+            </h3>
             <div className='space-y-3'>
               <div className='flex items-center gap-3'>
                 <div className='flex h-8 w-8 items-center justify-center rounded-full bg-green-100 dark:bg-green-900'>
-                  <span className='text-sm text-green-600 dark:text-green-400'>✓</span>
+                  <span className='text-sm text-green-600 dark:text-green-400'>
+                    ✓
+                  </span>
                 </div>
                 <div>
                   <p className='text-sm font-medium dark:text-gray-300'>
                     Morning workout completed
                   </p>
-                  <p className='text-xs text-gray-500 dark:text-gray-400'>2 hours ago</p>
+                  <p className='text-xs text-gray-500 dark:text-gray-400'>
+                    2 hours ago
+                  </p>
                 </div>
               </div>
               <div className='flex items-center gap-3'>
                 <div className='flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900'>
-                  <span className='text-sm text-blue-600 dark:text-blue-400'>📝</span>
+                  <span className='text-sm text-blue-600 dark:text-blue-400'>
+                    📝
+                  </span>
                 </div>
                 <div>
-                  <p className='text-sm font-medium dark:text-gray-300'>Journal entry logged</p>
-                  <p className='text-xs text-gray-500 dark:text-gray-400'>Yesterday</p>
+                  <p className='text-sm font-medium dark:text-gray-300'>
+                    Journal entry logged
+                  </p>
+                  <p className='text-xs text-gray-500 dark:text-gray-400'>
+                    Yesterday
+                  </p>
                 </div>
               </div>
             </div>
@@ -218,19 +249,25 @@ export default function DashboardPage() {
 
           {/* Goals */}
           <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-            <h3 className='mb-4 text-lg font-semibold dark:text-white'>Your Goals</h3>
+            <h3 className='mb-4 text-lg font-semibold dark:text-white'>
+              Your Goals
+            </h3>
             <div className='space-y-3'>
               <div className='rounded-md bg-blue-50 p-3 dark:bg-blue-900/20'>
                 <p className='text-sm font-medium text-blue-900 dark:text-blue-100'>
                   Improve 40-yard dash
                 </p>
-                <p className='text-xs text-blue-700 dark:text-blue-300'>Target: 4.8s</p>
+                <p className='text-xs text-blue-700 dark:text-blue-300'>
+                  Target: 4.8s
+                </p>
               </div>
               <div className='rounded-md bg-green-50 p-3 dark:bg-green-900/20'>
                 <p className='text-sm font-medium text-green-900 dark:text-green-100'>
                   Maintain 3.5 GPA
                 </p>
-                <p className='text-xs text-green-700 dark:text-green-300'>Current: 3.6</p>
+                <p className='text-xs text-green-700 dark:text-green-300'>
+                  Current: 3.6
+                </p>
               </div>
             </div>
           </div>

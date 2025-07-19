@@ -8,9 +8,7 @@ export async function clearAllCaches(): Promise<void> {
   if ('caches' in window) {
     try {
       const cacheNames = await caches.keys();
-      await Promise.all(
-        cacheNames.map(cacheName => caches.delete(cacheName))
-      );
+      await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
       console.log('[Cache Utils] All caches cleared');
     } catch (error) {
       console.error('[Cache Utils] Failed to clear caches:', error);
@@ -25,7 +23,10 @@ export async function clearCacheByName(cacheName: string): Promise<void> {
       await caches.delete(cacheName);
       console.log(`[Cache Utils] Cache '${cacheName}' cleared`);
     } catch (error) {
-      console.error(`[Cache Utils] Failed to clear cache '${cacheName}':`, error);
+      console.error(
+        `[Cache Utils] Failed to clear cache '${cacheName}':`,
+        error
+      );
     }
   }
 }
@@ -35,13 +36,14 @@ export async function clearCSSCaches(): Promise<void> {
   if ('caches' in window) {
     try {
       const cacheNames = await caches.keys();
-      const cssCaches = cacheNames.filter(name => 
-        name.includes('css') || name.includes('static') || name.includes('smartfyt-student')
+      const cssCaches = cacheNames.filter(
+        name =>
+          name.includes('css') ||
+          name.includes('static') ||
+          name.includes('smartfyt-student')
       );
-      
-      await Promise.all(
-        cssCaches.map(cacheName => caches.delete(cacheName))
-      );
+
+      await Promise.all(cssCaches.map(cacheName => caches.delete(cacheName)));
       console.log('[Cache Utils] CSS caches cleared');
     } catch (error) {
       console.error('[Cache Utils] Failed to clear CSS caches:', error);
@@ -52,7 +54,7 @@ export async function clearCSSCaches(): Promise<void> {
 // Force reload and clear caches
 export async function forceReloadAndClearCaches(): Promise<void> {
   await clearAllCaches();
-  
+
   // Unregister service worker to force fresh load
   if ('serviceWorker' in navigator) {
     try {
@@ -62,10 +64,13 @@ export async function forceReloadAndClearCaches(): Promise<void> {
       );
       console.log('[Cache Utils] Service workers unregistered');
     } catch (error) {
-      console.error('[Cache Utils] Failed to unregister service workers:', error);
+      console.error(
+        '[Cache Utils] Failed to unregister service workers:',
+        error
+      );
     }
   }
-  
+
   // Force page reload
   window.location.reload();
 }
@@ -88,21 +93,19 @@ export async function handleLogoutCacheClear(): Promise<void> {
   try {
     // Clear CSS caches to prevent stale styles
     await clearCSSCaches();
-    
+
     // Clear any auth-related caches
     if ('caches' in window) {
       const cacheNames = await caches.keys();
-      const authCaches = cacheNames.filter(name => 
-        name.includes('api') || name.includes('auth')
+      const authCaches = cacheNames.filter(
+        name => name.includes('api') || name.includes('auth')
       );
-      
-      await Promise.all(
-        authCaches.map(cacheName => caches.delete(cacheName))
-      );
+
+      await Promise.all(authCaches.map(cacheName => caches.delete(cacheName)));
     }
-    
+
     console.log('[Cache Utils] Logout cache clearing completed');
   } catch (error) {
     console.error('[Cache Utils] Failed to clear caches on logout:', error);
   }
-} 
+}

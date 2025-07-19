@@ -139,7 +139,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
       // App-level error boundary (most critical)
       return (
-        <div className='flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 p-4'>
+        <div className='flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-gray-900'>
           <div className='w-full max-w-md text-center'>
             <div className='mb-8'>
               <span className='text-8xl'>🎯💥</span>
@@ -170,7 +170,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </Button>
             </div>
             {process.env.NODE_ENV === 'development' && (
-              <details className='mt-8 rounded-lg border bg-white dark:bg-gray-800 p-4 text-left'>
+              <details className='mt-8 rounded-lg border bg-white p-4 text-left dark:bg-gray-800'>
                 <summary className='cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'>
                   Technical Details (Development)
                 </summary>
@@ -178,7 +178,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   <div className='text-xs dark:text-gray-300'>
                     <strong>Error:</strong> {this.state.error?.message}
                   </div>
-                  <pre className='max-h-32 overflow-auto rounded bg-gray-100 dark:bg-gray-700 p-2 text-xs dark:text-gray-300'>
+                  <pre className='max-h-32 overflow-auto rounded bg-gray-100 p-2 text-xs dark:bg-gray-700 dark:text-gray-300'>
                     {this.state.error?.stack}
                   </pre>
                 </div>
