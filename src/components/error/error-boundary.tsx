@@ -73,9 +73,11 @@ export class ErrorBoundary extends Component<Props, State> {
                 <Button
                   size="sm"
                   color="danger"
-                  variant="flat"
+                  variant="shadow"
+                  radius="lg"
                   onPress={this.handleRetry}
-                  className="cursor-pointer"
+                  className="cursor-pointer font-medium"
+                  startContent={<span>🔄</span>}
                 >
                   Try Again
                 </Button>

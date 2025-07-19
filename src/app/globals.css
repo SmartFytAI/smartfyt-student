@@ -111,6 +111,31 @@
     overscroll-behavior: none;
     position: relative;
     overflow-x: hidden;
+    /* Beautiful Athletic Background */
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #cbd5e1 50%, #e2e8f0 75%, #f8fafc 100%);
+    background-size: 400% 400%;
+    animation: athleticGradient 15s ease infinite;
+    min-height: 100vh;
+  }
+
+  /* Dark mode background */
+  html.dark body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #1e293b 75%, #0f172a 100%);
+    background-size: 400% 400%;
+    animation: athleticGradientDark 15s ease infinite;
+  }
+
+  /* Athletic Background Animation */
+  @keyframes athleticGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes athleticGradientDark {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
   }
 
   /* Mobile touch optimizations */

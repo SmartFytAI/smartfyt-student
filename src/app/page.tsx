@@ -92,7 +92,7 @@ export default function HomePage() {
 
         {/* Authentication Card with HeroUI */}
         <CardErrorBoundary name="Authentication">
-          <Card className="mb-6 sm:mb-8 border border-gray-200 shadow-sm">
+          <Card className="mb-6 sm:mb-8 border border-gray-200/50 dark:border-gray-700/50 shadow-lg backdrop-blur-sm bg-white/80 dark:bg-gray-900/80" radius="lg">
           <CardHeader className="flex gap-3">
             <div className="flex flex-col">
               <p className="text-xl font-semibold">🔐 Authentication</p>
@@ -122,9 +122,12 @@ export default function HomePage() {
                 </div>
                 <Button
                   color="danger"
-                  variant="solid"
+                  variant="flat"
+                  size="md"
+                  radius="lg"
                   onPress={logout}
-                  className="cursor-pointer"
+                  className="cursor-pointer font-medium"
+                  startContent={<span>👋</span>}
                 >
                   Sign Out
                 </Button>
@@ -136,11 +139,13 @@ export default function HomePage() {
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                   <Button
-                    color="secondary"
-                    variant="solid"
+                    color="primary"
+                    variant="shadow"
                     size="lg"
+                    radius="full"
                     onPress={login}
-                    className="cursor-pointer"
+                    className="cursor-pointer font-semibold"
+                    startContent={<span>🚀</span>}
                   >
                     Sign In
                   </Button>
@@ -148,8 +153,10 @@ export default function HomePage() {
                     color="secondary"
                     variant="bordered"
                     size="lg"
+                    radius="full"
                     onPress={() => window.location.href = '/api/auth/register'}
-                    className="cursor-pointer border-2"
+                    className="cursor-pointer border-2 font-semibold"
+                    startContent={<span>⭐</span>}
                   >
                     Create Account
                   </Button>
@@ -163,14 +170,14 @@ export default function HomePage() {
         {/* API Status Cards - Only show for authenticated users */}
         {isAuthenticated && (
           <CardErrorBoundary name="API Status">
-            <Card className="mb-6 sm:mb-8 border border-gray-200 shadow-sm">
+            <Card className="mb-6 sm:mb-8 border border-gray-200/50 dark:border-gray-700/50 shadow-lg backdrop-blur-sm bg-white/80 dark:bg-gray-900/80" radius="lg">
             <CardHeader>
               <h2 className="text-xl font-semibold">🔌 Connection Status</h2>
             </CardHeader>
             <CardBody>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Health Check */}
-                <Card shadow="sm" className="border border-gray-300">
+                <Card shadow="md" className="border border-gray-200/50 dark:border-gray-700/50 bg-white/90 dark:bg-gray-800/90" radius="lg">
                   <CardBody className="p-4">
                     <h3 className="font-medium text-gray-700 mb-3">Backend API</h3>
                     {healthLoading ? (
@@ -203,7 +210,7 @@ export default function HomePage() {
                 </Card>
 
                 {/* Sports Data */}
-                <Card shadow="sm" className="border border-gray-300">
+                <Card shadow="md" className="border border-gray-200/50 dark:border-gray-700/50 bg-white/90 dark:bg-gray-800/90" radius="lg">
                   <CardBody className="p-4">
                     <h3 className="font-medium text-gray-700 mb-3">Sports Data</h3>
                     {sportsLoading ? (
@@ -229,7 +236,7 @@ export default function HomePage() {
                 </Card>
 
                 {/* Schools Data */}
-                <Card shadow="sm" className="border border-gray-300">
+                <Card shadow="md" className="border border-gray-200/50 dark:border-gray-700/50 bg-white/90 dark:bg-gray-800/90" radius="lg">
                   <CardBody className="p-4">
                     <h3 className="font-medium text-gray-700 mb-3">Schools Data</h3>
                     {schoolsLoading ? (
@@ -263,7 +270,10 @@ export default function HomePage() {
         <CardErrorBoundary name="Athletic Features">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {/* Health Tracking */}
-          <Card className="hover:scale-[1.02] transition-transform border border-gray-200 cursor-pointer">
+          <Card 
+            className="hover:scale-[1.05] hover:shadow-xl transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 cursor-pointer bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl"
+            shadow="lg"
+          >
             <CardHeader className="flex gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center text-lg">
                 📊
@@ -291,7 +301,10 @@ export default function HomePage() {
           </Card>
 
           {/* Journal Entries */}
-          <Card className="hover:scale-[1.02] transition-transform border border-gray-200 cursor-pointer">
+          <Card 
+            className="hover:scale-[1.05] hover:shadow-xl transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 cursor-pointer bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl"
+            shadow="lg"
+          >
             <CardHeader className="flex gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center text-lg">
                 📝
@@ -434,7 +447,7 @@ export default function HomePage() {
 
         {/* Technology Stack */}
         <CardErrorBoundary name="Technology Stack">
-          <Card className="mb-8 border border-gray-200 shadow-sm">
+          <Card className="mb-8 border border-gray-200/50 dark:border-gray-700/50 shadow-lg backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 rounded-2xl">
           <CardHeader>
             <h2 className="text-xl font-semibold">🏗️ Mobile-First Technology</h2>
           </CardHeader>
@@ -506,10 +519,11 @@ export default function HomePage() {
       <Button
         isIconOnly
         color="primary"
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg mobile-hidden z-50"
+        variant="shadow"
+        className="fixed bottom-6 right-6 w-16 h-16 rounded-full shadow-2xl mobile-hidden z-50 hover:scale-110 transition-transform duration-200"
         size="lg"
       >
-        <span className="text-xl">+</span>
+        <span className="text-2xl">⚡</span>
       </Button>
       </div>
     </PageErrorBoundary>
