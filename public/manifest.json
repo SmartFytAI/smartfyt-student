@@ -1,6 +1,6 @@
 {
-  "name": "SmartFyt Student",
-  "short_name": "SmartFyt",
+  "name": "SmartFyt Student Athlete",
+  "short_name": "SmartFyt Athlete",
   "description": "Student-athlete performance tracking and wellness dashboard",
   "start_url": "/",
   "display": "standalone",

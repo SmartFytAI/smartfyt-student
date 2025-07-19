@@ -1,7 +1,8 @@
 'use client'
 
 import React, { Component, ReactNode } from 'react'
-import { Card, CardBody, Button, Chip } from '@heroui/react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 
 interface Props {
   children: ReactNode
@@ -58,35 +59,32 @@ export class ErrorBoundary extends Component<Props, State> {
       // Card-level error boundary
       if (level === 'card') {
         return (
-          <Card className="border border-red-200 bg-red-50">
-            <CardBody className="p-4 text-center">
-              <div className="mb-3">
-                <span className="text-2xl">⚠️</span>
-              </div>
-              <h3 className="text-sm font-medium text-red-800 mb-2">
-                {name ? `${name} Error` : 'Card Error'}
-              </h3>
-              <p className="text-xs text-red-600 mb-3">
-                Something went wrong loading this content.
-              </p>
-              <div className="flex flex-col gap-2">
-                <Button
-                  size="sm"
-                  color="danger"
-                  variant="flat"
-                  onPress={this.handleRetry}
-                  className="cursor-pointer"
-                >
-                  Try Again
-                </Button>
-                {process.env.NODE_ENV === 'development' && (
-                  <Chip size="sm" variant="flat" color="danger" className="text-xs">
-                    Dev: {this.state.error?.message}
-                  </Chip>
-                )}
-              </div>
-            </CardBody>
-          </Card>
+          <div className="border border-red-200 bg-red-50 rounded-lg p-4 text-center">
+            <div className="mb-3">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            <h3 className="text-sm font-medium text-red-800 mb-2">
+              {name ? `${name} Error` : 'Card Error'}
+            </h3>
+            <p className="text-xs text-red-600 mb-3">
+              Something went wrong loading this content.
+            </p>
+            <div className="flex flex-col gap-2">
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={this.handleRetry}
+                className="cursor-pointer"
+              >
+                Try Again
+              </Button>
+              {process.env.NODE_ENV === 'development' && (
+                <Badge variant="destructive" className="text-xs">
+                  Dev: {this.state.error?.message}
+                </Badge>
+              )}
+            </div>
+          </div>
         )
       }
 
@@ -94,8 +92,8 @@ export class ErrorBoundary extends Component<Props, State> {
       if (level === 'page') {
         return (
           <div className="min-h-screen-mobile flex items-center justify-center p-4">
-            <Card className="max-w-md w-full border border-red-200">
-              <CardBody className="text-center p-8">
+            <div className="max-w-md w-full border border-red-200 rounded-lg bg-white">
+              <div className="text-center p-8">
                 <div className="mb-6">
                   <span className="text-6xl">🏃‍♂️💥</span>
                 </div>
@@ -107,18 +105,16 @@ export class ErrorBoundary extends Component<Props, State> {
                 </p>
                 <div className="space-y-3">
                   <Button
-                    color="primary"
-                    variant="solid"
-                    onPress={this.handleRetry}
+                    variant="default"
+                    onClick={this.handleRetry}
                     className="cursor-pointer w-full"
                   >
                     Try Again
                   </Button>
                   <Button
-                    color="default"
-                    variant="bordered"
-                    onPress={() => window.location.href = '/'}
-                    className="cursor-pointer w-full border-2"
+                    variant="outline"
+                    onClick={() => window.location.href = '/'}
+                    className="cursor-pointer w-full"
                   >
                     Go Home
                   </Button>
@@ -133,8 +129,8 @@ export class ErrorBoundary extends Component<Props, State> {
                     </pre>
                   </details>
                 )}
-              </CardBody>
-            </Card>
+              </div>
+            </div>
           </div>
         )
       }
@@ -154,19 +150,17 @@ export class ErrorBoundary extends Component<Props, State> {
             </p>
             <div className="space-y-4">
               <Button
-                color="primary"
-                variant="solid"
-                onPress={() => window.location.reload()}
+                variant="default"
+                onClick={() => window.location.reload()}
                 className="cursor-pointer w-full"
                 size="lg"
               >
                 Refresh App
               </Button>
               <Button
-                color="secondary"
-                variant="bordered"
-                onPress={() => window.location.href = '/'}
-                className="cursor-pointer w-full border-2"
+                variant="outline"
+                onClick={() => window.location.href = '/'}
+                className="cursor-pointer w-full"
                 size="lg"
               >
                 Go to Home

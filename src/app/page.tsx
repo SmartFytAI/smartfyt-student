@@ -3,26 +3,19 @@
 import { useHealthCheck, useSports, useSchools } from '@/hooks/use-api';
 import { useAuth } from '@/hooks/use-auth';
 import { useEffect, useState } from 'react';
-import { 
-  Chip,
-  Progress,
-  Avatar,
-  Badge,
-  Spinner
-} from '@heroui/react';
-import { PageErrorBoundary } from '@/components/error/error-boundary';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { 
   AthleticCard, 
   FeatureCard, 
   StatusCard, 
   TechCard 
 } from '@/components/ui/athletic-card';
-import { 
-  PrimaryActionButton, 
-  SecondaryActionButton, 
-  DangerActionButton 
-} from '@/components/ui/athletic-button';
 import { AthleticIcons } from '@/components/ui/athletic-icons';
+import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { PageErrorBoundary } from '@/components/error/error-boundary';
+import Image from 'next/image';
 
 export default function HomePage() {
   const { user, isLoading: authLoading, isAuthenticated, login, logout } = useAuth();
@@ -58,360 +51,289 @@ export default function HomePage() {
     }
   };
 
+  // If user is authenticated, show dashboard instead of landing page
+  if (isAuthenticated && user) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-6xl mx-auto p-6">
+          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                  <span className="text-primary-600 text-xl">🎯</span>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Welcome back, {user.name}!</h1>
+                  <p className="text-gray-600">Ready to crush your goals today?</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <Button variant="outline" onClick={logout}>
+                  Sign Out
+                </Button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Dashboard content will go here - similar to Ladder's app interface */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-semibold mb-4">Today's Workout</h3>
+              <div className="text-center py-8">
+                <div className="text-4xl mb-2">🏃‍♂️</div>
+                <p className="text-gray-600">No workout scheduled</p>
+                <Button className="mt-4">Plan Workout</Button>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-semibold mb-4">Weekly Progress</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span>Workouts</span>
+                  <span className="font-semibold">0/5</span>
+                </div>
+                <Progress value={0} className="h-2" />
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+              <div className="space-y-3">
+                <Button variant="outline" className="w-full justify-start">
+                  📝 Log Workout
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  📊 View Progress
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  🎯 Set Goals
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <PageErrorBoundary>
-      <div className="min-h-screen-mobile p-4 sm:p-8 font-[family-name:var(--font-geist-sans)]">
-        <main className="max-w-6xl mx-auto">
-          {/* Athletic Header with Chips */}
-          <div className="text-center mb-8 sm:mb-12">
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              🎯 SmartFyt Student
+      <div className="min-h-screen bg-white">
+      {/* Hero Section - Full Page */}
+      <div className="relative h-screen overflow-hidden">
+        {/* Hero Background Image */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/images/pexels-victorfreitas-841130.jpg"
+            alt="Athlete training"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-black/50"></div>
+        </div>
+        
+        {/* Hero Content */}
+        <div className="relative z-10 h-full flex items-center justify-center">
+          <div className="max-w-6xl mx-auto px-6 text-center text-white">
+            <h1 className="text-5xl lg:text-7xl font-bold mb-6">
+              SmartFyt Student Athlete
             </h1>
-            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
-              Your personalized student-athlete performance tracking platform. 
-              <span className="block sm:inline"> Modern, fast, and now available as a mobile app!</span>
+            <p className="text-xl lg:text-2xl mb-8 max-w-3xl mx-auto opacity-90">
+              Your personalized student-athlete mental and physical performance improvement platform 
             </p>
             
-            {/* Athletic Status Chips */}
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <Chip 
-                color="secondary" 
-                variant="flat"
-                startContent={<span>📱</span>}
+            {/* Muhammad Ali Quote */}
+            <div className="mb-8 p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
+              <p className="text-lg italic text-white/90 mb-2">
+                "Champions aren't made in gyms. Champions are made from something they have deep inside them - a desire, a dream, a vision."
+              </p>
+              <p className="text-white/70 font-semibold">- Muhammad Ali</p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                size="lg" 
+                className="bg-orange-500 text-white hover:bg-orange-600 font-semibold text-lg px-8 py-4"
+                onClick={login}
               >
-                Mobile App Ready
-              </Chip>
-              <Chip 
-                color="success" 
-                variant="flat"
-                startContent={<span>⚡</span>}
+                Start Free Trial
+              </Button>
+              <Button 
+                size="lg" 
+                className="bg-transparent border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white font-semibold text-lg px-8 py-4"
+                onClick={login}
               >
-                Works Offline
-              </Chip>
-              <Chip 
-                color="primary" 
-                variant="flat"
-                startContent={<span>🏃</span>}
-              >
-                Athletic Performance
-              </Chip>
+                Sign In
+              </Button>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Authentication Card */}
-          <AthleticCard
-            title="Authentication"
-            icon={<AthleticIcons.Auth />}
-            errorBoundaryName="Authentication"
-            className="mb-6 sm:mb-8"
-          >
-            {authLoading ? (
-              <div className="text-center py-4">
-                <Spinner color="primary" size="sm" className="mr-2" />
-                <span className="text-gray-500 dark:text-gray-400">Checking authentication...</span>
+      {/* Benefits Section - Like Ladder's "Results in less time" section */}
+      <div className="py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Experience the SmartFyt Advantage
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Your secret weapon for success—personalized insights to help you win in school, sports, and life.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🧠</span>
               </div>
-            ) : isAuthenticated && user ? (
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <Badge content="✓" color="success" shape="circle">
-                    <Avatar 
-                      src={user.picture || undefined} 
-                      name={user.name || undefined}
-                      size="md"
-                      className="transition-transform"
-                    />
-                  </Badge>
+              <h3 className="text-xl font-semibold mb-2">AI-Powered Insights</h3>
+              <p className="text-gray-600">Our AI analyzes performance data to provide personalized recommendations for improvement in both academics and athletics.</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🏆</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Team & School Leaderboards</h3>
+              <p className="text-gray-600">Foster healthy competition with gamified leaderboards that track progress and celebrate achievements.</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">📊</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Performance Analytics</h3>
+              <p className="text-gray-600">Visualize trends in custom scores like Focus, Effort, Readiness, and Motivation to monitor growth over time.</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">📝</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Daily Journaling</h3>
+              <p className="text-gray-600">Track key metrics and reflect on progress with AI-guided prompts that foster accountability and self-awareness.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* App Preview Section */}
+      <div className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-4xl font-bold text-gray-900 mb-6">
+                More than just a fitness app, SmartFyt is a lifestyle
+              </h2>
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-xl">🎯</span>
+                  </div>
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">{user.name}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+                    <h3 className="text-xl font-semibold mb-2">Holistic Growth Tracking</h3>
+                    <p className="text-gray-600">Monitor both academic and athletic performance with custom metrics designed for student-athlete success.</p>
                   </div>
                 </div>
-                <DangerActionButton
-                  icon={<span>👋</span>}
-                  onClick={logout}
-                >
-                  Sign Out
-                </DangerActionButton>
-              </div>
-            ) : (
-              <div className="text-center py-4">
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  Sign in to access your personalized dashboard and track your athletic performance.
-                </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <PrimaryActionButton
-                    icon={<span>🚀</span>}
-                    size="lg"
-                    onClick={login}
-                  >
-                    Sign In
-                  </PrimaryActionButton>
-                  <SecondaryActionButton
-                    icon={<span>⭐</span>}
-                    size="lg"
-                    onClick={() => window.location.href = '/api/auth/register'}
-                  >
-                    Create Account
-                  </SecondaryActionButton>
+                
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-xl">💬</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">Coaching Tools</h3>
+                    <p className="text-gray-600">Define your Team Philosophy and add Team Notes, enabling our AI to emulate your voice in feedback and journaling prompts.</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-xl">⚡</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">Mobile-First Experience</h3>
+                    <p className="text-gray-600">Progressive Web App that works offline, installs on your phone, and provides a native mobile experience.</p>
+                  </div>
                 </div>
               </div>
-            )}
-          </AthleticCard>
-
-          {/* API Status Cards - Only show for authenticated users */}
-          {isAuthenticated && (
-            <AthleticCard
-              title="Connection Status"
-              icon={<AthleticIcons.Connection />}
-              errorBoundaryName="API Status"
-              className="mb-6 sm:mb-8"
-            >
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* Health Check */}
-                <StatusCard title="Backend API" size="sm">
-                  {healthLoading ? (
-                    <div className="flex items-center gap-2">
-                      <Spinner size="sm" color="primary" />
-                      <span className="text-sm text-gray-500 dark:text-gray-400">Connecting...</span>
+            </div>
+            
+            <div className="relative">
+              <div className="bg-gradient-to-br from-primary-500 to-primary-700 rounded-3xl p-8 text-white">
+                <div className="text-center">
+                  <div className="text-6xl mb-4">📱</div>
+                  <h3 className="text-2xl font-bold mb-2">SmartFyt Student Athlete</h3>
+                  <p className="text-primary-100 mb-6">Your performance tracking companion</p>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between bg-white/10 rounded-lg p-3">
+                      <span>Today's Workout</span>
+                      <Badge variant="secondary" className="bg-white text-primary-600">Ready</Badge>
                     </div>
-                  ) : healthError ? (
-                    <Chip color="danger" variant="flat" size="sm">
-                      Offline Mode
-                    </Chip>
-                  ) : healthCheck?.data ? (
-                    <div className="space-y-2">
-                      <Chip color="success" variant="flat" size="sm">
-                        Connected
-                      </Chip>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        Status: {healthCheck.data.status}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        Version: {healthCheck.data.version}
-                      </div>
+                    <div className="flex items-center justify-between bg-white/10 rounded-lg p-3">
+                      <span>Weekly Goal</span>
+                      <span className="font-semibold">75%</span>
                     </div>
-                  ) : (
-                    <Chip color="default" variant="flat" size="sm">
-                      No response
-                    </Chip>
-                  )}
-                </StatusCard>
-
-                {/* Sports Data */}
-                <StatusCard title="Sports Data" size="sm">
-                  {sportsLoading ? (
-                    <div className="flex items-center gap-2">
-                      <Spinner size="sm" color="primary" />
-                      <span className="text-sm text-gray-500 dark:text-gray-400">Loading...</span>
+                    <div className="flex items-center justify-between bg-white/10 rounded-lg p-3">
+                      <span>Team Rank</span>
+                      <span className="font-semibold">#3</span>
                     </div>
-                  ) : sports?.data ? (
-                    <div className="space-y-2">
-                      <Chip color="success" variant="flat" size="sm">
-                        Loaded
-                      </Chip>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {sports.data.length} sports available
-                      </div>
-                    </div>
-                  ) : (
-                    <Chip color="default" variant="flat" size="sm">
-                      No data
-                    </Chip>
-                  )}
-                </StatusCard>
-
-                {/* Schools Data */}
-                <StatusCard title="Schools Data" size="sm">
-                  {schoolsLoading ? (
-                    <div className="flex items-center gap-2">
-                      <Spinner size="sm" color="primary" />
-                      <span className="text-sm text-gray-500 dark:text-gray-400">Loading...</span>
-                    </div>
-                  ) : schools?.data ? (
-                    <div className="space-y-2">
-                      <Chip color="success" variant="flat" size="sm">
-                        Loaded
-                      </Chip>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {schools.data.length} schools available
-                      </div>
-                    </div>
-                  ) : (
-                    <Chip color="default" variant="flat" size="sm">
-                      No data
-                    </Chip>
-                  )}
-                </StatusCard>
+                  </div>
+                </div>
               </div>
-            </AthleticCard>
-          )}
-
-          {/* Athletic Features Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            {/* Health Tracking */}
-            <FeatureCard
-              title="Health Tracking"
-              icon={<AthleticIcons.Health />}
-              metric={{ value: "75%", label: "Health Score", progress: 75 }}
-              errorBoundaryName="Health Tracking"
-            >
-              <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                Monitor sleep, activity, and wellness metrics with real-time data from your wearable devices.
-              </p>
-              <Chip color="primary" variant="flat" size="sm">
-                Coming Soon
-              </Chip>
-            </FeatureCard>
-
-            {/* Journal Entries */}
-            <FeatureCard
-              title="Daily Journals"
-              icon={<AthleticIcons.Journal />}
-              metric={{ value: "60%", label: "Weekly Goal", progress: 60 }}
-              errorBoundaryName="Daily Journals"
-            >
-              <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                Reflect on your day, track goals, and receive AI-powered insights to improve performance.
-              </p>
-              <Chip color="success" variant="flat" size="sm">
-                AI Powered
-              </Chip>
-            </FeatureCard>
-
-            {/* Quest System */}
-            <FeatureCard
-              title="Quest System"
-              icon={<AthleticIcons.Quest />}
-              metric={{ value: "40%", label: "Level Progress", progress: 40 }}
-              errorBoundaryName="Quest System"
-            >
-              <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                Complete challenges, earn points, and level up your athletic and academic performance.
-              </p>
-              <Chip color="secondary" variant="flat" size="sm">
-                Gamified
-              </Chip>
-            </FeatureCard>
-
-            {/* Performance Metrics */}
-            <FeatureCard
-              title="Performance Analytics"
-              icon={<AthleticIcons.Performance />}
-              metric={{ value: "85%", label: "Performance", progress: 85 }}
-              errorBoundaryName="Performance Analytics"
-            >
-              <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                Visualize your progress with comprehensive charts and insights into your athletic development.
-              </p>
-              <Chip color="warning" variant="flat" size="sm">
-                Advanced Analytics
-              </Chip>
-            </FeatureCard>
-
-            {/* Goal Setting */}
-            <FeatureCard
-              title="Goal Management"
-              icon={<AthleticIcons.Goal />}
-              metric={{ value: "92%", label: "Goals Met", progress: 92 }}
-              errorBoundaryName="Goal Management"
-            >
-              <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                Set, track, and achieve your athletic and academic goals with personalized action plans.
-              </p>
-              <Chip color="danger" variant="flat" size="sm">
-                Smart Planning
-              </Chip>
-            </FeatureCard>
-
-            {/* Team Connection */}
-            <FeatureCard
-              title="Team Integration"
-              icon={<AthleticIcons.Team />}
-              metric={{ value: "70%", label: "Team Sync", progress: 70 }}
-              errorBoundaryName="Team Integration"
-            >
-              <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                Stay connected with your team, coaches, and compete in friendly challenges with teammates.
-              </p>
-              <Chip color="secondary" variant="flat" size="sm">
-                Collaborative
-              </Chip>
-            </FeatureCard>
+            </div>
           </div>
+        </div>
+      </div>
 
-          {/* Technology Stack */}
-          <TechCard
-            title="Mobile-First Technology"
-            icon={<AthleticIcons.Mobile />}
-            errorBoundaryName="Technology Stack"
-            className="mb-8"
+      {/* CTA Section */}
+      <div className="py-20 bg-primary-600">
+        <div className="max-w-4xl mx-auto text-center px-6">
+          <h2 className="text-4xl font-bold text-white mb-6">
+            Ready to transform your athletic performance?
+          </h2>
+          <p className="text-xl text-primary-100 mb-8">
+            Join thousands of student-athletes who are already crushing their goals.
+          </p>
+          <Button 
+            size="lg" 
+            className="bg-white text-primary-600 hover:bg-gray-100 font-semibold text-lg px-8 py-4"
+            onClick={login}
           >
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                <div className="text-3xl mb-2">⚛️</div>
-                <Chip size="sm" variant="flat">React 18</Chip>
-              </div>
-              <div className="text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                <div className="text-3xl mb-2">📱</div>
-                <Chip size="sm" variant="flat" color="primary">PWA Ready</Chip>
-              </div>
-              <div className="text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                <div className="text-3xl mb-2">📡</div>
-                <Chip size="sm" variant="flat" color="success">Offline First</Chip>
-              </div>
-              <div className="text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                <div className="text-3xl mb-2">🚀</div>
-                <Chip size="sm" variant="flat" color="secondary">Fast Loading</Chip>
-              </div>
+            Start Your Free Trial
+          </Button>
+        </div>
+      </div>
+
+      {/* PWA Install Prompt */}
+      {showInstallPrompt && (
+        <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white p-4 z-50">
+          <div className="flex items-center justify-between max-w-6xl mx-auto">
+            <div>
+              <h3 className="font-semibold">Install SmartFyt Student Athlete</h3>
+              <p className="text-gray-300 text-sm">Get the full mobile app experience</p>
             </div>
-          </TechCard>
-
-          {/* Footer */}
-          <div className="text-center mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">
-              Built with Next.js 15, HeroUI, TypeScript, Tailwind CSS v4, and React Query
-            </p>
-            <Chip color="primary" variant="flat">
-              📱 Phase 3: Student Experience - Mobile PWA Ready! ✨
-            </Chip>
-          </div>
-        </main>
-
-        {/* PWA Install Prompt */}
-        {showInstallPrompt && (
-          <div className="pwa-install-prompt show">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-white">Install SmartFyt Student</h3>
-                <p className="text-gray-300 text-sm">Get the full mobile app experience</p>
-              </div>
-              <div className="flex gap-2">
-                <SecondaryActionButton
-                  size="sm"
-                  onClick={() => setShowInstallPrompt(false)}
-                  className="text-gray-300"
-                >
-                  Later
-                </SecondaryActionButton>
-                <PrimaryActionButton
-                  size="sm"
-                  onClick={handleInstallClick}
-                >
-                  Install
-                </PrimaryActionButton>
-              </div>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowInstallPrompt(false)}
+                className="text-gray-300"
+              >
+                Later
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleInstallClick}
+              >
+                Install
+              </Button>
             </div>
           </div>
-        )}
-
-        {/* Floating Action Button */}
-        <PrimaryActionButton
-          size="lg"
-          className="fixed bottom-6 right-6 w-16 h-16 rounded-full shadow-2xl mobile-hidden z-50 hover:scale-110 transition-transform duration-200"
-          onClick={() => console.log('Quick action!')}
-        >
-          <span className="text-2xl">⚡</span>
-        </PrimaryActionButton>
+        </div>
+              )}
       </div>
     </PageErrorBoundary>
   );

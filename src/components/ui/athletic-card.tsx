@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardBody, CardHeader, CardFooter } from '@heroui/react'
+import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card'
 import { CardErrorBoundary } from '@/components/error/error-boundary'
 import { ReactNode } from 'react'
 
@@ -138,15 +138,14 @@ export function AthleticCard({
     <Card 
       className={`${cardStyles} ${className}`}
       onClick={onClick}
-      isPressable={isClickable}
       {...props}
     >
       <AthleticCardHeader title={title} subtitle={subtitle} icon={icon} />
       
-      <CardBody className={`${sizeStyles[size]} ${title || subtitle || icon ? 'pt-0' : ''}`}>
+      <CardContent className={`${sizeStyles[size]} ${title || subtitle || icon ? 'pt-0' : ''}`}>
         {metric && <MetricDisplay metric={metric} />}
         {children}
-      </CardBody>
+      </CardContent>
       
       {actions && (
         <CardFooter className="pt-0">
