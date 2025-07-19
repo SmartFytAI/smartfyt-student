@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartFyt Student - Offline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 400px;
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+
+        p {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .features {
+            background: #f3f4f6;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .features h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .features ul {
+            list-style: none;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .features li {
+            margin-bottom: 0.25rem;
+        }
+
+        .features li::before {
+            content: '✓ ';
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .retry-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+
+        .retry-btn:hover {
+            background: #2563eb;
+        }
+
+        .retry-btn:active {
+            transform: scale(0.98);
+        }
+
+        .status {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .status.online {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status.offline {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .icon {
+                font-size: 3rem;
+            }
+            
+            h1 {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📱</div>
+        <h1>You're Offline</h1>
+        <p>Don't worry! SmartFyt Student works offline. You can still access cached data and use many features while disconnected.</p>
+        
+        <div class="features">
+            <h3>Available Offline:</h3>
+            <ul>
+                <li>View cached sports and schools data</li>
+                <li>Browse previously loaded content</li>
+                <li>Use the app interface</li>
+                <li>Data syncs when reconnected</li>
+            </ul>
+        </div>
+
+        <button class="retry-btn" onclick="checkConnection()">
+            Check Connection
+        </button>
+
+        <div id="connection-status" class="status offline">
+            📡 Currently offline
+        </div>
+    </div>
+
+    <script>
+        function checkConnection() {
+            const statusEl = document.getElementById('connection-status');
+            const retryBtn = document.querySelector('.retry-btn');
+            
+            retryBtn.textContent = 'Checking...';
+            retryBtn.disabled = true;
+            
+            // Try to fetch from the app
+            fetch('/', { method: 'HEAD' })
+                .then(() => {
+                    statusEl.textContent = '✅ Back online! Redirecting...';
+                    statusEl.className = 'status online';
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                })
+                .catch(() => {
+                    statusEl.textContent = '📡 Still offline - try again later';
+                    statusEl.className = 'status offline';
+                    retryBtn.textContent = 'Check Connection';
+                    retryBtn.disabled = false;
+                });
+        }
+
+        // Auto-check connection every 30 seconds
+        setInterval(() => {
+            if (navigator.onLine) {
+                checkConnection();
+            }
+        }, 30000);
+
+        // Listen for online events
+        window.addEventListener('online', () => {
+            checkConnection();
+        });
+
+        window.addEventListener('offline', () => {
+            const statusEl = document.getElementById('connection-status');
+            statusEl.textContent = '📡 Connection lost';
+            statusEl.className = 'status offline';
+        });
+
+        // Initial connection check
+        if (navigator.onLine) {
+            setTimeout(checkConnection, 1000);
+        }
+    </script>
+</body>
+</html> 
