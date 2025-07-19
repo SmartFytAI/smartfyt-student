@@ -3,6 +3,17 @@
 import { useHealthCheck, useSports, useSchools } from '@/hooks/use-api';
 import { useAuth } from '@/hooks/use-auth';
 import { useEffect, useState } from 'react';
+import { 
+  Button, 
+  Card, 
+  CardBody, 
+  CardHeader,
+  Chip,
+  Progress,
+  Avatar,
+  Badge,
+  Spinner
+} from '@heroui/react';
 
 export default function HomePage() {
   const { user, isLoading: authLoading, isAuthenticated, login, logout } = useAuth();
@@ -41,301 +52,413 @@ export default function HomePage() {
   return (
     <div className="min-h-screen-mobile p-4 sm:p-8 font-[family-name:var(--font-geist-sans)]">
       <main className="max-w-6xl mx-auto">
-        {/* Mobile-optimized Header */}
+        {/* Athletic Header with HeroUI Chips */}
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
             🎯 SmartFyt Student
           </h1>
-          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto mb-6">
             Your personalized student-athlete performance tracking platform. 
             <span className="block sm:inline"> Modern, fast, and now available as a mobile app!</span>
           </p>
           
-          {/* Mobile App Badge */}
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <div className="flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm">
-              📱 <span>Available as Mobile App</span>
-            </div>
-            <div className="flex items-center gap-2 bg-green-50 text-green-700 px-4 py-2 rounded-full text-sm">
-              ⚡ <span>Works Offline</span>
-            </div>
+          {/* Athletic Status Chips */}
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Chip 
+              color="secondary" 
+              variant="flat"
+              startContent={<span>📱</span>}
+            >
+              Mobile App Ready
+            </Chip>
+            <Chip 
+              color="success" 
+              variant="flat"
+              startContent={<span>⚡</span>}
+            >
+              Works Offline
+            </Chip>
+            <Chip 
+              color="primary" 
+              variant="flat"
+              startContent={<span>🏃</span>}
+            >
+              Athletic Performance
+            </Chip>
           </div>
         </div>
 
-        {/* Authentication Section */}
-        <div className="mobile-card mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 flex items-center gap-2">
-            🔐 <span>Authentication</span>
-          </h2>
-          
-          {authLoading ? (
-            <div className="text-center py-4">
-              <div className="status-loading inline-block mr-2"></div>
-              <span className="text-gray-500">Checking authentication...</span>
+        {/* Authentication Card with HeroUI */}
+        <Card className="mb-6 sm:mb-8 border border-gray-200 shadow-sm">
+          <CardHeader className="flex gap-3">
+            <div className="flex flex-col">
+              <p className="text-xl font-semibold">🔐 Authentication</p>
             </div>
-          ) : isAuthenticated && user ? (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                {user.picture && (
-                  <img 
-                    src={user.picture} 
-                    alt={user.name} 
-                    className="w-10 h-10 rounded-full"
-                  />
-                )}
-                <div>
-                  <p className="font-medium text-gray-900">{user.name}</p>
-                  <p className="text-sm text-gray-500">{user.email}</p>
+          </CardHeader>
+          <CardBody>
+            {authLoading ? (
+              <div className="text-center py-4">
+                <Spinner color="primary" size="sm" className="mr-2" />
+                <span className="text-gray-500">Checking authentication...</span>
+              </div>
+            ) : isAuthenticated && user ? (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                                     <Badge content="✓" color="success" shape="circle">
+                     <Avatar 
+                       src={user.picture || undefined} 
+                       name={user.name || undefined}
+                       size="md"
+                       className="transition-transform"
+                     />
+                   </Badge>
+                  <div>
+                    <p className="font-medium text-gray-900">{user.name}</p>
+                    <p className="text-sm text-gray-500">{user.email}</p>
+                  </div>
+                </div>
+                <Button
+                  color="danger"
+                  variant="solid"
+                  onPress={logout}
+                  className="cursor-pointer"
+                >
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-gray-600 mb-6">
+                  Sign in to access your personalized dashboard and track your athletic performance.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <Button
+                    color="secondary"
+                    variant="solid"
+                    size="lg"
+                    onPress={login}
+                    className="cursor-pointer"
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    color="secondary"
+                    variant="bordered"
+                    size="lg"
+                    onPress={() => window.location.href = '/api/auth/register'}
+                    className="cursor-pointer border-2"
+                  >
+                    Create Account
+                  </Button>
                 </div>
               </div>
-              <button
-                onClick={logout}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Sign Out
-              </button>
-            </div>
-          ) : (
-            <div className="text-center py-4">
-              <p className="text-gray-600 mb-4">
-                Sign in to access your personalized dashboard and track your athletic performance.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <button
-                  onClick={login}
-                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Sign In
-                </button>
-                <button
-                  onClick={() => window.location.href = '/api/auth/register'}
-                  className="px-6 py-3 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
-                >
-                  Create Account
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </CardBody>
+        </Card>
 
-        {/* API Status Card - Mobile Optimized - Only show for authenticated users */}
+        {/* API Status Cards - Only show for authenticated users */}
         {isAuthenticated && (
-        <div className="mobile-card mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 flex items-center gap-2">
-            🔌 <span>Connection Status</span>
-          </h2>
-          
-          <div className="mobile-grid">
-            {/* Health Check */}
-            <div className="border rounded-lg p-4">
-              <h3 className="font-medium text-gray-700 mb-2">Backend API</h3>
-              {healthLoading ? (
-                <div className="flex items-center gap-2">
-                  <div className="status-loading"></div>
-                  <span className="text-mobile-sm text-gray-500">Connecting...</span>
-                </div>
-              ) : healthError ? (
-                <div className="flex items-center gap-2">
-                  <div className="status-offline"></div>
-                  <span className="text-mobile-sm text-red-600">Offline Mode</span>
-                </div>
-              ) : healthCheck?.data ? (
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <div className="status-online"></div>
-                    <span className="text-mobile-sm text-green-600">Connected</span>
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    Status: {healthCheck.data.status}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    Version: {healthCheck.data.version}
-                  </div>
-                </div>
-              ) : (
-                <span className="text-mobile-sm text-gray-400">No response</span>
-              )}
-            </div>
+          <Card className="mb-6 sm:mb-8 border border-gray-200 shadow-sm">
+            <CardHeader>
+              <h2 className="text-xl font-semibold">🔌 Connection Status</h2>
+            </CardHeader>
+            <CardBody>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* Health Check */}
+                <Card shadow="sm" className="border border-gray-300">
+                  <CardBody className="p-4">
+                    <h3 className="font-medium text-gray-700 mb-3">Backend API</h3>
+                    {healthLoading ? (
+                      <div className="flex items-center gap-2">
+                        <Spinner size="sm" color="primary" />
+                        <span className="text-sm text-gray-500">Connecting...</span>
+                      </div>
+                    ) : healthError ? (
+                      <Chip color="danger" variant="flat" size="sm">
+                        Offline Mode
+                      </Chip>
+                    ) : healthCheck?.data ? (
+                      <div className="space-y-2">
+                        <Chip color="success" variant="flat" size="sm">
+                          Connected
+                        </Chip>
+                        <div className="text-xs text-gray-500">
+                          Status: {healthCheck.data.status}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Version: {healthCheck.data.version}
+                        </div>
+                      </div>
+                    ) : (
+                      <Chip color="default" variant="flat" size="sm">
+                        No response
+                      </Chip>
+                    )}
+                  </CardBody>
+                </Card>
 
-            {/* Sports Data */}
-            <div className="border rounded-lg p-4">
-              <h3 className="font-medium text-gray-700 mb-2">Sports Data</h3>
-              {sportsLoading ? (
-                <div className="flex items-center gap-2">
-                  <div className="status-loading"></div>
-                  <span className="text-mobile-sm text-gray-500">Loading...</span>
-                </div>
-              ) : sports?.data ? (
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <div className="status-online"></div>
-                    <span className="text-mobile-sm text-green-600">Loaded</span>
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {sports.data.length} sports available
-                  </div>
-                </div>
-              ) : (
-                <span className="text-mobile-sm text-gray-400">No data</span>
-              )}
-            </div>
+                {/* Sports Data */}
+                <Card shadow="sm" className="border border-gray-300">
+                  <CardBody className="p-4">
+                    <h3 className="font-medium text-gray-700 mb-3">Sports Data</h3>
+                    {sportsLoading ? (
+                      <div className="flex items-center gap-2">
+                        <Spinner size="sm" color="primary" />
+                        <span className="text-sm text-gray-500">Loading...</span>
+                      </div>
+                    ) : sports?.data ? (
+                      <div className="space-y-2">
+                        <Chip color="success" variant="flat" size="sm">
+                          Loaded
+                        </Chip>
+                        <div className="text-xs text-gray-500">
+                          {sports.data.length} sports available
+                        </div>
+                      </div>
+                    ) : (
+                      <Chip color="default" variant="flat" size="sm">
+                        No data
+                      </Chip>
+                    )}
+                  </CardBody>
+                </Card>
 
-            {/* Schools Data */}
-            <div className="border rounded-lg p-4">
-              <h3 className="font-medium text-gray-700 mb-2">Schools Data</h3>
-              {schoolsLoading ? (
-                <div className="flex items-center gap-2">
-                  <div className="status-loading"></div>
-                  <span className="text-mobile-sm text-gray-500">Loading...</span>
-                </div>
-              ) : schools?.data ? (
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <div className="status-online"></div>
-                    <span className="text-mobile-sm text-green-600">Loaded</span>
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {schools.data.length} schools available
-                  </div>
-                </div>
-              ) : (
-                <span className="text-mobile-sm text-gray-400">No data</span>
-              )}
-            </div>
-          </div>
-        </div>
+                {/* Schools Data */}
+                <Card shadow="sm" className="border border-gray-300">
+                  <CardBody className="p-4">
+                    <h3 className="font-medium text-gray-700 mb-3">Schools Data</h3>
+                    {schoolsLoading ? (
+                      <div className="flex items-center gap-2">
+                        <Spinner size="sm" color="primary" />
+                        <span className="text-sm text-gray-500">Loading...</span>
+                      </div>
+                    ) : schools?.data ? (
+                      <div className="space-y-2">
+                        <Chip color="success" variant="flat" size="sm">
+                          Loaded
+                        </Chip>
+                        <div className="text-xs text-gray-500">
+                          {schools.data.length} schools available
+                        </div>
+                      </div>
+                    ) : (
+                      <Chip color="default" variant="flat" size="sm">
+                        No data
+                      </Chip>
+                    )}
+                  </CardBody>
+                </Card>
+              </div>
+            </CardBody>
+          </Card>
         )}
 
-        {/* Student Features - Mobile Grid */}
-        <div className="mobile-grid">
+        {/* Athletic Features Grid with HeroUI Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {/* Health Tracking */}
-          <div className="mobile-card">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-lg">
+          <Card className="hover:scale-[1.02] transition-transform border border-gray-200 cursor-pointer">
+            <CardHeader className="flex gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center text-lg">
                 📊
               </div>
-              <h3 className="text-lg font-semibold">Health Tracking</h3>
-            </div>
-            <p className="text-gray-600 text-mobile-sm mb-4">
-              Monitor sleep, activity, and wellness metrics with real-time data from your wearable devices.
-            </p>
-            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-              Coming soon: Live health dashboard
-            </div>
-          </div>
+              <div className="flex flex-col">
+                <p className="text-lg font-semibold">Health Tracking</p>
+              </div>
+            </CardHeader>
+            <CardBody>
+              <p className="text-gray-600 text-sm mb-4">
+                Monitor sleep, activity, and wellness metrics with real-time data from your wearable devices.
+              </p>
+              <Progress 
+                size="sm" 
+                value={75} 
+                color="primary"
+                showValueLabel={true}
+                label="Health Score"
+                className="mb-3"
+              />
+              <Chip color="primary" variant="flat" size="sm">
+                Coming Soon
+              </Chip>
+            </CardBody>
+          </Card>
 
           {/* Journal Entries */}
-          <div className="mobile-card">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-lg">
+          <Card className="hover:scale-[1.02] transition-transform border border-gray-200 cursor-pointer">
+            <CardHeader className="flex gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center text-lg">
                 📝
               </div>
-              <h3 className="text-lg font-semibold">Daily Journals</h3>
-            </div>
-            <p className="text-gray-600 text-mobile-sm mb-4">
-              Reflect on your day, track goals, and receive AI-powered insights to improve performance.
-            </p>
-            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-              Coming soon: Smart journal interface
-            </div>
-          </div>
+              <div className="flex flex-col">
+                <p className="text-lg font-semibold">Daily Journals</p>
+              </div>
+            </CardHeader>
+            <CardBody>
+              <p className="text-gray-600 text-sm mb-4">
+                Reflect on your day, track goals, and receive AI-powered insights to improve performance.
+              </p>
+              <Progress 
+                size="sm" 
+                value={60} 
+                color="success"
+                showValueLabel={true}
+                label="Weekly Goal"
+                className="mb-3"
+              />
+              <Chip color="success" variant="flat" size="sm">
+                AI Powered
+              </Chip>
+            </CardBody>
+          </Card>
 
           {/* Quest System */}
-          <div className="mobile-card">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-lg">
+          <Card className="hover:scale-[1.02] transition-transform border border-gray-200 cursor-pointer">
+            <CardHeader className="flex gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center text-lg">
                 🎮
               </div>
-              <h3 className="text-lg font-semibold">Quest System</h3>
-            </div>
-            <p className="text-gray-600 text-mobile-sm mb-4">
-              Complete challenges, earn points, and level up your athletic and academic performance.
-            </p>
-            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-              Coming soon: Interactive quest board
-            </div>
-          </div>
+              <div className="flex flex-col">
+                <p className="text-lg font-semibold">Quest System</p>
+              </div>
+            </CardHeader>
+            <CardBody>
+              <p className="text-gray-600 text-sm mb-4">
+                Complete challenges, earn points, and level up your athletic and academic performance.
+              </p>
+              <Progress 
+                size="sm" 
+                value={40} 
+                color="secondary"
+                showValueLabel={true}
+                label="Level Progress"
+                className="mb-3"
+              />
+              <Chip color="secondary" variant="flat" size="sm">
+                Gamified
+              </Chip>
+            </CardBody>
+          </Card>
 
           {/* Performance Metrics */}
-          <div className="mobile-card">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center text-lg">
+          <Card className="hover:scale-[1.02] transition-transform border border-gray-200 cursor-pointer">
+            <CardHeader className="flex gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center text-lg">
                 📈
               </div>
-              <h3 className="text-lg font-semibold">Performance Analytics</h3>
-            </div>
-            <p className="text-gray-600 text-mobile-sm mb-4">
-              Visualize your progress with comprehensive charts and insights into your athletic development.
-            </p>
-            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-              Coming soon: Advanced analytics dashboard
-            </div>
-          </div>
+              <div className="flex flex-col">
+                <p className="text-lg font-semibold">Performance Analytics</p>
+              </div>
+            </CardHeader>
+            <CardBody>
+              <p className="text-gray-600 text-sm mb-4">
+                Visualize your progress with comprehensive charts and insights into your athletic development.
+              </p>
+              <Progress 
+                size="sm" 
+                value={85} 
+                color="warning"
+                showValueLabel={true}
+                label="Performance"
+                className="mb-3"
+              />
+              <Chip color="warning" variant="flat" size="sm">
+                Advanced Analytics
+              </Chip>
+            </CardBody>
+          </Card>
 
           {/* Goal Setting */}
-          <div className="mobile-card">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center text-lg">
+          <Card className="hover:scale-[1.02] transition-transform border border-gray-200 cursor-pointer">
+            <CardHeader className="flex gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-red-400 to-pink-500 rounded-lg flex items-center justify-center text-lg">
                 🎯
               </div>
-              <h3 className="text-lg font-semibold">Goal Management</h3>
-            </div>
-            <p className="text-gray-600 text-mobile-sm mb-4">
-              Set, track, and achieve your athletic and academic goals with personalized action plans.
-            </p>
-            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-              Coming soon: Smart goal planning
-            </div>
-          </div>
+              <div className="flex flex-col">
+                <p className="text-lg font-semibold">Goal Management</p>
+              </div>
+            </CardHeader>
+            <CardBody>
+              <p className="text-gray-600 text-sm mb-4">
+                Set, track, and achieve your athletic and academic goals with personalized action plans.
+              </p>
+              <Progress 
+                size="sm" 
+                value={92} 
+                color="danger"
+                showValueLabel={true}
+                label="Goals Met"
+                className="mb-3"
+              />
+              <Chip color="danger" variant="flat" size="sm">
+                Smart Planning
+              </Chip>
+            </CardBody>
+          </Card>
 
           {/* Team Connection */}
-          <div className="mobile-card">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-lg">
+          <Card className="hover:scale-[1.02] transition-transform border border-gray-200 cursor-pointer">
+            <CardHeader className="flex gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg flex items-center justify-center text-lg">
                 👥
               </div>
-              <h3 className="text-lg font-semibold">Team Integration</h3>
-            </div>
-            <p className="text-gray-600 text-mobile-sm mb-4">
-              Stay connected with your team, coaches, and compete in friendly challenges with teammates.
-            </p>
-            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-              Coming soon: Team collaboration tools
-            </div>
-          </div>
+              <div className="flex flex-col">
+                <p className="text-lg font-semibold">Team Integration</p>
+              </div>
+            </CardHeader>
+            <CardBody>
+              <p className="text-gray-600 text-sm mb-4">
+                Stay connected with your team, coaches, and compete in friendly challenges with teammates.
+              </p>
+              <Progress 
+                size="sm" 
+                value={70} 
+                color="secondary"
+                showValueLabel={true}
+                label="Team Sync"
+                className="mb-3"
+              />
+              <Chip color="secondary" variant="flat" size="sm">
+                Collaborative
+              </Chip>
+            </CardBody>
+          </Card>
         </div>
 
-        {/* Mobile Technology Stack */}
-        <div className="mobile-card mt-8">
-          <h2 className="text-xl font-semibold mb-4">🏗️ Mobile-First Technology</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-2xl mb-1">⚛️</div>
-              <div className="text-mobile-sm font-medium">React 18</div>
+        {/* Technology Stack */}
+        <Card className="mb-8 border border-gray-200 shadow-sm">
+          <CardHeader>
+            <h2 className="text-xl font-semibold">🏗️ Mobile-First Technology</h2>
+          </CardHeader>
+          <CardBody>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="text-center p-4 rounded-lg bg-gray-50">
+                <div className="text-3xl mb-2">⚛️</div>
+                <Chip size="sm" variant="flat">React 18</Chip>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-gray-50">
+                <div className="text-3xl mb-2">📱</div>
+                <Chip size="sm" variant="flat" color="primary">PWA Ready</Chip>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-gray-50">
+                <div className="text-3xl mb-2">📡</div>
+                <Chip size="sm" variant="flat" color="success">Offline First</Chip>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-gray-50">
+                <div className="text-3xl mb-2">🚀</div>
+                <Chip size="sm" variant="flat" color="secondary">Fast Loading</Chip>
+              </div>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-2xl mb-1">📱</div>
-              <div className="text-mobile-sm font-medium">PWA Ready</div>
-            </div>
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-2xl mb-1">📡</div>
-              <div className="text-mobile-sm font-medium">Offline First</div>
-            </div>
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-2xl mb-1">🚀</div>
-              <div className="text-mobile-sm font-medium">Fast Loading</div>
-            </div>
-          </div>
-        </div>
+          </CardBody>
+        </Card>
 
         {/* Footer */}
         <div className="text-center mt-12 pt-8 border-t">
-          <p className="text-gray-500 text-mobile-sm">
-            Built with Next.js 15, TypeScript, Tailwind CSS, and React Query
+          <p className="text-gray-500 text-sm mb-3">
+            Built with Next.js 15, HeroUI, TypeScript, Tailwind CSS v4, and React Query
           </p>
-          <p className="text-gray-400 text-xs mt-2">
+          <Chip color="primary" variant="flat">
             📱 Phase 3: Student Experience - Mobile PWA Ready! ✨
-          </p>
+          </Chip>
         </div>
       </main>
 
@@ -348,27 +471,37 @@ export default function HomePage() {
               <p className="text-gray-300 text-sm">Get the full mobile app experience</p>
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={() => setShowInstallPrompt(false)}
-                className="px-4 py-2 text-gray-300 text-sm"
+              <Button
+                size="sm"
+                variant="light"
+                onPress={() => setShowInstallPrompt(false)}
+                className="text-gray-300 cursor-pointer"
               >
                 Later
-              </button>
-              <button
-                onClick={handleInstallClick}
-                className="mobile-button-primary text-sm"
+              </Button>
+              <Button
+                size="sm"
+                color="primary"
+                onPress={handleInstallClick}
+                className="cursor-pointer"
               >
                 Install
-              </button>
+              </Button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Floating Action Button for Quick Actions */}
-      <button className="fab mobile-hidden">
+      {/* Floating Action Button */}
+      <Button
+        isIconOnly
+        color="primary"
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg mobile-hidden z-50"
+        size="lg"
+      >
         <span className="text-xl">+</span>
-      </button>
+      </Button>
     </div>
   );
 }
+

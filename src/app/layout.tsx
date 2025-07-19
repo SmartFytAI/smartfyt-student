@@ -4,6 +4,7 @@ import './globals.css';
 import { ReactQueryProvider } from '@/lib/react-query';
 import { PWAInstaller } from '@/components/pwa-installer';
 import { AuthProvider } from '@/components/auth/auth-provider';
+import { HeroUIClientProvider } from '@/components/providers/heroui-provider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -131,10 +132,12 @@ export default function RootLayout({
       >
         <AuthProvider>
           <ReactQueryProvider>
-            <PWAInstaller />
-            <div className="min-h-screen safe-area-inset">
-              {children}
-            </div>
+            <HeroUIClientProvider>
+              <PWAInstaller />
+              <div className="min-h-screen safe-area-inset">
+                {children}
+              </div>
+            </HeroUIClientProvider>
           </ReactQueryProvider>
         </AuthProvider>
       </body>

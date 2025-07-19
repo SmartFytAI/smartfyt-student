@@ -1,9 +1,100 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
+/* Tailwind CSS v4 Configuration */
+@theme {
+  /* Athletic Brand Colors */
+  --color-brand-50: #fff7ed;
+  --color-brand-100: #ffedd5;
+  --color-brand-200: #fed7aa;
+  --color-brand-300: #fdba74;
+  --color-brand-400: #fb923c;
+  --color-brand-500: #f97316; /* Primary brand orange */
+  --color-brand-600: #ea580c;
+  --color-brand-700: #c2410c;
+  --color-brand-800: #9a3412;
+  --color-brand-900: #7c2d12;
+  --color-brand-950: #431407;
+  
+  /* Performance Blue */
+  --color-performance-50: #eff6ff;
+  --color-performance-100: #dbeafe;
+  --color-performance-200: #bfdbfe;
+  --color-performance-300: #93c5fd;
+  --color-performance-400: #60a5fa;
+  --color-performance-500: #3b82f6; /* Secondary blue */
+  --color-performance-600: #2563eb;
+  --color-performance-700: #1d4ed8;
+  --color-performance-800: #1e40af;
+  --color-performance-900: #1e3a8a;
+  --color-performance-950: #172554;
+  
+  /* Success Green */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-300: #86efac;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e; /* Success green */
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+  --color-success-900: #14532d;
+  --color-success-950: #052e16;
+  
+  /* Warning Yellow */
+  --color-warning-50: #fefce8;
+  --color-warning-100: #fef9c3;
+  --color-warning-200: #fef08a;
+  --color-warning-300: #fde047;
+  --color-warning-400: #facc15;
+  --color-warning-500: #eab308; /* Warning yellow */
+  --color-warning-600: #ca8a04;
+  --color-warning-700: #a16207;
+  --color-warning-800: #854d0e;
+  --color-warning-900: #713f12;
+  --color-warning-950: #422006;
+  
+  /* Danger Red */
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-200: #fecaca;
+  --color-danger-300: #fca5a5;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444; /* Danger red */
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-danger-800: #991b1b;
+  --color-danger-900: #7f1d1d;
+  --color-danger-950: #450a0a;
+  
+  /* HeroUI Color Mappings for Athletic Theme */
+  --color-primary-50: var(--color-brand-50);
+  --color-primary-100: var(--color-brand-100);
+  --color-primary-200: var(--color-brand-200);
+  --color-primary-300: var(--color-brand-300);
+  --color-primary-400: var(--color-brand-400);
+  --color-primary-500: var(--color-brand-500);
+  --color-primary-600: var(--color-brand-600);
+  --color-primary-700: var(--color-brand-700);
+  --color-primary-800: var(--color-brand-800);
+  --color-primary-900: var(--color-brand-900);
+  --color-primary-950: var(--color-brand-950);
+  
+  --color-secondary-50: var(--color-performance-50);
+  --color-secondary-100: var(--color-performance-100);
+  --color-secondary-200: var(--color-performance-200);
+  --color-secondary-300: var(--color-performance-300);
+  --color-secondary-400: var(--color-performance-400);
+  --color-secondary-500: var(--color-performance-500);
+  --color-secondary-600: var(--color-performance-600);
+  --color-secondary-700: var(--color-performance-700);
+  --color-secondary-800: var(--color-performance-800);
+  --color-secondary-900: var(--color-performance-900);
+  --color-secondary-950: var(--color-performance-950);
+}
+
+/* Mobile-first PWA optimizations */
 @layer base {
-  /* Mobile-first PWA optimizations */
   html {
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
@@ -12,6 +103,7 @@
     -ms-user-select: none;
     user-select: none;
     font-feature-settings: 'rlig' 1, 'calt' 1;
+    scroll-behavior: smooth;
   }
 
   body {
@@ -19,6 +111,26 @@
     overscroll-behavior: none;
     position: relative;
     overflow-x: hidden;
+  }
+
+  /* Mobile touch optimizations */
+  button, a, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+
+  /* Ensure all interactive elements have pointer cursor */
+  .cursor-pointer,
+  [data-pressable="true"],
+  [data-hover="true"],
+  [role="button"],
+  button:not(:disabled),
+  a,
+  input[type="button"],
+  input[type="submit"],
+  select {
+    cursor: pointer;
   }
 
   /* Safe area handling for mobile notches */
@@ -29,18 +141,15 @@
     padding-right: env(safe-area-inset-right);
   }
 
-  /* Mobile touch optimizations */
-  button, a, [role="button"] {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
+  /* Touch-friendly sizing */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
   }
+}
 
-  /* Smooth scrolling */
-  html {
-    scroll-behavior: smooth;
-  }
-
-  /* PWA install prompt styles */
+@layer components {
+  /* PWA install prompt */
   .pwa-install-prompt {
     position: fixed;
     bottom: 0;
@@ -58,106 +167,96 @@
     transform: translateY(0);
   }
 
-  /* Mobile optimized loading states */
-  .loading-skeleton {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: loading 1.5s infinite;
-  }
-
-  @keyframes loading {
-    0% {
-      background-position: 200% 0;
-    }
-    100% {
-      background-position: -200% 0;
-    }
-  }
-
-  /* Mobile navigation enhancements */
-  .mobile-nav {
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-
-  /* Touch-friendly sizing */
-  .touch-target {
-    min-height: 44px;
-    min-width: 44px;
-  }
-}
-
-@layer components {
   /* Mobile-first card component */
   .mobile-card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4;
-    @apply hover:shadow-md transition-shadow duration-200;
-    @apply active:scale-[0.98] active:transition-transform active:duration-75;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    border: 1px solid rgb(229 231 235);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.2s;
   }
 
-  /* Mobile-optimized button */
-  .mobile-button {
-    @apply px-6 py-3 rounded-lg font-medium text-center;
-    @apply touch-target transition-all duration-200;
-    @apply active:scale-95 select-none;
-    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+  .mobile-card:hover {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   }
 
-  .mobile-button-primary {
-    @apply mobile-button bg-blue-600 text-white;
-    @apply hover:bg-blue-700 focus:ring-blue-500;
-    @apply disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-
-  .mobile-button-secondary {
-    @apply mobile-button bg-gray-100 text-gray-900;
-    @apply hover:bg-gray-200 focus:ring-gray-500;
+  .mobile-card:active {
+    transform: scale(0.98);
+    transition: transform 75ms;
   }
 
   /* Mobile status indicators */
   .status-online {
-    @apply inline-block w-3 h-3 bg-green-500 rounded-full;
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    background-color: #22c55e;
+    border-radius: 9999px;
     animation: pulse-gentle 2s infinite;
   }
 
   .status-offline {
-    @apply inline-block w-3 h-3 bg-red-500 rounded-full;
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    background-color: #ef4444;
+    border-radius: 9999px;
   }
 
   .status-loading {
-    @apply inline-block w-3 h-3 bg-blue-500 rounded-full;
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    background-color: #3b82f6;
+    border-radius: 9999px;
     animation: pulse 1s infinite;
-  }
-
-  @keyframes pulse-gentle {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
   }
 
   /* Mobile grid layouts */
   .mobile-grid {
-    @apply grid gap-4;
-    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
   }
 
-  /* Mobile-optimized forms */
-  .mobile-input {
-    @apply w-full px-4 py-3 text-base border border-gray-300 rounded-lg;
-    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
-    @apply touch-target;
+  @media (min-width: 640px) {
+    .mobile-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .mobile-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
 
   /* Quick action floating button */
   .fab {
-    @apply fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full;
-    @apply flex items-center justify-center shadow-lg;
-    @apply hover:bg-blue-700 active:scale-95;
-    @apply transition-all duration-200 z-50;
-    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    background-color: #2563eb;
+    color: white;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    transition: all 0.2s;
+    z-index: 50;
+  }
+
+  .fab:hover {
+    background-color: #1d4ed8;
+  }
+
+  .fab:active {
+    transform: scale(0.95);
   }
 }
 
@@ -175,20 +274,18 @@
 
   /* Text utilities for mobile */
   .text-mobile-sm {
-    @apply text-sm leading-5;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
   }
 
   .text-mobile-base {
-    @apply text-base leading-6;
+    font-size: 1rem;
+    line-height: 1.5rem;
   }
 
   .text-mobile-lg {
-    @apply text-lg leading-7;
-  }
-
-  /* Spacing utilities for touch */
-  .space-touch > :not([hidden]) ~ :not([hidden]) {
-    margin-top: 0.75rem; /* 12px - good for touch interfaces */
+    font-size: 1.125rem;
+    line-height: 1.75rem;
   }
 
   /* Hide scrollbars but keep functionality */
@@ -212,5 +309,24 @@
     .desktop-hidden {
       display: none;
     }
+  }
+}
+
+/* Keyframe animations */
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes pulse-gentle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
   }
 }
