@@ -14,6 +14,7 @@ export interface ApiResponse<T> {
 export class ApiClient {
   private baseUrl: string;
   private authToken: string | null = null;
+  private getToken?: () => Promise<string | null>;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
@@ -27,6 +28,10 @@ export class ApiClient {
     this.authToken = null;
   }
 
+  setTokenProvider(getToken: () => Promise<string | null>) {
+    this.getToken = getToken;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -38,8 +43,21 @@ export class ApiClient {
       ...(options.headers as Record<string, string>),
     };
 
-    if (this.authToken) {
-      headers.Authorization = `Bearer ${this.authToken}`;
+    // Try to get token from provider first, then fallback to stored token
+    let token = this.authToken;
+    if (this.getToken) {
+      try {
+        const dynamicToken = await this.getToken();
+        if (dynamicToken) {
+          token = dynamicToken;
+        }
+      } catch (error) {
+        console.warn('Failed to get dynamic token:', error);
+      }
+    }
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
 
     try {

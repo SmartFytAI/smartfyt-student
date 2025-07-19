@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { ReactQueryProvider } from '@/lib/react-query';
 import { PWAInstaller } from '@/components/pwa-installer';
+import { AuthProvider } from '@/components/auth/auth-provider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -128,12 +129,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900 h-full`}
       >
-        <ReactQueryProvider>
-          <PWAInstaller />
-          <div className="min-h-screen safe-area-inset">
-            {children}
-          </div>
-        </ReactQueryProvider>
+        <AuthProvider>
+          <ReactQueryProvider>
+            <PWAInstaller />
+            <div className="min-h-screen safe-area-inset">
+              {children}
+            </div>
+          </ReactQueryProvider>
+        </AuthProvider>
       </body>
     </html>
   );

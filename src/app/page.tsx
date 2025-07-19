@@ -1,9 +1,11 @@
 'use client';
 
 import { useHealthCheck, useSports, useSchools } from '@/hooks/use-api';
+import { useAuth } from '@/hooks/use-auth';
 import { useEffect, useState } from 'react';
 
 export default function HomePage() {
+  const { user, isLoading: authLoading, isAuthenticated, login, logout } = useAuth();
   const { data: healthCheck, isLoading: healthLoading, error: healthError } = useHealthCheck();
   const { data: sports, isLoading: sportsLoading } = useSports();
   const { data: schools, isLoading: schoolsLoading } = useSchools();
@@ -60,7 +62,64 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* API Status Card - Mobile Optimized */}
+        {/* Authentication Section */}
+        <div className="mobile-card mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4 flex items-center gap-2">
+            🔐 <span>Authentication</span>
+          </h2>
+          
+          {authLoading ? (
+            <div className="text-center py-4">
+              <div className="status-loading inline-block mr-2"></div>
+              <span className="text-gray-500">Checking authentication...</span>
+            </div>
+          ) : isAuthenticated && user ? (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                {user.picture && (
+                  <img 
+                    src={user.picture} 
+                    alt={user.name} 
+                    className="w-10 h-10 rounded-full"
+                  />
+                )}
+                <div>
+                  <p className="font-medium text-gray-900">{user.name}</p>
+                  <p className="text-sm text-gray-500">{user.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={logout}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-gray-600 mb-4">
+                Sign in to access your personalized dashboard and track your athletic performance.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button
+                  onClick={login}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => window.location.href = '/api/auth/register'}
+                  className="px-6 py-3 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                >
+                  Create Account
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* API Status Card - Mobile Optimized - Only show for authenticated users */}
+        {isAuthenticated && (
         <div className="mobile-card mb-6 sm:mb-8">
           <h2 className="text-xl sm:text-2xl font-semibold mb-4 flex items-center gap-2">
             🔌 <span>Connection Status</span>
@@ -145,6 +204,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+        )}
 
         {/* Student Features - Mobile Grid */}
         <div className="mobile-grid">
