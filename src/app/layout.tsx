@@ -29,6 +29,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   title: {
     default: 'SmartFyt Student',
     template: '%s | SmartFyt Student',
@@ -67,14 +68,14 @@ export const metadata: Metadata = {
     siteName: 'SmartFyt Student',
     title: 'SmartFyt Student - Mobile Performance Tracking',
     description: 'Track your athletic performance, health metrics, and achieve your goals on mobile.',
-    images: [
-      {
-        url: '/icon-512x512.png',
-        width: 512,
-        height: 512,
-        alt: 'SmartFyt Student App',
-      },
-    ],
+          images: [
+        {
+          url: '/icon-512x512.svg',
+          width: 512,
+          height: 512,
+          alt: 'SmartFyt Student App',
+        },
+      ],
   },
   
   // Twitter
@@ -82,17 +83,17 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'SmartFyt Student - Mobile Performance Tracking',
     description: 'Track your athletic performance, health metrics, and achieve your goals on mobile.',
-    images: ['/icon-512x512.png'],
+    images: ['/icon-512x512.svg'],
   },
   
   // Icons for PWA
   icons: {
     icon: [
-      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+      { url: '/icon-192x192.svg', sizes: '192x192', type: 'image/svg+xml' },
+      { url: '/icon-512x512.svg', sizes: '512x512', type: 'image/svg+xml' },
     ],
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/icon-180x180.svg', sizes: '180x180', type: 'image/svg+xml' },
     ],
     other: [
       {
