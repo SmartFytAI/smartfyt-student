@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { PWAInstaller } from '@/components/pwa-installer';
 import { useAuth } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
+import { handleLogoutCacheClear } from '@/utils/cache-utils';
 
 export default function DashboardPage() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -51,6 +52,17 @@ export default function DashboardPage() {
       }
     }
   }, [isAuthenticated, isLoading, router, user, retryCount, isInitialLoad]);
+
+  // Handle logout with cache clearing
+  const handleLogout = async () => {
+    try {
+      logger.debug('🚪 Logout initiated - clearing caches');
+      await handleLogoutCacheClear();
+      logger.debug('✅ Cache clearing completed');
+    } catch (error) {
+      logger.error('❌ Error clearing caches on logout:', error);
+    }
+  };
 
   if (isLoading || isInitialLoad) {
     logger.debug('⏳ Dashboard: Showing loading state');
@@ -102,7 +114,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className='flex items-center gap-3'>
-              <LogoutLink>Sign Out</LogoutLink>
+              <LogoutLink onClick={handleLogout}>Sign Out</LogoutLink>
             </div>
           </div>
         </div>

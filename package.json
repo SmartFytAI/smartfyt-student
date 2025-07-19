@@ -7,6 +7,7 @@
     "dev": "next dev --turbo",
     "dev:local": "next dev --turbo",
     "dev:static": "FAST_REFRESH=false next dev",
+    "dev:clean": "rm -rf .next && rm -rf node_modules/.cache && next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

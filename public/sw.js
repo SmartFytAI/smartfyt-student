@@ -1,5 +1,5 @@
 // SmartFyt Student PWA Service Worker
-const CACHE_NAME = 'smartfyt-student-v1';
+const CACHE_NAME = 'smartfyt-student-v2'; // Increment version to force cache refresh
 const API_CACHE_NAME = 'smartfyt-api-v1';
 
 // Static assets to cache
@@ -65,6 +65,31 @@ self.addEventListener('fetch', (event) => {
 
   // Skip non-GET requests
   if (request.method !== 'GET') {
+    return;
+  }
+
+  // Handle CSS files with network-first strategy to prevent stale styles
+  if (url.pathname.includes('/_next/static/css/') || 
+      url.pathname.includes('/_next/static/chunks/') ||
+      url.pathname.endsWith('.css')) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Only cache successful responses
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(request, responseClone);
+              });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Fallback to cache if network fails
+          return caches.match(request);
+        })
+    );
     return;
   }
 
