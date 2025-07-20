@@ -55,15 +55,10 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, isLoading, router, user, retryCount, isInitialLoad]);
 
-  // Handle logout with cache clearing
+  // Handle logout with cache clearing (now handled in UserAvatar component)
   const handleLogout = async () => {
-    try {
-      logger.debug('🚪 Logout initiated - clearing caches');
-      await handleLogoutCacheClear();
-      logger.debug('✅ Cache clearing completed');
-    } catch (error) {
-      logger.error('❌ Error clearing caches on logout:', error);
-    }
+    // Cache clearing is now handled in UserAvatar component
+    logger.debug('🚪 Logout handled by UserAvatar component');
   };
 
   if (isLoading || isInitialLoad) {

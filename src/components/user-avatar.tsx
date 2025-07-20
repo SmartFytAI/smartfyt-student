@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { LogoutLink } from '@kinde-oss/kinde-auth-nextjs/components';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -14,6 +15,8 @@ import { Button } from '@/components/ui/button';
 import { User, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { UserProfile } from '@/lib/services/user-service';
+import { handleLogoutCacheClear } from '@/utils/cache-utils';
+import { logger } from '@/lib/logger';
 
 interface UserAvatarProps {
   userId: string;
@@ -24,9 +27,18 @@ export function UserAvatar({ userId, onSignOut }: UserAvatarProps) {
   const router = useRouter();
   const { profile, isLoading, error, updateProfile } = useUserProfile(userId);
 
-  const handleSignOut = () => {
-    if (onSignOut) {
-      onSignOut();
+  const handleSignOut = async () => {
+    try {
+      logger.debug('🚪 Logout initiated - clearing caches');
+      await handleLogoutCacheClear();
+      logger.debug('✅ Cache clearing completed');
+      
+      // Call the parent's onSignOut if provided
+      if (onSignOut) {
+        onSignOut();
+      }
+    } catch (error) {
+      logger.error('❌ Error clearing caches on logout:', error);
     }
   };
 
@@ -97,13 +109,14 @@ export function UserAvatar({ userId, onSignOut }: UserAvatarProps) {
             </span>
           </DropdownMenuItem>
 
-          <DropdownMenuItem
-            onClick={handleSignOut}
-            className='cursor-pointer text-red-600 transition-colors hover:bg-neutral-100 focus:text-red-600 dark:text-red-400 dark:hover:bg-neutral-800 dark:focus:text-red-400'
-          >
-            <LogOut className='mr-2 h-4 w-4' />
-            <span>Sign Out</span>
-          </DropdownMenuItem>
+          <LogoutLink onClick={handleSignOut}>
+            <DropdownMenuItem
+              className='cursor-pointer text-red-600 transition-colors hover:bg-neutral-100 focus:text-red-600 dark:text-red-400 dark:hover:bg-neutral-800 dark:focus:text-red-400'
+            >
+              <LogOut className='mr-2 h-4 w-4' />
+              <span>Sign Out</span>
+            </DropdownMenuItem>
+          </LogoutLink>
         </DropdownMenuContent>
       </DropdownMenu>
     </>
