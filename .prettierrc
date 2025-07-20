@@ -14,5 +14,13 @@
   "proseWrap": "preserve",
   "htmlWhitespaceSensitivity": "css",
   "embeddedLanguageFormatting": "auto",
-  "plugins": ["prettier-plugin-tailwindcss"]
+  "plugins": ["prettier-plugin-tailwindcss"],
+  "overrides": [
+    {
+      "files": "*.{ts,tsx}",
+      "options": {
+        "parser": "typescript"
+      }
+    }
+  ]
 }

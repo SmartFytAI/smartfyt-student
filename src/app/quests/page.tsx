@@ -268,12 +268,16 @@ export default function QuestsPage() {
                 <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
                   <Card>
                     <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                      <CardTitle className='text-sm font-medium'>Total Score</CardTitle>
+                      <CardTitle className='text-sm font-medium'>
+                        Total Score
+                      </CardTitle>
                       <Trophy className='h-4 w-4 text-yellow-500' />
                     </CardHeader>
                     <CardContent>
                       <div className='text-2xl font-bold'>{totalScore}</div>
-                      <p className='text-xs text-muted-foreground'>Points earned</p>
+                      <p className='text-xs text-muted-foreground'>
+                        Points earned
+                      </p>
                     </CardContent>
                   </Card>
 
@@ -285,7 +289,9 @@ export default function QuestsPage() {
                       <Target className='h-4 w-4 text-blue-500' />
                     </CardHeader>
                     <CardContent>
-                      <div className='text-2xl font-bold'>{currentQuests.length}</div>
+                      <div className='text-2xl font-bold'>
+                        {currentQuests.length}
+                      </div>
                       <p className='text-xs text-muted-foreground'>
                         Available to complete
                       </p>
@@ -294,12 +300,18 @@ export default function QuestsPage() {
 
                   <Card>
                     <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                      <CardTitle className='text-sm font-medium'>Completed</CardTitle>
+                      <CardTitle className='text-sm font-medium'>
+                        Completed
+                      </CardTitle>
                       <CheckCircle className='h-4 w-4 text-green-500' />
                     </CardHeader>
                     <CardContent>
-                      <div className='text-2xl font-bold'>{completedQuests.length}</div>
-                      <p className='text-xs text-muted-foreground'>Quests finished</p>
+                      <div className='text-2xl font-bold'>
+                        {completedQuests.length}
+                      </div>
+                      <p className='text-xs text-muted-foreground'>
+                        Quests finished
+                      </p>
                     </CardContent>
                   </Card>
 
@@ -314,7 +326,9 @@ export default function QuestsPage() {
                       <div className='text-2xl font-bold'>
                         {questCompletion.percentage}%
                       </div>
-                      <p className='text-xs text-muted-foreground'>Success rate</p>
+                      <p className='text-xs text-muted-foreground'>
+                        Success rate
+                      </p>
                     </CardContent>
                   </Card>
                 </div>
@@ -322,17 +336,25 @@ export default function QuestsPage() {
                 {/* Quest Progress */}
                 <div className='space-y-4'>
                   <div className='flex items-center justify-between'>
-                    <span className='text-sm font-medium'>Overall Progress</span>
+                    <span className='text-sm font-medium'>
+                      Overall Progress
+                    </span>
                     <span className='text-sm text-muted-foreground'>
                       {questCompletion.completedQuests} /{' '}
                       {questCompletion.totalQuests} quests
                     </span>
                   </div>
-                  <Progress value={questCompletion.percentage} className='h-2' />
+                  <Progress
+                    value={questCompletion.percentage}
+                    className='h-2'
+                  />
 
                   <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3'>
                     {userStats.map(stat => (
-                      <div key={stat.categoryId} className='rounded-lg border p-3'>
+                      <div
+                        key={stat.categoryId}
+                        className='rounded-lg border p-3'
+                      >
                         <div className='mb-2 flex items-center justify-between'>
                           <span className='text-sm font-medium'>
                             {stat.categoryName}
@@ -369,7 +391,7 @@ export default function QuestsPage() {
                 <h3 className='text-lg font-semibold'>Active Quests</h3>
                 <Button onClick={handleAssignNewQuests} disabled={isLoading}>
                   <Plus className='mr-2 h-4 w-4' />
-                Get New Quests
+                  Get New Quests
                 </Button>
               </div>
 
@@ -378,15 +400,15 @@ export default function QuestsPage() {
                   <CardContent className='flex flex-col items-center justify-center py-8'>
                     <Target className='mb-4 h-12 w-12 text-gray-400' />
                     <h4 className='mb-2 text-lg font-semibold'>
-                    No Active Quests
+                      No Active Quests
                     </h4>
                     <p className='mb-4 text-center text-muted-foreground'>
-                    You don&apos;t have any active quests. Get new quests to
-                    start earning points!
+                      You don&apos;t have any active quests. Get new quests to
+                      start earning points!
                     </p>
                     <Button onClick={handleAssignNewQuests}>
                       <Plus className='mr-2 h-4 w-4' />
-                    Get New Quests
+                      Get New Quests
                     </Button>
                   </CardContent>
                 </Card>
@@ -396,9 +418,15 @@ export default function QuestsPage() {
                     <Card
                       key={quest.id}
                       className={`cursor-pointer transition-all hover:shadow-md ${
-                        expandedQuestId === quest.id ? 'ring-2 ring-green-200 dark:ring-green-800' : ''
+                        expandedQuestId === quest.id
+                          ? 'ring-2 ring-green-200 dark:ring-green-800'
+                          : ''
                       }`}
-                      onClick={() => setExpandedQuestId(expandedQuestId === quest.id ? null : quest.id)}
+                      onClick={() =>
+                        setExpandedQuestId(
+                          expandedQuestId === quest.id ? null : quest.id
+                        )
+                      }
                     >
                       <CardHeader>
                         <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
@@ -408,7 +436,7 @@ export default function QuestsPage() {
                                 {getCategoryIcon(quest.categoryName)}
                               </span>
                             </div>
-                            <div className='flex-1 min-w-0'>
+                            <div className='min-w-0 flex-1'>
                               <CardTitle className='text-lg'>
                                 {quest.title}
                               </CardTitle>
@@ -417,7 +445,9 @@ export default function QuestsPage() {
                               </CardDescription>
                             </div>
                           </div>
-                          <Badge className={getCategoryColor(quest.categoryName)}>
+                          <Badge
+                            className={getCategoryColor(quest.categoryName)}
+                          >
                             {quest.pointValue} pts
                           </Badge>
                         </div>
@@ -427,13 +457,18 @@ export default function QuestsPage() {
                           <Badge variant='outline'>{quest.categoryName}</Badge>
                           <div className='flex items-center gap-2'>
                             <span className='text-sm text-muted-foreground'>
-                              Click to {expandedQuestId === quest.id ? 'collapse' : 'complete'}
+                              Click to{' '}
+                              {expandedQuestId === quest.id
+                                ? 'collapse'
+                                : 'complete'}
                             </span>
-                            <CheckCircle className={`h-4 w-4 transition-colors ${
-                              expandedQuestId === quest.id
-                                ? 'text-green-600'
-                                : 'text-gray-400'
-                            }`} />
+                            <CheckCircle
+                              className={`h-4 w-4 transition-colors ${
+                                expandedQuestId === quest.id
+                                  ? 'text-green-600'
+                                  : 'text-gray-400'
+                              }`}
+                            />
                           </div>
                         </div>
 
@@ -442,14 +477,19 @@ export default function QuestsPage() {
                           <div className='mt-6 space-y-4 rounded-lg border bg-gray-50/50 p-4 dark:bg-gray-800/50'>
                             <div className='space-y-3'>
                               <div>
-                                <Label htmlFor={`notes-${quest.id}`} className='text-sm font-medium'>
+                                <Label
+                                  htmlFor={`notes-${quest.id}`}
+                                  className='text-sm font-medium'
+                                >
                                   Completion Notes (Optional)
                                 </Label>
                                 <Textarea
                                   id={`notes-${quest.id}`}
                                   placeholder='Share your experience completing this quest...'
                                   value={completionNotes}
-                                  onChange={e => setCompletionNotes(e.target.value)}
+                                  onChange={e =>
+                                    setCompletionNotes(e.target.value)
+                                  }
                                   maxLength={280}
                                   className='mt-2'
                                 />
@@ -461,7 +501,7 @@ export default function QuestsPage() {
                               <div className='flex flex-col gap-2 sm:flex-row sm:justify-end'>
                                 <Button
                                   variant='outline'
-                                  onClick={(e) => {
+                                  onClick={e => {
                                     e.stopPropagation();
                                     setExpandedQuestId(null);
                                     setCompletionNotes('');
@@ -471,7 +511,7 @@ export default function QuestsPage() {
                                   Cancel
                                 </Button>
                                 <Button
-                                  onClick={(e) => {
+                                  onClick={e => {
                                     e.stopPropagation();
                                     handleCompleteQuest(quest.id);
                                   }}
@@ -479,7 +519,9 @@ export default function QuestsPage() {
                                   className='bg-green-600 hover:bg-green-700'
                                   size='sm'
                                 >
-                                  {isCompleting ? 'Completing...' : 'Complete Quest'}
+                                  {isCompleting
+                                    ? 'Completing...'
+                                    : 'Complete Quest'}
                                 </Button>
                               </div>
                             </div>
@@ -500,10 +542,10 @@ export default function QuestsPage() {
                   <CardContent className='flex flex-col items-center justify-center py-8'>
                     <CheckCircle className='mb-4 h-12 w-12 text-gray-400' />
                     <h4 className='mb-2 text-lg font-semibold'>
-                    No Completed Quests
+                      No Completed Quests
                     </h4>
                     <p className='text-center text-muted-foreground'>
-                    Complete your first quest to see it here!
+                      Complete your first quest to see it here!
                     </p>
                   </CardContent>
                 </Card>
@@ -520,7 +562,7 @@ export default function QuestsPage() {
                             <div className='flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20'>
                               <CheckCircle className='h-5 w-5 text-green-600' />
                             </div>
-                            <div className='flex-1 min-w-0'>
+                            <div className='min-w-0 flex-1'>
                               <CardTitle className='text-lg'>
                                 {quest.title}
                               </CardTitle>
@@ -537,11 +579,13 @@ export default function QuestsPage() {
                           </div>
                           <div className='text-right'>
                             <Badge className='bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'>
-                            +{quest.pointValue} pts
+                              +{quest.pointValue} pts
                             </Badge>
                             <p className='mt-1 text-xs text-muted-foreground'>
                               {quest.completedAt
-                                ? new Date(quest.completedAt).toLocaleDateString()
+                                ? new Date(
+                                    quest.completedAt
+                                  ).toLocaleDateString()
                                 : 'Completed'}
                             </p>
                           </div>
@@ -559,11 +603,11 @@ export default function QuestsPage() {
                 <CardContent className='flex flex-col items-center justify-center py-8'>
                   <Users className='mb-4 h-12 w-12 text-gray-400' />
                   <h4 className='mb-2 text-lg font-semibold'>
-                  Leaderboard Coming Soon
+                    Leaderboard Coming Soon
                   </h4>
                   <p className='text-center text-muted-foreground'>
-                  Compete with your teammates and see who&apos;s earning the
-                  most quest points!
+                    Compete with your teammates and see who&apos;s earning the
+                    most quest points!
                   </p>
                 </CardContent>
               </Card>

@@ -93,33 +93,10 @@
     ],
     "no-trailing-spaces": "error",
     "eol-last": "error",
-    "comma-dangle": [
-      "error",
-      {
-        "arrays": "always-multiline",
-        "objects": "always-multiline",
-        "imports": "always-multiline",
-        "exports": "always-multiline",
-        "functions": "never"
-      }
-    ],
-    "quotes": [
-      "error",
-      "single",
-      {
-        "avoidEscape": true,
-        "allowTemplateLiterals": true
-      }
-    ],
-    "semi": ["error", "always"],
-    "indent": [
-      "error",
-      2,
-      {
-        "SwitchCase": 1,
-        "ignoredNodes": ["ObjectExpression", "ArrayExpression"]
-      }
-    ]
+    "comma-dangle": "off",
+    "quotes": "off",
+    "semi": "off",
+    "indent": "off"
   },
   "overrides": [
     {
