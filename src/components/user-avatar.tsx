@@ -1,8 +1,11 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { LogoutLink } from '@kinde-oss/kinde-auth-nextjs/components';
+import { User, LogOut, ChevronDown } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,12 +14,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { User, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { useUserProfile } from '@/hooks/use-user-profile';
-import { UserProfile } from '@/lib/services/user-service';
-import { handleLogoutCacheClear } from '@/utils/cache-utils';
 import { logger } from '@/lib/logger';
+import { handleLogoutCacheClear } from '@/utils/cache-utils';
 
 interface UserAvatarProps {
   userId: string;
@@ -25,14 +25,14 @@ interface UserAvatarProps {
 
 export function UserAvatar({ userId, onSignOut }: UserAvatarProps) {
   const router = useRouter();
-  const { profile, isLoading, error, updateProfile } = useUserProfile(userId);
+  const { profile } = useUserProfile(userId);
 
   const handleSignOut = async () => {
     try {
       logger.debug('🚪 Logout initiated - clearing caches');
       await handleLogoutCacheClear();
       logger.debug('✅ Cache clearing completed');
-      
+
       // Call the parent's onSignOut if provided
       if (onSignOut) {
         onSignOut();
@@ -110,9 +110,7 @@ export function UserAvatar({ userId, onSignOut }: UserAvatarProps) {
           </DropdownMenuItem>
 
           <LogoutLink onClick={handleSignOut}>
-            <DropdownMenuItem
-              className='cursor-pointer text-red-600 transition-colors hover:bg-neutral-100 focus:text-red-600 dark:text-red-400 dark:hover:bg-neutral-800 dark:focus:text-red-400'
-            >
+            <DropdownMenuItem className='cursor-pointer text-red-600 transition-colors hover:bg-neutral-100 focus:text-red-600 dark:text-red-400 dark:hover:bg-neutral-800 dark:focus:text-red-400'>
               <LogOut className='mr-2 h-4 w-4' />
               <span>Sign Out</span>
             </DropdownMenuItem>

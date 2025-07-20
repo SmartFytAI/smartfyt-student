@@ -4,7 +4,7 @@ import { ReactNode } from 'react';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
-    <KindeProvider 
+    <KindeProvider
       scope='openid profile email offline_access'
       logoutRedirectUrl='/'
     >

@@ -1,22 +1,23 @@
 'use client';
 
-import { LogoutLink } from '@kinde-oss/kinde-auth-nextjs/components';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { DashboardCalendar } from '@/components/journal/dashboard-calendar';
+import { PageHeader } from '@/components/layout/page-header';
 import { PWAInstaller } from '@/components/pwa-installer';
-import { ThemeToggle } from '@/components/theme/theme-toggle';
-import { UserAvatar } from '@/components/user-avatar';
 import { useAuth } from '@/hooks/use-auth';
+// import { useJournalStatus } from '@/hooks/use-journal-status';
 import { logger } from '@/lib/logger';
-import { handleLogoutCacheClear } from '@/utils/cache-utils';
 
 export default function DashboardPage() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const [retryCount, setRetryCount] = useState(0);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  // Get journal status for the user (unused but kept for future reference)
+  // const journalStatus = useJournalStatus(user?.id || '');
 
   useEffect(() => {
     logger.debug('🏠 Dashboard auth effect:', {
@@ -55,12 +56,6 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, isLoading, router, user, retryCount, isInitialLoad]);
 
-  // Handle logout with cache clearing (now handled in UserAvatar component)
-  const handleLogout = async () => {
-    // Cache clearing is now handled in UserAvatar component
-    logger.debug('🚪 Logout handled by UserAvatar component');
-  };
-
   if (isLoading || isInitialLoad) {
     logger.debug('⏳ Dashboard: Showing loading state');
     return (
@@ -90,71 +85,51 @@ export default function DashboardPage() {
       <PWAInstaller />
 
       {/* Header */}
-      <div className='bg-white shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-        <div className='mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8'>
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center'>
-              <div className='flex-shrink-0'>
-                <Image
-                  src='/logos/smartfyt-brain.png'
-                  alt='SmartFyt Brain'
-                  width={48}
-                  height={48}
-                  className='h-12 w-auto'
-                />
-              </div>
-              <div className='ml-4'>
-                <h1 className='text-xl font-semibold text-gray-900 dark:text-white'>
-                  Welcome back, {user.name}!
-                </h1>
-                <p className='text-sm text-gray-600 dark:text-gray-400'>
-                  Ready to crush your goals today?
-                </p>
-              </div>
-            </div>
-            <div className='flex items-center gap-3'>
-              <ThemeToggle />
-              <UserAvatar userId={user.id} onSignOut={handleLogout} />
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title={`Welcome back, ${user.name}!`}
+        subtitle='Ready to crush your goals today?'
+      />
 
       {/* Dashboard Content */}
       <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
         <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-          {/* Today's Workout */}
+          {/* Today's Quest */}
           <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
             <h3 className='mb-4 text-lg font-semibold dark:text-white'>
-              Today&apos;s Workout
+              Today&apos;s Quest
             </h3>
             <div className='py-8 text-center'>
-              <div className='mb-2 text-4xl'>🏃‍♂️</div>
+              <div className='mb-2 text-4xl'>⚔️</div>
               <p className='text-gray-600 dark:text-gray-400'>
-                No workout scheduled
+                No quests available
               </p>
-              <button className='mt-4 rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700'>
-                Plan Workout
+              <button className='mt-4 rounded-md bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700'>
+                View Quests
               </button>
             </div>
           </div>
 
-          {/* Weekly Progress */}
+          {/* Journal Calendar */}
           <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-            <h3 className='mb-4 text-lg font-semibold dark:text-white'>
-              Weekly Progress
-            </h3>
-            <div className='space-y-3'>
-              <div className='flex justify-between'>
-                <span className='dark:text-gray-300'>Workouts</span>
-                <span className='font-semibold dark:text-white'>0/5</span>
-              </div>
-              <div className='h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700'>
-                <div
-                  className='h-2 rounded-full bg-blue-600'
-                  style={{ width: '0%' }}
-                ></div>
-              </div>
+            <div className='mb-4 flex items-center justify-between'>
+              <h3 className='text-lg font-semibold dark:text-white'>
+                Journal Progress
+              </h3>
+              <button
+                onClick={() => router.push('/journal')}
+                className='text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300'
+              >
+                View All →
+              </button>
+            </div>
+            <div className='space-y-4'>
+              <DashboardCalendar
+                userId={user.id}
+                onDayClick={(date: Date) => {
+                  logger.debug('📅 Dashboard calendar day clicked:', { date });
+                  router.push('/journal');
+                }}
+              />
             </div>
           </div>
 
@@ -164,11 +139,23 @@ export default function DashboardPage() {
               Quick Actions
             </h3>
             <div className='space-y-3'>
-              <button className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'>
-                📝 Log Workout
+              <button
+                onClick={() => router.push('/journal')}
+                className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
+              >
+                📝 Daily Journal
               </button>
-              <button className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'>
-                📊 View Progress
+              <button
+                onClick={() => router.push('/quests')}
+                className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
+              >
+                ⚔️ View Quests
+              </button>
+              <button
+                onClick={() => router.push('/leaderboard')}
+                className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
+              >
+                🏆 Leaderboard
               </button>
               <button className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'>
                 🎯 Set Goals
@@ -203,42 +190,55 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Recent Activity */}
+          {/* Leaderboard */}
           <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-            <h3 className='mb-4 text-lg font-semibold dark:text-white'>
-              Recent Activity
-            </h3>
+            <div className='mb-4 flex items-center justify-between'>
+              <h3 className='text-lg font-semibold dark:text-white'>
+                Leaderboard
+              </h3>
+              <button
+                onClick={() => router.push('/leaderboard')}
+                className='text-sm text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300'
+              >
+                View All →
+              </button>
+            </div>
             <div className='space-y-3'>
-              <div className='flex items-center gap-3'>
-                <div className='flex h-8 w-8 items-center justify-center rounded-full bg-green-100 dark:bg-green-900'>
-                  <span className='text-sm text-green-600 dark:text-green-400'>
-                    ✓
+              <div className='py-6 text-center'>
+                <div className='mb-2 text-4xl'>🏆</div>
+                <p className='text-sm font-medium dark:text-gray-300'>
+                  Team Rankings
+                </p>
+                <p className='text-xs text-gray-500 dark:text-gray-400'>
+                  Compete with your teammates
+                </p>
+              </div>
+
+              <div className='space-y-2'>
+                <div className='flex items-center justify-between text-sm'>
+                  <span className='dark:text-gray-300'>Your Rank</span>
+                  <span className='font-semibold text-orange-600 dark:text-orange-400'>
+                    #3
                   </span>
                 </div>
-                <div>
-                  <p className='text-sm font-medium dark:text-gray-300'>
-                    Morning workout completed
-                  </p>
-                  <p className='text-xs text-gray-500 dark:text-gray-400'>
-                    2 hours ago
-                  </p>
+                <div className='flex items-center justify-between text-sm'>
+                  <span className='dark:text-gray-300'>Points</span>
+                  <span className='font-semibold dark:text-white'>1,250</span>
                 </div>
-              </div>
-              <div className='flex items-center gap-3'>
-                <div className='flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900'>
-                  <span className='text-sm text-blue-600 dark:text-blue-400'>
-                    📝
+                <div className='flex items-center justify-between text-sm'>
+                  <span className='dark:text-gray-300'>Streak</span>
+                  <span className='font-semibold text-green-600 dark:text-green-400'>
+                    7 days
                   </span>
                 </div>
-                <div>
-                  <p className='text-sm font-medium dark:text-gray-300'>
-                    Journal entry logged
-                  </p>
-                  <p className='text-xs text-gray-500 dark:text-gray-400'>
-                    Yesterday
-                  </p>
-                </div>
               </div>
+
+              <button
+                onClick={() => router.push('/leaderboard')}
+                className='mt-3 w-full rounded-md bg-orange-600 px-3 py-2 text-sm text-white transition-colors hover:bg-orange-700'
+              >
+                View Leaderboard
+              </button>
             </div>
           </div>
 

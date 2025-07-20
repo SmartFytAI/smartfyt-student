@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
+
+import { logger } from '@/lib/logger';
 import {
   userService,
   UserProfile,
   School,
   Sport,
 } from '@/lib/services/user-service';
-import { logger } from '@/lib/logger';
 
 interface UseUserProfileReturn {
   profile: UserProfile | null;

@@ -1,7 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Save, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+
+import { PageLayout } from '@/components/layout';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -13,7 +20,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -21,13 +27,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Save, ArrowLeft, User } from 'lucide-react';
-import { useUserProfile } from '@/hooks/use-user-profile';
+import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
+import { useUserProfile } from '@/hooks/use-user-profile';
 import { logger } from '@/lib/logger';
 
 // Profile form schema
@@ -78,8 +80,6 @@ export default function ProfilePage() {
     updateProfile,
   } = useUserProfile(user?.id || '');
 
-
-
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
@@ -106,8 +106,6 @@ export default function ProfilePage() {
       coachEmail: '',
     },
   });
-
-
 
   // Update form when profile data loads
   React.useEffect(() => {
@@ -138,7 +136,7 @@ export default function ProfilePage() {
 
       form.reset(formData);
       setProfileImage(profile.profileImage || '');
-      
+
       // Force set the values after reset to ensure they're applied
       setTimeout(() => {
         form.setValue('school', formData.school);
@@ -207,35 +205,13 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
-      {/* Mobile-first header */}
-      <div className='bg-white shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-        <div className='px-4 py-4'>
-          <div className='flex items-center justify-between'>
-            <Button
-              variant='ghost'
-              size='sm'
-              onClick={() => router.back()}
-              className='flex items-center gap-2 text-gray-600 dark:text-gray-400'
-            >
-              <ArrowLeft className='h-4 w-4' />
-              <span className='hidden sm:inline'>Back</span>
-            </Button>
-            <h1 className='text-lg font-semibold text-gray-900 dark:text-white'>
-              Profile Settings
-            </h1>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => console.log('Test button clicked')}
-              className='border-orange-500 text-orange-500 hover:bg-orange-50'
-            >
-              Test
-            </Button>
-          </div>
-        </div>
-      </div>
-
+    <PageLayout
+      title='Profile Settings'
+      subtitle='Manage your account and preferences'
+      showBackButton={true}
+      backUrl='/dashboard'
+      showHomeButton={true}
+    >
       {/* Mobile-first content */}
       <div className='mx-auto max-w-2xl px-4 py-6'>
         <Form {...form}>
@@ -797,6 +773,6 @@ export default function ProfilePage() {
           </form>
         </Form>
       </div>
-    </div>
+    </PageLayout>
   );
 }

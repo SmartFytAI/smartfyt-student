@@ -3,6 +3,8 @@
  * Connects to the independent smartfyt-api backend
  */
 
+import { logger } from './logger';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export interface ApiResponse<T> {
@@ -52,7 +54,7 @@ export class ApiClient {
           token = dynamicToken;
         }
       } catch (error) {
-        console.warn('Failed to get dynamic token:', error);
+        logger.warn('⚠️ Failed to get dynamic token:', error);
       }
     }
 
@@ -126,6 +128,24 @@ export class ApiClient {
     return this.request<string[]>(`/users/${userId}/journals/dates`);
   }
 
+  async createJournal(journalData: {
+    userId: string;
+    title: string;
+    wentWell?: string;
+    notWell?: string;
+    goals?: string;
+    sleepHours?: number;
+    activeHours?: number;
+    stress?: number;
+    screenTime?: number;
+    studyHours?: number;
+  }) {
+    return this.request('/journals', {
+      method: 'POST',
+      body: JSON.stringify(journalData),
+    });
+  }
+
   // Quest endpoints
   async getUserQuests(userId: string) {
     return this.request(`/users/${userId}/quests`);
@@ -160,6 +180,7 @@ export const API_ENDPOINTS = {
   HEALTH_DATA: (userId: string) => `/users/${userId}/health`,
   JOURNALS: (userId: string) => `/users/${userId}/journals`,
   JOURNAL_DATES: (userId: string) => `/users/${userId}/journals/dates`,
+  CREATE_JOURNAL: '/journals',
   USER_QUESTS: (userId: string) => `/users/${userId}/quests`,
   USER_FORMS: (userId: string) => `/users/${userId}/forms`,
   DASHBOARD: (userId: string) => `/users/${userId}/dashboard`,

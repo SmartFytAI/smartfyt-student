@@ -268,13 +268,25 @@ class UserService {
 
     // Update form data if any form fields are provided
     const formDataFields = [
-      'grade', 'school', 'sport', 'age', 'phone', 'sleepHours', 
-      'studyHours', 'activeHours', 'stressLevel', 'screenTime', 
-      'wearable', 'coachName', 'coachEmail'
+      'grade',
+      'school',
+      'sport',
+      'age',
+      'phone',
+      'sleepHours',
+      'studyHours',
+      'activeHours',
+      'stressLevel',
+      'screenTime',
+      'wearable',
+      'coachName',
+      'coachEmail',
     ];
-    
-    const hasFormData = formDataFields.some(field => profileData[field as keyof UserProfile] !== undefined);
-    
+
+    const hasFormData = formDataFields.some(
+      field => profileData[field as keyof UserProfile] !== undefined
+    );
+
     if (hasFormData) {
       const formData: any = {};
       formDataFields.forEach(field => {
@@ -282,7 +294,7 @@ class UserService {
           formData[field] = profileData[field as keyof UserProfile];
         }
       });
-      
+
       updates.push(this.updateUserFormData(userId, formData));
     }
 

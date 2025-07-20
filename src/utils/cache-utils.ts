@@ -3,15 +3,17 @@
  * Helps prevent stale styles and cached content issues
  */
 
+import { logger } from '@/lib/logger';
+
 // Clear all caches (useful for development and debugging)
 export async function clearAllCaches(): Promise<void> {
   if ('caches' in window) {
     try {
       const cacheNames = await caches.keys();
       await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
-      console.log('[Cache Utils] All caches cleared');
+      logger.info('🗂️ All caches cleared');
     } catch (error) {
-      console.error('[Cache Utils] Failed to clear caches:', error);
+      logger.error('❌ Failed to clear caches:', error);
     }
   }
 }
@@ -21,10 +23,10 @@ export async function clearCacheByName(cacheName: string): Promise<void> {
   if ('caches' in window) {
     try {
       await caches.delete(cacheName);
-      console.log(`[Cache Utils] Cache '${cacheName}' cleared`);
+      logger.info(`🗂️ Cache '${cacheName}' cleared`);
     } catch (error) {
-      console.error(
-        `[Cache Utils] Failed to clear cache '${cacheName}':`,
+      logger.error(
+        `❌ Failed to clear cache '${cacheName}':`,
         error
       );
     }
@@ -44,9 +46,9 @@ export async function clearCSSCaches(): Promise<void> {
       );
 
       await Promise.all(cssCaches.map(cacheName => caches.delete(cacheName)));
-      console.log('[Cache Utils] CSS caches cleared');
+      logger.info('🗂️ CSS caches cleared');
     } catch (error) {
-      console.error('[Cache Utils] Failed to clear CSS caches:', error);
+      logger.error('❌ Failed to clear CSS caches:', error);
     }
   }
 }
@@ -62,10 +64,10 @@ export async function forceReloadAndClearCaches(): Promise<void> {
       await Promise.all(
         registrations.map(registration => registration.unregister())
       );
-      console.log('[Cache Utils] Service workers unregistered');
+      logger.info('🗂️ Service workers unregistered');
     } catch (error) {
-      console.error(
-        '[Cache Utils] Failed to unregister service workers:',
+      logger.error(
+        '❌ Failed to unregister service workers:',
         error
       );
     }
@@ -83,7 +85,7 @@ export function isDevelopment(): boolean {
 // Development-only cache clearing
 export async function devClearCaches(): Promise<void> {
   if (isDevelopment()) {
-    console.log('[Cache Utils] Development mode - clearing caches');
+    logger.info('🗂️ Development mode - clearing caches');
     await clearAllCaches();
   }
 }
@@ -104,8 +106,8 @@ export async function handleLogoutCacheClear(): Promise<void> {
       await Promise.all(authCaches.map(cacheName => caches.delete(cacheName)));
     }
 
-    console.log('[Cache Utils] Logout cache clearing completed');
+    logger.info('🗂️ Logout cache clearing completed');
   } catch (error) {
-    console.error('[Cache Utils] Failed to clear caches on logout:', error);
+    logger.error('❌ Failed to clear caches on logout:', error);
   }
 }

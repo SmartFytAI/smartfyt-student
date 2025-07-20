@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+
 import { UserAvatar } from '@/components/user-avatar';
 import { UserProfileModal } from '@/components/user-profile-modal';
 import { useUserProfile } from '@/hooks/use-user-profile';
+import { logger } from '@/lib/logger';
 
 export default function ProfileTestPage() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -15,12 +17,12 @@ export default function ProfileTestPage() {
     useUserProfile(testUserId);
 
   const handleSignOut = () => {
-    console.log('Sign out clicked');
+    logger.info('🚪 Sign out clicked');
     // Add your sign out logic here
   };
 
-  const handleProfileUpdate = async (data: any) => {
-    console.log('Profile update:', data);
+  const handleProfileUpdate = async (data: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+    logger.info('👤 Profile update:', data);
     await updateProfile(data);
   };
 
