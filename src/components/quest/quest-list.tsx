@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { logger } from '@/lib/logger';
 import { QuestService } from '@/lib/services/quest-service';
@@ -14,35 +14,40 @@ interface QuestListProps {
   refreshKey?: number;
 }
 
-export function QuestList({ userId, onCompleteQuest, refreshKey }: QuestListProps) {
+export function QuestList({
+  userId,
+  onCompleteQuest,
+  refreshKey,
+}: QuestListProps) {
   const [quests, setQuests] = useState<QuestResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchQuests = async () => {
+  const fetchQuests = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
       logger.debug('⚔️ Fetching quests for user:', { userId });
-      
+
       const userQuests = await QuestService.getUserQuests(userId);
       setQuests(userQuests);
-      
+
       logger.debug('✅ Quests fetched successfully:', {
         count: userQuests.length,
       });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch quests';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to fetch quests';
       logger.error('❌ Error fetching quests:', err);
       setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     fetchQuests();
-  }, [userId, refreshKey]);
+  }, [userId, refreshKey, fetchQuests]);
 
   if (isLoading) {
     return (
@@ -68,7 +73,9 @@ export function QuestList({ userId, onCompleteQuest, refreshKey }: QuestListProp
             <h3 className='text-sm font-medium text-red-800 dark:text-red-200'>
               Error loading quests
             </h3>
-            <p className='mt-1 text-sm text-red-700 dark:text-red-300'>{error}</p>
+            <p className='mt-1 text-sm text-red-700 dark:text-red-300'>
+              {error}
+            </p>
             <button
               onClick={fetchQuests}
               className='mt-3 rounded-md bg-red-100 px-3 py-1 text-sm font-medium text-red-800 transition-colors hover:bg-red-200 dark:bg-red-800 dark:text-red-200 dark:hover:bg-red-700'
@@ -116,9 +123,9 @@ export function QuestList({ userId, onCompleteQuest, refreshKey }: QuestListProp
           Refresh
         </button>
       </div>
-      
+
       <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
-        {quests.map((quest) => (
+        {quests.map(quest => (
           <QuestCard
             key={quest.id}
             quest={quest}
@@ -128,4 +135,4 @@ export function QuestList({ userId, onCompleteQuest, refreshKey }: QuestListProp
       </div>
     </div>
   );
-} 
+}

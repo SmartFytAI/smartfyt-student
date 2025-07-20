@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { logger } from '@/lib/logger';
 import { QuestService } from '@/lib/services/quest-service';
@@ -16,15 +16,15 @@ export function QuestsWidget({ userId, onViewAll }: QuestsWidgetProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchQuests = async () => {
+  const fetchQuests = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
       logger.debug('⚔️ Fetching quests for dashboard widget:', { userId });
-      
+
       const quests = await QuestService.getUserQuests(userId);
       setQuests(quests);
-      
+
       logger.debug('✅ Dashboard quests fetched successfully:', {
         count: quests.length,
       });
@@ -34,11 +34,11 @@ export function QuestsWidget({ userId, onViewAll }: QuestsWidgetProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     fetchQuests();
-  }, [userId]);
+  }, [userId, fetchQuests]);
 
   const getCategoryIcon = (categoryName: string) => {
     switch (categoryName.toLowerCase()) {
@@ -175,41 +175,44 @@ export function QuestsWidget({ userId, onViewAll }: QuestsWidgetProps) {
           View All →
         </button>
       </div>
-      
+
       <div className='space-y-3'>
-        {displayQuests.map((quest) => (
+        {displayQuests.map(quest => (
           <div
             key={quest.id}
             className='flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700'
           >
-                         <div className='flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/20'>
-               <span className='text-sm'>{getCategoryIcon(quest.categoryName)}</span>
-             </div>
-             <div className='flex-1 min-w-0'>
-               <h4 className='text-sm font-medium text-gray-900 dark:text-white truncate'>
-                 {quest.title}
-               </h4>
-               <p className='text-xs text-gray-600 dark:text-gray-400'>
-                 {quest.categoryName} • {quest.pointValue} pts
-               </p>
-             </div>
-             <div className='flex items-center gap-2'>
-               <span className='inline-flex items-center rounded-full px-2 py-1 text-xs font-medium text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/20'>
-                 Active
-               </span>
-             </div>
+            <div className='flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/20'>
+              <span className='text-sm'>
+                {getCategoryIcon(quest.categoryName)}
+              </span>
+            </div>
+            <div className='min-w-0 flex-1'>
+              <h4 className='truncate text-sm font-medium text-gray-900 dark:text-white'>
+                {quest.title}
+              </h4>
+              <p className='text-xs text-gray-600 dark:text-gray-400'>
+                {quest.categoryName} • {quest.pointValue} pts
+              </p>
+            </div>
+            <div className='flex items-center gap-2'>
+              <span className='inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'>
+                Active
+              </span>
+            </div>
           </div>
         ))}
-        
+
         {remainingCount > 0 && (
           <div className='text-center'>
             <p className='text-sm text-gray-600 dark:text-gray-400'>
-              +{remainingCount} more quest{remainingCount === 1 ? '' : 's'} available
+              +{remainingCount} more quest{remainingCount === 1 ? '' : 's'}{' '}
+              available
             </p>
           </div>
         )}
       </div>
-      
+
       <button
         onClick={onViewAll}
         className='mt-4 w-full rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700'
@@ -218,4 +221,4 @@ export function QuestsWidget({ userId, onViewAll }: QuestsWidgetProps) {
       </button>
     </div>
   );
-} 
+}

@@ -186,7 +186,9 @@ export function useInvalidateQueries() {
       queryClient.invalidateQueries({ queryKey: queryKeys.journals(userId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.quests(userId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.questStats(userId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.completedQuests(userId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.completedQuests(userId),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.metrics(userId) });
     },
     invalidateAll: () => {

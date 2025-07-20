@@ -4,10 +4,9 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { PageHeader } from '@/components/layout/page-header';
+import { QuestPage } from '@/components/quest';
 import { useAuth } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
-
-import { QuestPage } from '@/components/quest/quest-page';
 
 export default function QuestsPage() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -82,7 +81,7 @@ export default function QuestsPage() {
         title='Your Quests'
         subtitle='Complete challenges to earn points and level up!'
       />
-      
+
       {/* Back Button */}
       <div className='mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8'>
         <button
@@ -97,4 +96,4 @@ export default function QuestsPage() {
       <QuestPage userId={user.id} />
     </div>
   );
-} 
+}

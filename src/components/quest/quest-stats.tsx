@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { logger } from '@/lib/logger';
 import { QuestService } from '@/lib/services/quest-service';
@@ -15,30 +15,31 @@ export function QuestStats({ userId }: QuestStatsProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
       logger.debug('📊 Fetching quest stats for user:', { userId });
-      
+
       const userStats = await QuestService.getUserStats(userId);
       setStats(userStats);
-      
+
       logger.debug('✅ Quest stats fetched successfully:', {
         count: userStats.length,
       });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch stats';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to fetch stats';
       logger.error('❌ Error fetching quest stats:', err);
       setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     fetchStats();
-  }, [userId]);
+  }, [userId, fetchStats]);
 
   const getCategoryIcon = (categoryName: string) => {
     switch (categoryName.toLowerCase()) {
@@ -103,13 +104,16 @@ export function QuestStats({ userId }: QuestStatsProps) {
   };
 
   const getLevelColor = (level: number) => {
-    if (level >= 10) return 'text-purple-600 bg-purple-100 dark:text-purple-400 dark:bg-purple-900/20';
-    if (level >= 7) return 'text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/20';
-    if (level >= 4) return 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/20';
+    if (level >= 10)
+      return 'text-purple-600 bg-purple-100 dark:text-purple-400 dark:bg-purple-900/20';
+    if (level >= 7)
+      return 'text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/20';
+    if (level >= 4)
+      return 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/20';
     return 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/20';
   };
 
-  const getPointsForNextLevel = (level: number) => level * 100;
+  // const getPointsForNextLevel = (level: number) => level * 100;
 
   if (isLoading) {
     return (
@@ -135,7 +139,9 @@ export function QuestStats({ userId }: QuestStatsProps) {
             <h3 className='text-sm font-medium text-red-800 dark:text-red-200'>
               Error loading stats
             </h3>
-            <p className='mt-1 text-sm text-red-700 dark:text-red-300'>{error}</p>
+            <p className='mt-1 text-sm text-red-700 dark:text-red-300'>
+              {error}
+            </p>
             <button
               onClick={fetchStats}
               className='mt-3 rounded-md bg-red-100 px-3 py-1 text-sm font-medium text-red-800 transition-colors hover:bg-red-200 dark:bg-red-800 dark:text-red-200 dark:hover:bg-red-700'
@@ -164,19 +170,25 @@ export function QuestStats({ userId }: QuestStatsProps) {
             <div className='text-2xl font-bold text-purple-600 dark:text-purple-400'>
               {totalPoints}
             </div>
-            <div className='text-sm text-gray-600 dark:text-gray-400'>Total Points</div>
+            <div className='text-sm text-gray-600 dark:text-gray-400'>
+              Total Points
+            </div>
           </div>
           <div className='text-center'>
             <div className='text-2xl font-bold text-blue-600 dark:text-blue-400'>
               {totalLevel}
             </div>
-            <div className='text-sm text-gray-600 dark:text-gray-400'>Overall Level</div>
+            <div className='text-sm text-gray-600 dark:text-gray-400'>
+              Overall Level
+            </div>
           </div>
           <div className='text-center'>
             <div className='text-2xl font-bold text-green-600 dark:text-green-400'>
               {stats.filter(stat => stat.points > 0).length}
             </div>
-            <div className='text-sm text-gray-600 dark:text-gray-400'>Active Categories</div>
+            <div className='text-sm text-gray-600 dark:text-gray-400'>
+              Active Categories
+            </div>
           </div>
         </div>
       </div>
@@ -189,8 +201,7 @@ export function QuestStats({ userId }: QuestStatsProps) {
           </h3>
         </div>
         <div className='divide-y divide-gray-200 dark:divide-gray-700'>
-          {sortedStats.map((stat) => {
-            const pointsForNext = getPointsForNextLevel(stat.level);
+          {sortedStats.map(stat => {
             const progress = stat.points % 100;
             const progressPercentage = (progress / 100) * 100;
 
@@ -198,8 +209,12 @@ export function QuestStats({ userId }: QuestStatsProps) {
               <div key={stat.id} className='p-6'>
                 <div className='flex items-center justify-between'>
                   <div className='flex items-center gap-3'>
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-full ${getCategoryColor(stat.categoryName)}`}>
-                      <span className='text-lg'>{getCategoryIcon(stat.categoryName)}</span>
+                    <div
+                      className={`flex h-10 w-10 items-center justify-center rounded-full ${getCategoryColor(stat.categoryName)}`}
+                    >
+                      <span className='text-lg'>
+                        {getCategoryIcon(stat.categoryName)}
+                      </span>
                     </div>
                     <div>
                       <h4 className='font-medium text-gray-900 dark:text-white'>
@@ -211,16 +226,20 @@ export function QuestStats({ userId }: QuestStatsProps) {
                     </div>
                   </div>
                   <div className='text-right'>
-                    <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getLevelColor(stat.level)}`}>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getLevelColor(stat.level)}`}
+                    >
                       Level {stat.level}
                     </span>
                   </div>
                 </div>
-                
+
                 <div className='mt-4'>
                   <div className='flex justify-between text-sm text-gray-600 dark:text-gray-400'>
                     <span>Progress to Level {stat.level + 1}</span>
-                    <span>{progress}/{100} points</span>
+                    <span>
+                      {progress}/{100} points
+                    </span>
                   </div>
                   <div className='mt-2 h-2 rounded-full bg-gray-200 dark:bg-gray-700'>
                     <div
@@ -246,4 +265,4 @@ export function QuestStats({ userId }: QuestStatsProps) {
       </div>
     </div>
   );
-} 
+}

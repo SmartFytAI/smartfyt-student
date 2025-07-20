@@ -3,8 +3,9 @@
  * Connects to the independent smartfyt-api backend
  */
 
-import { logger } from './logger';
 import type { QuestResponse, UserStat } from '@/types';
+
+import { logger } from './logger';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -203,7 +204,8 @@ export const API_ENDPOINTS = {
   CREATE_JOURNAL: '/journals',
   USER_QUESTS: (userId: string) => `/users/${userId}/quests`,
   USER_STATS: (userId: string) => `/users/${userId}/stats`,
-  COMPLETE_QUEST: (userId: string, questId: string) => `/users/${userId}/quests/${questId}/complete`,
+  COMPLETE_QUEST: (userId: string, questId: string) =>
+    `/users/${userId}/quests/${questId}/complete`,
   COMPLETED_QUESTS: (userId: string) => `/users/${userId}/quests/completed`,
   QUEST_CATEGORIES: '/quests/categories',
   USER_FORMS: (userId: string) => `/users/${userId}/forms`,

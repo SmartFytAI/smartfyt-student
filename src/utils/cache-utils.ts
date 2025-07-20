@@ -25,10 +25,7 @@ export async function clearCacheByName(cacheName: string): Promise<void> {
       await caches.delete(cacheName);
       logger.info(`🗂️ Cache '${cacheName}' cleared`);
     } catch (error) {
-      logger.error(
-        `❌ Failed to clear cache '${cacheName}':`,
-        error
-      );
+      logger.error(`❌ Failed to clear cache '${cacheName}':`, error);
     }
   }
 }
@@ -66,10 +63,7 @@ export async function forceReloadAndClearCaches(): Promise<void> {
       );
       logger.info('🗂️ Service workers unregistered');
     } catch (error) {
-      logger.error(
-        '❌ Failed to unregister service workers:',
-        error
-      );
+      logger.error('❌ Failed to unregister service workers:', error);
     }
   }
 

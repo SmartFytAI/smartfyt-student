@@ -13,14 +13,19 @@ interface QuestFormProps {
   onSuccess: (quest: QuestResponse) => void;
 }
 
-export function QuestForm({ userId, quest, onCancel, onSuccess }: QuestFormProps) {
+export function QuestForm({
+  userId,
+  quest,
+  onCancel,
+  onSuccess,
+}: QuestFormProps) {
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!notes.trim()) {
       setError('Please provide completion notes');
       return;
@@ -40,9 +45,9 @@ export function QuestForm({ userId, quest, onCancel, onSuccess }: QuestFormProps
         notesLength: notes.length,
       });
 
-      const result = await QuestService.completeQuest(userId, quest.id, notes);
-      
-                   logger.debug('✅ Quest completed successfully:', {
+      await QuestService.completeQuest(userId, quest.id, notes);
+
+      logger.debug('✅ Quest completed successfully:', {
         questId: quest.id,
         pointsEarned: quest.pointValue,
       });
@@ -50,7 +55,8 @@ export function QuestForm({ userId, quest, onCancel, onSuccess }: QuestFormProps
       // Call onSuccess with the completed quest
       onSuccess(quest);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to complete quest';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to complete quest';
       logger.error('❌ Error completing quest:', err);
       setError(errorMessage);
     } finally {
@@ -98,19 +104,21 @@ export function QuestForm({ userId, quest, onCancel, onSuccess }: QuestFormProps
         >
           ← Back to quests
         </button>
-        
+
         <div className='rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800'>
           <div className='mb-6 flex items-center gap-4'>
             <div className='flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/20'>
-                             <span className='text-2xl'>{getCategoryIcon(quest.categoryName)}</span>
+              <span className='text-2xl'>
+                {getCategoryIcon(quest.categoryName)}
+              </span>
             </div>
             <div>
               <h2 className='text-xl font-semibold text-gray-900 dark:text-white'>
                 Complete Quest
               </h2>
-                           <p className='text-sm text-gray-600 dark:text-gray-400'>
-               {quest.categoryName} • {quest.pointValue} points
-             </p>
+              <p className='text-sm text-gray-600 dark:text-gray-400'>
+                {quest.categoryName} • {quest.pointValue} points
+              </p>
             </div>
           </div>
 
@@ -125,7 +133,10 @@ export function QuestForm({ userId, quest, onCancel, onSuccess }: QuestFormProps
 
           <form onSubmit={handleSubmit} className='space-y-4'>
             <div>
-              <label htmlFor='notes' className='block text-sm font-medium text-gray-700 dark:text-gray-300'>
+              <label
+                htmlFor='notes'
+                className='block text-sm font-medium text-gray-700 dark:text-gray-300'
+              >
                 Completion Notes *
               </label>
               <p className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
@@ -134,7 +145,7 @@ export function QuestForm({ userId, quest, onCancel, onSuccess }: QuestFormProps
               <textarea
                 id='notes'
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={e => setNotes(e.target.value)}
                 rows={4}
                 className='mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 focus:border-purple-500 focus:outline-none focus:ring-purple-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-purple-400 dark:focus:ring-purple-400'
                 placeholder='Describe how you completed this quest...'
@@ -148,7 +159,9 @@ export function QuestForm({ userId, quest, onCancel, onSuccess }: QuestFormProps
 
             {error && (
               <div className='rounded-md border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20'>
-                <p className='text-sm text-red-700 dark:text-red-300'>{error}</p>
+                <p className='text-sm text-red-700 dark:text-red-300'>
+                  {error}
+                </p>
               </div>
             )}
 
@@ -171,9 +184,9 @@ export function QuestForm({ userId, quest, onCancel, onSuccess }: QuestFormProps
                     <div className='mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white'></div>
                     Completing...
                   </div>
-                                 ) : (
-                   `Complete Quest (+${quest.pointValue} pts)`
-                 )}
+                ) : (
+                  `Complete Quest (+${quest.pointValue} pts)`
+                )}
               </button>
             </div>
           </form>
@@ -181,4 +194,4 @@ export function QuestForm({ userId, quest, onCancel, onSuccess }: QuestFormProps
       </div>
     </div>
   );
-} 
+}

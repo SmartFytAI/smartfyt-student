@@ -17,7 +17,9 @@ type QuestView = 'list' | 'complete' | 'stats';
 
 export function QuestPage({ userId }: QuestPageProps) {
   const [currentView, setCurrentView] = useState<QuestView>('list');
-  const [selectedQuest, setSelectedQuest] = useState<QuestResponse | null>(null);
+  const [selectedQuest, setSelectedQuest] = useState<QuestResponse | null>(
+    null
+  );
   const [listRefreshKey, setListRefreshKey] = useState(0);
 
   const handleCompleteQuest = (quest: QuestResponse) => {
@@ -116,4 +118,4 @@ export function QuestPage({ userId }: QuestPageProps) {
       {renderContent()}
     </div>
   );
-} 
+}

@@ -70,34 +70,36 @@ export function QuestCard({ quest, onComplete }: QuestCardProps) {
     }
   };
 
-
-
   return (
     <div className='rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:shadow-gray-900/20'>
       {/* Quest Header */}
       <div className='mb-4 flex items-start justify-between'>
-                  <div className='flex items-center gap-3'>
-            <div className={`flex h-10 w-10 items-center justify-center rounded-full ${getCategoryColor(quest.categoryName)}`}>
-              <span className='text-lg'>{getCategoryIcon(quest.categoryName)}</span>
-            </div>
-            <div>
-              <h3 className='font-semibold text-gray-900 dark:text-white'>
-                {quest.title}
-              </h3>
-              <p className='text-sm text-gray-600 dark:text-gray-400'>
-                {quest.categoryName}
-              </p>
-            </div>
-          </div>
-          <div className='flex flex-col items-end gap-2'>
-            <span className='inline-flex items-center rounded-full px-2 py-1 text-xs font-medium text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/20'>
-              Active
+        <div className='flex items-center gap-3'>
+          <div
+            className={`flex h-10 w-10 items-center justify-center rounded-full ${getCategoryColor(quest.categoryName)}`}
+          >
+            <span className='text-lg'>
+              {getCategoryIcon(quest.categoryName)}
             </span>
-            <div className='flex items-center gap-1 text-sm font-medium text-purple-600 dark:text-purple-400'>
-              <span>🏆</span>
-              <span>{quest.pointValue} pts</span>
-            </div>
           </div>
+          <div>
+            <h3 className='font-semibold text-gray-900 dark:text-white'>
+              {quest.title}
+            </h3>
+            <p className='text-sm text-gray-600 dark:text-gray-400'>
+              {quest.categoryName}
+            </p>
+          </div>
+        </div>
+        <div className='flex flex-col items-end gap-2'>
+          <span className='inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'>
+            Active
+          </span>
+          <div className='flex items-center gap-1 text-sm font-medium text-purple-600 dark:text-purple-400'>
+            <span>🏆</span>
+            <span>{quest.pointValue} pts</span>
+          </div>
+        </div>
       </div>
 
       {/* Quest Description */}
@@ -108,7 +110,10 @@ export function QuestCard({ quest, onComplete }: QuestCardProps) {
       {/* Quest Actions */}
       <div className='flex items-center justify-between'>
         <div className='text-xs text-gray-500 dark:text-gray-400'>
-          Status: <span className='font-medium text-blue-600 dark:text-blue-400'>Assigned</span>
+          Status:{' '}
+          <span className='font-medium text-blue-600 dark:text-blue-400'>
+            Assigned
+          </span>
         </div>
         <button
           onClick={onComplete}
@@ -119,4 +124,4 @@ export function QuestCard({ quest, onComplete }: QuestCardProps) {
       </div>
     </div>
   );
-} 
+}

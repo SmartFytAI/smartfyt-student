@@ -206,7 +206,7 @@ export function DashboardCalendar({
 
       {/* Calendar Grid */}
       <div className='grid grid-cols-7 gap-0.5'>
-        {calendarDays.map((day) => {
+        {calendarDays.map(day => {
           const tooltipText = day.isFuture
             ? `${day.date.toLocaleDateString()} (Future date)`
             : day.isCompleted

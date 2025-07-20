@@ -21,7 +21,8 @@ export default function ProfileTestPage() {
     // Add your sign out logic here
   };
 
-  const handleProfileUpdate = async (data: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+  const handleProfileUpdate = async (data: any) => {
+    // eslint-disable-line @typescript-eslint/no-explicit-any
     logger.info('👤 Profile update:', data);
     await updateProfile(data);
   };
