@@ -71,36 +71,34 @@ export function DashboardCalendar({
       1
     );
 
-    // Get the last day of the current month (not used but kept for future reference)
-    // const lastDay = new Date(
-    //   currentMonth.getFullYear(),
-    //   currentMonth.getMonth() + 1,
-    //   0
-    // );
+    // Get the last day of the current month
+    const lastDay = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() + 1,
+      0
+    );
 
-    // Get the start of the week for the first day (Monday)
+    // Get the start of the week for the first day (Sunday)
     const startDate = new Date(firstDay);
-    const dayOfWeek = firstDay.getDay();
-    const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert Sunday=0 to Monday=0
+    const dayOfWeek = firstDay.getDay(); // Sunday = 0, Monday = 1, etc.
+    const daysToSubtract = dayOfWeek; // No need to adjust for Sunday start
     startDate.setDate(firstDay.getDate() - daysToSubtract);
 
-    // Generate 42 days (6 weeks * 7 days)
-    for (let i = 0; i < 42; i++) {
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
+    // Get the end of the week for the last day (Saturday)
+    const endDate = new Date(lastDay);
+    const lastDayOfWeek = lastDay.getDay();
+    const daysToAdd = 6 - lastDayOfWeek; // Days to get to Saturday
+    endDate.setDate(lastDay.getDate() + daysToAdd);
+
+    // Generate days from start to end date
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      const date = new Date(currentDate);
 
       const dateString = date.toISOString().split('T')[0];
       const isCompleted = journalDates.includes(dateString);
       const isToday = date.toDateString() === today.toDateString();
       const isFuture = date > today;
-
-      // Debug logging for completed days
-      if (isCompleted) {
-        logger.debug('📅 Dashboard calendar day marked as completed:', {
-          date: dateString,
-          journalDates: journalDates.slice(0, 5), // Log first 5 for debugging
-        });
-      }
 
       days.push({
         date,
@@ -108,6 +106,8 @@ export function DashboardCalendar({
         isToday,
         isFuture,
       });
+
+      currentDate.setDate(currentDate.getDate() + 1);
     }
 
     return days;
@@ -194,7 +194,7 @@ export function DashboardCalendar({
 
       {/* Day Headers */}
       <div className='mb-1 grid grid-cols-7 gap-0.5'>
-        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
+        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
           <div
             key={`day-header-${index}`}
             className='py-1 text-center text-xs font-medium text-gray-500 dark:text-gray-400'
@@ -205,7 +205,7 @@ export function DashboardCalendar({
       </div>
 
       {/* Calendar Grid */}
-      <div className='grid grid-cols-7 gap-0.5'>
+      <div className='grid grid-cols-7 gap-0.5 px-4 py-3'>
         {calendarDays.map(day => {
           const tooltipText = day.isFuture
             ? `${day.date.toLocaleDateString()} (Future date)`

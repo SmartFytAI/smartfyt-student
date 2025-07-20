@@ -16,15 +16,39 @@ export interface CreateJournalData {
   createdAt?: string; // Optional ISO date string for custom date
 }
 
+export interface JournalPaginationParams {
+  limit?: number;
+  offset?: number;
+}
+
+export interface JournalPaginationResponse {
+  journals: Journal[];
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+    hasMore: boolean;
+  };
+}
+
 export class JournalService {
   /**
-   * Get all journals for a user
+   * Get all journals for a user with pagination
    */
-  static async getJournals(userId: string): Promise<Journal[]> {
+  static async getJournals(
+    userId: string,
+    pagination?: JournalPaginationParams
+  ): Promise<JournalPaginationResponse> {
     try {
-      logger.debug('📝 Fetching journals for user:', { userId });
+      logger.debug('📝 Fetching journals for user:', { userId, pagination });
 
-      const response = await apiClient.getJournals(userId);
+      const params = new URLSearchParams();
+      if (pagination?.limit)
+        params.append('limit', pagination.limit.toString());
+      if (pagination?.offset)
+        params.append('offset', pagination.offset.toString());
+
+      const response = await apiClient.getJournals(userId, params.toString());
 
       if (response.error) {
         logger.error('❌ Failed to fetch journals:', {
@@ -34,13 +58,15 @@ export class JournalService {
         throw new Error(response.error);
       }
 
-      const journals = (response.data as Journal[]) || [];
+      const data = response.data as JournalPaginationResponse;
       logger.debug('✅ Journals fetched successfully:', {
-        count: journals.length,
+        count: data.journals.length,
+        total: data.pagination.total,
+        hasMore: data.pagination.hasMore,
         userId,
       });
 
-      return journals;
+      return data;
     } catch (error) {
       logger.error('❌ Journal service error:', { error, userId });
       throw error;
@@ -120,10 +146,10 @@ export class JournalService {
    */
   static async hasJournalToday(userId: string): Promise<boolean> {
     try {
-      const journals = await this.getJournals(userId);
+      const response = await this.getJournals(userId);
       const today = new Date().toDateString();
 
-      return journals.some(journal => {
+      return response.journals.some(journal => {
         const journalDate = new Date(journal.createdAt).toDateString();
         return journalDate === today;
       });
@@ -138,8 +164,8 @@ export class JournalService {
    */
   static async getLatestJournal(userId: string): Promise<Journal | null> {
     try {
-      const journals = await this.getJournals(userId);
-      return journals.length > 0 ? journals[0] : null;
+      const response = await this.getJournals(userId);
+      return response.journals.length > 0 ? response.journals[0] : null;
     } catch (error) {
       logger.error('❌ Error getting latest journal:', { error, userId });
       return null;
@@ -154,9 +180,9 @@ export class JournalService {
       const targetDate = new Date(date);
       targetDate.setHours(0, 0, 0, 0);
 
-      const journals = await this.getJournals(userId);
+      const response = await this.getJournals(userId);
 
-      return journals.some(journal => {
+      return response.journals.some(journal => {
         const journalDate = new Date(journal.createdAt);
         journalDate.setHours(0, 0, 0, 0);
         return journalDate.getTime() === targetDate.getTime();
@@ -182,9 +208,9 @@ export class JournalService {
       const targetDate = new Date(date);
       targetDate.setHours(0, 0, 0, 0);
 
-      const journals = await this.getJournals(userId);
+      const response = await this.getJournals(userId);
 
-      const journal = journals.find(journal => {
+      const journal = response.journals.find(journal => {
         const journalDate = new Date(journal.createdAt);
         journalDate.setHours(0, 0, 0, 0);
         return journalDate.getTime() === targetDate.getTime();
@@ -196,6 +222,93 @@ export class JournalService {
         error,
         userId,
         date,
+      });
+      return null;
+    }
+  }
+
+  /**
+   * Check if user has a journal for a specific date (efficient version using dates only)
+   */
+  static async hasJournalForDateEfficient(
+    userId: string,
+    date: Date
+  ): Promise<boolean> {
+    try {
+      const targetDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+      const journalDates = await this.getJournalDates(userId);
+
+      logger.debug('📅 Checking journal existence:', {
+        userId,
+        targetDate,
+        journalDatesCount: journalDates.length,
+        sampleDates: journalDates.slice(0, 3),
+      });
+
+      return journalDates.includes(targetDate);
+    } catch (error) {
+      logger.error('❌ Error checking journal for date (efficient):', {
+        error,
+        userId,
+        date: date.toISOString(),
+      });
+      return false;
+    }
+  }
+
+  /**
+   * Get journal for a specific date (efficient version)
+   */
+  static async getJournalForDateEfficient(
+    userId: string,
+    date: Date
+  ): Promise<Journal | null> {
+    try {
+      // First check if a journal exists for this date using the efficient method
+      const hasJournal = await this.hasJournalForDateEfficient(userId, date);
+
+      if (!hasJournal) {
+        logger.debug('📅 No journal found for date (efficient check):', {
+          userId,
+          date: date.toISOString(),
+        });
+        return null;
+      }
+
+      // Use the new API endpoint to get the specific journal for this date
+      const targetDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+      logger.debug('📅 Fetching journal for date:', {
+        userId,
+        date: targetDate,
+        originalDate: date.toISOString(),
+      });
+
+      const response = await apiClient.getJournalForDate(userId, targetDate);
+
+      if (response.error) {
+        logger.error('❌ Failed to fetch journal for date:', {
+          error: response.error,
+          userId,
+          date: targetDate,
+          status: response.status,
+        });
+        return null;
+      }
+
+      const journal = response.data as Journal;
+      logger.debug('✅ Journal for date fetched successfully:', {
+        journalId: journal.id,
+        userId,
+        date: targetDate,
+        journalCreatedAt: journal.createdAt,
+      });
+
+      return journal;
+    } catch (error) {
+      logger.error('❌ Error getting journal for date (efficient):', {
+        error,
+        userId,
+        date: date.toISOString(),
       });
       return null;
     }

@@ -75,36 +75,34 @@ export function JournalCalendar({
       1
     );
 
-    // Get the last day of the current month (not used but kept for future reference)
-    // const lastDay = new Date(
-    //   currentMonth.getFullYear(),
-    //   currentMonth.getMonth() + 1,
-    //   0
-    // );
+    // Get the last day of the current month
+    const lastDay = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() + 1,
+      0
+    );
 
-    // Get the start of the week for the first day (Monday)
+    // Get the start of the week for the first day (Sunday)
     const startDate = new Date(firstDay);
-    const dayOfWeek = firstDay.getDay();
-    const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert Sunday=0 to Monday=0
+    const dayOfWeek = firstDay.getDay(); // Sunday = 0, Monday = 1, etc.
+    const daysToSubtract = dayOfWeek; // No need to adjust for Sunday start
     startDate.setDate(firstDay.getDate() - daysToSubtract);
 
-    // Generate 42 days (6 weeks * 7 days)
-    for (let i = 0; i < 42; i++) {
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
+    // Get the end of the week for the last day (Saturday)
+    const endDate = new Date(lastDay);
+    const lastDayOfWeek = lastDay.getDay();
+    const daysToAdd = 6 - lastDayOfWeek; // Days to get to Saturday
+    endDate.setDate(lastDay.getDate() + daysToAdd);
+
+    // Generate days from start to end date
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      const date = new Date(currentDate);
 
       const dateString = date.toISOString().split('T')[0];
       const isCompleted = journalDates.includes(dateString);
       const isToday = date.toDateString() === today.toDateString();
       const isFuture = date > today;
-
-      // Debug logging for completed days
-      if (isCompleted) {
-        logger.debug('📅 Calendar day marked as completed:', {
-          date: dateString,
-          journalDates: journalDates.slice(0, 5), // Log first 5 for debugging
-        });
-      }
 
       days.push({
         date,
@@ -112,6 +110,8 @@ export function JournalCalendar({
         isToday,
         isFuture,
       });
+
+      currentDate.setDate(currentDate.getDate() + 1);
     }
 
     return days;
@@ -243,7 +243,7 @@ export function JournalCalendar({
       <CardContent>
         {/* Day Headers */}
         <div className='mb-2 grid grid-cols-7 gap-1'>
-          {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(day => (
+          {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
             <div
               key={day}
               className='py-1 text-center text-xs font-medium text-gray-500 dark:text-gray-400'
@@ -254,7 +254,7 @@ export function JournalCalendar({
         </div>
 
         {/* Calendar Grid */}
-        <div className='grid grid-cols-7 gap-1'>
+        <div className='grid grid-cols-7 gap-1 px-6 py-4'>
           {calendarDays.map(day => {
             const tooltipText = day.isFuture
               ? `${day.date.toLocaleDateString()} (Future date)`

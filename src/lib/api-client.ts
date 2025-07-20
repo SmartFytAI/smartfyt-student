@@ -122,12 +122,19 @@ export class ApiClient {
   }
 
   // Journal endpoints
-  async getJournals(userId: string) {
-    return this.request(`/users/${userId}/journals`);
+  async getJournals(userId: string, queryParams?: string) {
+    const endpoint = queryParams
+      ? `/users/${userId}/journals?${queryParams}`
+      : `/users/${userId}/journals`;
+    return this.request(endpoint);
   }
 
   async getJournalDates(userId: string) {
     return this.request<string[]>(`/users/${userId}/journals/dates`);
+  }
+
+  async getJournalForDate(userId: string, date: string) {
+    return this.request(`/users/${userId}/journals/date/${date}`);
   }
 
   async createJournal(journalData: {
@@ -219,6 +226,125 @@ export class ApiClient {
   async getUserMetrics(userId: string) {
     return this.request(`/users/${userId}/metrics`);
   }
+
+  // Motivational quotes endpoints (public - no authentication required)
+  async getDailyQuote() {
+    try {
+      const url = `${this.baseUrl}/api/motivational-quotes/daily`;
+      logger.info(
+        '🌐 API Client: Making GET request to motivational quotes daily endpoint',
+        {
+          url,
+          baseUrl: this.baseUrl,
+          timestamp: new Date().toISOString(),
+        }
+      );
+
+      const response = await fetch(url);
+
+      logger.debug('🌐 API Client: Response received', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        url: response.url,
+      });
+
+      const data = await response.json();
+
+      logger.debug('🌐 API Client: Response data parsed', {
+        success: data.success,
+        hasData: !!data.data,
+        hasError: !!data.error,
+        dataType: typeof data.data,
+      });
+
+      return { data, status: response.status };
+    } catch (error) {
+      logger.error('❌ API Client: Error in getDailyQuote', {
+        error,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      });
+      return {
+        error: error instanceof Error ? error.message : 'Network error',
+        status: 0,
+      };
+    }
+  }
+
+  async getRandomQuote() {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/api/motivational-quotes/random`
+      );
+      const data = await response.json();
+      return { data, status: response.status };
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : 'Network error',
+        status: 0,
+      };
+    }
+  }
+
+  async getAllQuotes() {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/api/motivational-quotes/all`
+      );
+      const data = await response.json();
+      return { data, status: response.status };
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : 'Network error',
+        status: 0,
+      };
+    }
+  }
+
+  async getQuotesByCategory(category: string) {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/api/motivational-quotes/category?category=${encodeURIComponent(category)}`
+      );
+      const data = await response.json();
+      return { data, status: response.status };
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : 'Network error',
+        status: 0,
+      };
+    }
+  }
+
+  async getQuoteCategories() {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/api/motivational-quotes/categories`
+      );
+      const data = await response.json();
+      return { data, status: response.status };
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : 'Network error',
+        status: 0,
+      };
+    }
+  }
+
+  async getQuoteById(id: number) {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/api/motivational-quotes/${id}`
+      );
+      const data = await response.json();
+      return { data, status: response.status };
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : 'Network error',
+        status: 0,
+      };
+    }
+  }
 }
 
 // Export singleton instance
@@ -244,4 +370,11 @@ export const API_ENDPOINTS = {
   USER_FORMS: (userId: string) => `/users/${userId}/forms`,
   DASHBOARD: (userId: string) => `/users/${userId}/dashboard`,
   USER_METRICS: (userId: string) => `/users/${userId}/metrics`,
+  MOTIVATIONAL_QUOTES_DAILY: '/api/motivational-quotes/daily',
+  MOTIVATIONAL_QUOTES_RANDOM: '/api/motivational-quotes/random',
+  MOTIVATIONAL_QUOTES_ALL: '/api/motivational-quotes/all',
+  MOTIVATIONAL_QUOTES_CATEGORIES: '/api/motivational-quotes/categories',
+  MOTIVATIONAL_QUOTES_BY_ID: (id: number) => `/api/motivational-quotes/${id}`,
+  MOTIVATIONAL_QUOTES_BY_CATEGORY: (category: string) =>
+    `/api/motivational-quotes/category?category=${encodeURIComponent(category)}`,
 } as const;
