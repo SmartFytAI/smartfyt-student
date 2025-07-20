@@ -3,8 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { logger } from '@/lib/logger';
-import { QuestService } from '@/lib/services/quest-service';
-import { QuestResponse } from '@/types';
+import { getCurrentQuests, type Quest } from '@/lib/services/quest-service';
 
 interface QuestsWidgetProps {
   userId: string;
@@ -12,7 +11,7 @@ interface QuestsWidgetProps {
 }
 
 export function QuestsWidget({ userId, onViewAll }: QuestsWidgetProps) {
-  const [quests, setQuests] = useState<QuestResponse[]>([]);
+  const [quests, setQuests] = useState<Quest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +21,7 @@ export function QuestsWidget({ userId, onViewAll }: QuestsWidgetProps) {
       setError(null);
       logger.debug('⚔️ Fetching quests for dashboard widget:', { userId });
 
-      const quests = await QuestService.getUserQuests(userId);
+      const quests = await getCurrentQuests(userId);
       setQuests(quests);
 
       logger.debug('✅ Dashboard quests fetched successfully:', {

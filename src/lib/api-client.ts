@@ -158,18 +158,51 @@ export class ApiClient {
   }
 
   async completeQuest(userId: string, questId: string, notes: string) {
-    return this.request(`/users/${userId}/quests/${questId}/complete`, {
+    return this.request(`/users/${userId}/quests/complete`, {
       method: 'POST',
-      body: JSON.stringify({ notes }),
+      body: JSON.stringify({ questId, notes }),
     });
   }
 
   async getCompletedQuests(userId: string) {
-    return this.request(`/users/${userId}/quests/completed`);
+    return this.request<QuestResponse[]>(`/users/${userId}/quests/completed`);
+  }
+
+  async assignQuests(userId: string) {
+    return this.request<QuestResponse[]>(`/users/${userId}/quests/assign`, {
+      method: 'POST',
+    });
   }
 
   async getQuestCategories() {
     return this.request('/quests/categories');
+  }
+
+  // Leaderboard endpoints
+  async getTeamLeaderboard(teamId: string) {
+    return this.request<
+      Array<{
+        id: string;
+        firstName: string;
+        lastName: string;
+        profileImage: string;
+        performanceScore: number;
+        trend: 'up' | 'down' | 'none';
+      }>
+    >(`/teams/${teamId}/leaderboard`);
+  }
+
+  async getSchoolLeaderboard(userId: string) {
+    return this.request<
+      Array<{
+        id: string;
+        firstName: string;
+        lastName: string;
+        profileImage: string;
+        performanceScore: number;
+        trend: 'up' | 'down' | 'none';
+      }>
+    >(`/users/${userId}/school/leaderboard`);
   }
 
   // Forms endpoints
