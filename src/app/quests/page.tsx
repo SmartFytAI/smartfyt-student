@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { PageHeader } from '@/components/layout/page-header';
+import { PageLayout } from '@/components/layout/page-layout';
 import { QuestPage } from '@/components/quest';
 import { useAuth } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
@@ -75,25 +75,12 @@ export default function QuestsPage() {
   });
 
   return (
-    <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
-      {/* Header */}
-      <PageHeader
-        title='Your Quests'
-        subtitle='Complete challenges to earn points and level up!'
-      />
-
-      {/* Back Button */}
-      <div className='mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8'>
-        <button
-          onClick={() => router.push('/dashboard')}
-          className='mb-4 flex items-center text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
-        >
-          ← Back to Dashboard
-        </button>
-      </div>
-
+    <PageLayout
+      title='Your Quests'
+      subtitle='Complete challenges to earn points and level up!'
+    >
       {/* Quests Content */}
       <QuestPage userId={user.id} />
-    </div>
+    </PageLayout>
   );
 }

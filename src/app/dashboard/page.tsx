@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { DashboardCalendar } from '@/components/journal/dashboard-calendar';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageLayout } from '@/components/layout/page-layout';
 import { PWAInstaller } from '@/components/pwa-installer';
 import { QuestsWidget } from '@/components/quest/quests-widget';
 import { useAuth } from '@/hooks/use-auth';
@@ -81,15 +81,12 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+    <PageLayout
+      title={`Welcome back, ${user.name}!`}
+      subtitle='Ready to crush your goals today?'
+    >
       {/* PWA Installer - only for authenticated users */}
       <PWAInstaller />
-
-      {/* Header */}
-      <PageHeader
-        title={`Welcome back, ${user.name}!`}
-        subtitle='Ready to crush your goals today?'
-      />
 
       {/* Dashboard Content */}
       <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
@@ -259,6 +256,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }

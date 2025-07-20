@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { PageLayout } from '@/components/layout';
+import { PageLayout } from '@/components/layout/page-layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -208,9 +208,6 @@ export default function ProfilePage() {
     <PageLayout
       title='Profile Settings'
       subtitle='Manage your account and preferences'
-      showBackButton={true}
-      backUrl='/dashboard'
-      showHomeButton={true}
     >
       {/* Mobile-first content */}
       <div className='mx-auto max-w-2xl px-4 py-6'>

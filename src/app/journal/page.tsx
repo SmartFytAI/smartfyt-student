@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { JournalPage } from '@/components/journal/journal-page';
-import { PageLayout } from '@/components/layout';
+import { PageLayout } from '@/components/layout/page-layout';
 import { useAuth } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
 
@@ -78,9 +78,6 @@ export default function JournalRoute() {
     <PageLayout
       title='Daily Journal'
       subtitle='Track your progress and reflect on your day'
-      showBackButton={true}
-      backUrl='/dashboard'
-      showHomeButton={true}
     >
       <JournalPage userId={user.id} />
     </PageLayout>

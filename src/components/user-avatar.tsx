@@ -1,7 +1,16 @@
 'use client';
 
 import { LogoutLink } from '@kinde-oss/kinde-auth-nextjs/components';
-import { User, LogOut, ChevronDown, Moon, Sun, Monitor } from 'lucide-react';
+import {
+  User,
+  LogOut,
+  ChevronDown,
+  Moon,
+  Sun,
+  CheckCircle,
+  WifiOff,
+  Loader2,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 
@@ -19,15 +28,29 @@ import { useUserProfile } from '@/hooks/use-user-profile';
 import { logger } from '@/lib/logger';
 import { handleLogoutCacheClear } from '@/utils/cache-utils';
 
+interface WearableStatus {
+  connected: boolean;
+  provider?: string;
+  lastSync?: Date;
+  isConnecting: boolean;
+}
+
 interface UserAvatarProps {
   userId: string;
   onSignOut?: () => void;
+  wearableStatus?: WearableStatus;
+  onConnectWearable?: () => void;
 }
 
-export function UserAvatar({ userId, onSignOut }: UserAvatarProps) {
+export function UserAvatar({
+  userId,
+  onSignOut,
+  wearableStatus = { connected: false, isConnecting: false },
+  onConnectWearable,
+}: UserAvatarProps) {
   const router = useRouter();
   const { profile } = useUserProfile(userId);
-  const { setTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
 
   const handleSignOut = async () => {
     try {
@@ -60,6 +83,16 @@ export function UserAvatar({ userId, onSignOut }: UserAvatarProps) {
       return profile.email;
     }
     return 'User';
+  };
+
+  const formatDate = (date?: Date) => {
+    if (!date) return '';
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
   };
 
   return (
@@ -111,37 +144,63 @@ export function UserAvatar({ userId, onSignOut }: UserAvatarProps) {
             </span>
           </DropdownMenuItem>
 
+          {/* Wearable Status */}
+          <DropdownMenuItem
+            onClick={onConnectWearable}
+            disabled={wearableStatus.isConnecting}
+            className='cursor-pointer transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800'
+          >
+            <div className='flex w-full items-center space-x-2'>
+              {wearableStatus.isConnecting ? (
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              ) : wearableStatus.connected ? (
+                <CheckCircle className='mr-2 h-4 w-4 text-green-600' />
+              ) : (
+                <WifiOff className='mr-2 h-4 w-4 text-gray-400' />
+              )}
+              <div className='min-w-0 flex-1'>
+                {wearableStatus.connected ? (
+                  <div>
+                    <p className='text-sm font-medium text-neutral-900 dark:text-neutral-100'>
+                      Connected to {wearableStatus.provider || 'Wearable'}
+                    </p>
+                    {wearableStatus.lastSync && (
+                      <p className='text-xs text-neutral-500 dark:text-neutral-400'>
+                        Last sync: {formatDate(wearableStatus.lastSync)}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <span className='text-sm text-neutral-700 dark:text-neutral-300'>
+                    Connect Wearable
+                  </span>
+                )}
+              </div>
+            </div>
+          </DropdownMenuItem>
+
           <DropdownMenuSeparator />
 
-          {/* Theme Options */}
+          {/* Theme Toggle */}
           <DropdownMenuItem
-            onClick={() => setTheme('light')}
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className='cursor-pointer transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800'
           >
-            <Sun className='mr-2 h-4 w-4 text-yellow-500' />
-            <span className='text-neutral-700 dark:text-neutral-300'>
-              Light Mode
-            </span>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            onClick={() => setTheme('dark')}
-            className='cursor-pointer transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800'
-          >
-            <Moon className='mr-2 h-4 w-4 text-blue-500' />
-            <span className='text-neutral-700 dark:text-neutral-300'>
-              Dark Mode
-            </span>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            onClick={() => setTheme('system')}
-            className='cursor-pointer transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800'
-          >
-            <Monitor className='mr-2 h-4 w-4 text-gray-500' />
-            <span className='text-neutral-700 dark:text-neutral-300'>
-              System
-            </span>
+            {theme === 'dark' ? (
+              <>
+                <Sun className='mr-2 h-4 w-4 text-yellow-500' />
+                <span className='text-neutral-700 dark:text-neutral-300'>
+                  Light Mode
+                </span>
+              </>
+            ) : (
+              <>
+                <Moon className='mr-2 h-4 w-4 text-blue-500' />
+                <span className='text-neutral-700 dark:text-neutral-300'>
+                  Dark Mode
+                </span>
+              </>
+            )}
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />

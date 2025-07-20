@@ -2,38 +2,28 @@
 
 import { ReactNode } from 'react';
 
+import { BottomNavigation } from '@/components/navigation/bottom-navigation';
+
 import { PageHeader } from './page-header';
-import { PageNavigation } from './page-navigation';
 
 interface PageLayoutProps {
   title?: string;
   subtitle?: string;
-  showBackButton?: boolean;
-  backUrl?: string;
-  showHomeButton?: boolean;
-  onBack?: () => void;
   children: ReactNode;
+  showBottomNavigation?: boolean;
 }
 
 export function PageLayout({
   title,
   subtitle,
-  showBackButton = false,
-  backUrl,
-  showHomeButton = true,
-  onBack,
   children,
+  showBottomNavigation = true,
 }: PageLayoutProps) {
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
       <PageHeader title={title} subtitle={subtitle} />
-      <PageNavigation
-        showBackButton={showBackButton}
-        backUrl={backUrl}
-        showHomeButton={showHomeButton}
-        onBack={onBack}
-      />
-      {children}
+      <main className={showBottomNavigation ? 'pb-20' : ''}>{children}</main>
+      {showBottomNavigation && <BottomNavigation />}
     </div>
   );
 }

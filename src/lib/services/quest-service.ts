@@ -83,7 +83,8 @@ export class QuestService {
 
       logger.debug('✅ Quest completed successfully:', {
         questId,
-        pointsEarned: (response.data as { pointsEarned?: number })?.pointsEarned,
+        pointsEarned: (response.data as { pointsEarned?: number })
+          ?.pointsEarned,
       });
 
       return (
@@ -125,7 +126,9 @@ export class QuestService {
   /**
    * Get quest categories
    */
-  static async getQuestCategories(): Promise<Array<{ id: string; name: string; description?: string }>> {
+  static async getQuestCategories(): Promise<
+    Array<{ id: string; name: string; description?: string }>
+    > {
     try {
       logger.debug('📂 Fetching quest categories');
       const response = await apiClient.getQuestCategories();

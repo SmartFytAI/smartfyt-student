@@ -13,6 +13,19 @@ interface PageHeaderProps {
 export function PageHeader({ title, subtitle }: PageHeaderProps) {
   const { user } = useAuth();
 
+  // Mock wearable status - will be replaced with real data later
+  const wearableStatus = {
+    connected: false,
+    provider: undefined,
+    lastSync: undefined,
+    isConnecting: false,
+  };
+
+  const handleConnectWearable = () => {
+    logger.debug('🔗 Connect wearable clicked');
+    // TODO: Implement wearable connection
+  };
+
   const handleLogout = async () => {
     // Cache clearing is now handled in UserAvatar component
     logger.debug('🚪 Logout handled by UserAvatar component');
@@ -51,7 +64,12 @@ export function PageHeader({ title, subtitle }: PageHeaderProps) {
 
           {/* User Controls */}
           <div className='flex items-center gap-3'>
-            <UserAvatar userId={user?.id || ''} onSignOut={handleLogout} />
+            <UserAvatar
+              userId={user?.id || ''}
+              wearableStatus={wearableStatus}
+              onConnectWearable={handleConnectWearable}
+              onSignOut={handleLogout}
+            />
           </div>
         </div>
       </div>
