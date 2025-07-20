@@ -99,11 +99,10 @@ export interface Quest {
   id: string;
   title: string;
   description: string;
-  points: number;
-  categoryId: string;
-  isActive: boolean;
-  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
-  category: QuestCategory;
+  pointValue: number;
+  categoryName: string;
+  completedAt?: string | null;
+  notes?: string | null;
 }
 
 export interface QuestCategory {
@@ -120,6 +119,17 @@ export interface UserQuest {
   status: 'assigned' | 'completed' | 'skipped';
   completedAt?: string;
   quest: Quest;
+}
+
+// For API responses that return Quest objects directly
+export interface QuestResponse {
+  id: string;
+  title: string;
+  description: string;
+  pointValue: number;
+  categoryName: string;
+  completedAt?: string | null;
+  notes?: string | null;
 }
 
 // Performance types
@@ -143,12 +153,10 @@ export interface DashboardData {
 
 export interface UserStat {
   id: string;
-  userId: string;
   categoryId: string;
+  categoryName: string;
   points: number;
   level: number;
-  lastUpdated: string;
-  category: QuestCategory;
 }
 
 // Form types

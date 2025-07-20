@@ -1,8 +1,9 @@
 'use client';
 
 import { LogoutLink } from '@kinde-oss/kinde-auth-nextjs/components';
-import { User, LogOut, ChevronDown } from 'lucide-react';
+import { User, LogOut, ChevronDown, Moon, Sun, Monitor } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTheme } from 'next-themes';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ interface UserAvatarProps {
 export function UserAvatar({ userId, onSignOut }: UserAvatarProps) {
   const router = useRouter();
   const { profile } = useUserProfile(userId);
+  const { setTheme } = useTheme();
 
   const handleSignOut = async () => {
     try {
@@ -108,6 +110,41 @@ export function UserAvatar({ userId, onSignOut }: UserAvatarProps) {
               Profile Settings
             </span>
           </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          {/* Theme Options */}
+          <DropdownMenuItem
+            onClick={() => setTheme('light')}
+            className='cursor-pointer transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800'
+          >
+            <Sun className='mr-2 h-4 w-4 text-yellow-500' />
+            <span className='text-neutral-700 dark:text-neutral-300'>
+              Light Mode
+            </span>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            onClick={() => setTheme('dark')}
+            className='cursor-pointer transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800'
+          >
+            <Moon className='mr-2 h-4 w-4 text-blue-500' />
+            <span className='text-neutral-700 dark:text-neutral-300'>
+              Dark Mode
+            </span>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            onClick={() => setTheme('system')}
+            className='cursor-pointer transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800'
+          >
+            <Monitor className='mr-2 h-4 w-4 text-gray-500' />
+            <span className='text-neutral-700 dark:text-neutral-300'>
+              System
+            </span>
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
 
           <LogoutLink onClick={handleSignOut}>
             <DropdownMenuItem className='cursor-pointer text-red-600 transition-colors hover:bg-neutral-100 focus:text-red-600 dark:text-red-400 dark:hover:bg-neutral-800 dark:focus:text-red-400'>

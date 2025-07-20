@@ -4,6 +4,7 @@
  */
 
 import { logger } from './logger';
+import type { QuestResponse, UserStat } from '@/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -148,7 +149,26 @@ export class ApiClient {
 
   // Quest endpoints
   async getUserQuests(userId: string) {
-    return this.request(`/users/${userId}/quests`);
+    return this.request<QuestResponse[]>(`/users/${userId}/quests`);
+  }
+
+  async getUserStats(userId: string) {
+    return this.request<UserStat[]>(`/users/${userId}/stats`);
+  }
+
+  async completeQuest(userId: string, questId: string, notes: string) {
+    return this.request(`/users/${userId}/quests/${questId}/complete`, {
+      method: 'POST',
+      body: JSON.stringify({ notes }),
+    });
+  }
+
+  async getCompletedQuests(userId: string) {
+    return this.request(`/users/${userId}/quests/completed`);
+  }
+
+  async getQuestCategories() {
+    return this.request('/quests/categories');
   }
 
   // Forms endpoints
@@ -182,6 +202,10 @@ export const API_ENDPOINTS = {
   JOURNAL_DATES: (userId: string) => `/users/${userId}/journals/dates`,
   CREATE_JOURNAL: '/journals',
   USER_QUESTS: (userId: string) => `/users/${userId}/quests`,
+  USER_STATS: (userId: string) => `/users/${userId}/stats`,
+  COMPLETE_QUEST: (userId: string, questId: string) => `/users/${userId}/quests/${questId}/complete`,
+  COMPLETED_QUESTS: (userId: string) => `/users/${userId}/quests/completed`,
+  QUEST_CATEGORIES: '/quests/categories',
   USER_FORMS: (userId: string) => `/users/${userId}/forms`,
   DASHBOARD: (userId: string) => `/users/${userId}/dashboard`,
   USER_METRICS: (userId: string) => `/users/${userId}/metrics`,

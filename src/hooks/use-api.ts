@@ -13,6 +13,9 @@ export const queryKeys = {
   journals: (userId: string) => ['journals', userId],
   journalDates: (userId: string) => ['journals', userId, 'dates'],
   quests: (userId: string) => ['quests', userId],
+  questStats: (userId: string) => ['quest-stats', userId],
+  completedQuests: (userId: string) => ['completed-quests', userId],
+  questCategories: ['quest-categories'],
   metrics: (userId: string) => ['metrics', userId],
 } as const;
 
@@ -121,6 +124,41 @@ export function useUserQuests(userId: string | null) {
   });
 }
 
+// User quest stats
+export function useUserQuestStats(userId: string | null) {
+  return useQuery({
+    queryKey: queryKeys.questStats(userId || ''),
+    queryFn: () => {
+      if (!userId) throw new Error('User ID required');
+      return apiClient.getUserStats(userId);
+    },
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+// Completed quests
+export function useCompletedQuests(userId: string | null) {
+  return useQuery({
+    queryKey: queryKeys.completedQuests(userId || ''),
+    queryFn: () => {
+      if (!userId) throw new Error('User ID required');
+      return apiClient.getCompletedQuests(userId);
+    },
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+// Quest categories
+export function useQuestCategories() {
+  return useQuery({
+    queryKey: queryKeys.questCategories,
+    queryFn: () => apiClient.getQuestCategories(),
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
 // User metrics
 export function useUserMetrics(userId: string | null) {
   return useQuery({
@@ -147,6 +185,8 @@ export function useInvalidateQueries() {
       queryClient.invalidateQueries({ queryKey: queryKeys.healthData(userId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.journals(userId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.quests(userId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.questStats(userId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.completedQuests(userId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.metrics(userId) });
     },
     invalidateAll: () => {

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { DashboardCalendar } from '@/components/journal/dashboard-calendar';
 import { PageHeader } from '@/components/layout/page-header';
 import { PWAInstaller } from '@/components/pwa-installer';
+import { QuestsWidget } from '@/components/quest/quests-widget';
 import { useAuth } from '@/hooks/use-auth';
 // import { useJournalStatus } from '@/hooks/use-journal-status';
 import { logger } from '@/lib/logger';
@@ -93,21 +94,11 @@ export default function DashboardPage() {
       {/* Dashboard Content */}
       <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
         <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-          {/* Today's Quest */}
-          <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-            <h3 className='mb-4 text-lg font-semibold dark:text-white'>
-              Today&apos;s Quest
-            </h3>
-            <div className='py-8 text-center'>
-              <div className='mb-2 text-4xl'>⚔️</div>
-              <p className='text-gray-600 dark:text-gray-400'>
-                No quests available
-              </p>
-              <button className='mt-4 rounded-md bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700'>
-                View Quests
-              </button>
-            </div>
-          </div>
+          {/* Today's Quests */}
+          <QuestsWidget
+            userId={user.id}
+            onViewAll={() => router.push('/quests')}
+          />
 
           {/* Journal Calendar */}
           <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>

@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 
-import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { UserAvatar } from '@/components/user-avatar';
 import { useAuth } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
@@ -52,7 +51,6 @@ export function PageHeader({ title, subtitle }: PageHeaderProps) {
 
           {/* User Controls */}
           <div className='flex items-center gap-3'>
-            <ThemeToggle />
             <UserAvatar userId={user?.id || ''} onSignOut={handleLogout} />
           </div>
         </div>
