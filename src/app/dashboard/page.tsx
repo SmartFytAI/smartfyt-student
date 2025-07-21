@@ -14,6 +14,7 @@ import { QuestsWidget } from '@/components/quest/quests-widget';
 import { TeamLeaderboardWidget } from '@/components/team/team-leaderboard-widget';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserTeams } from '@/hooks/use-team-api';
+import { trackPageView, trackWidgetInteraction } from '@/lib/analytics';
 // import { useJournalStatus } from '@/hooks/use-journal-status';
 import { logger } from '@/lib/logger';
 
@@ -45,6 +46,23 @@ export default function DashboardPage() {
     });
   }, [user?.id, teamsLoading, teamsError, teamsResponse, teams]);
 
+  // Track dashboard page view
+  useEffect(() => {
+    if (user?.id) {
+      trackPageView('dashboard', {
+        user_id: user.id,
+        teams_count: teams.length,
+      });
+    }
+  }, [user?.id, teams.length]);
+
+  const handleWidgetInteraction = (widget: string, action: string) => {
+    trackWidgetInteraction(widget, action, {
+      user_id: user?.id,
+      page: 'dashboard',
+    });
+  };
+
   return (
     <AuthGuard>
       <PageLayout
@@ -61,7 +79,10 @@ export default function DashboardPage() {
             <div className='h-[500px]'>
               <QuestsWidget
                 userId={user?.id || ''}
-                onViewAll={() => router.push('/quests')}
+                onViewAll={() => {
+                  handleWidgetInteraction('quests', 'view_all');
+                  router.push('/quests');
+                }}
               />
             </div>
 
@@ -69,6 +90,7 @@ export default function DashboardPage() {
               <JournalProgressWidget
                 userId={user?.id || ''}
                 onViewAll={() => {
+                  handleWidgetInteraction('journal_progress', 'view_all');
                   logger.debug('📅 Journal progress view all clicked');
                   router.push('/journal');
                 }}
@@ -79,7 +101,10 @@ export default function DashboardPage() {
               <TeamLeaderboardWidget
                 userId={user?.id || ''}
                 teams={teams}
-                onViewAll={() => router.push('/team')}
+                onViewAll={() => {
+                  handleWidgetInteraction('team_leaderboard', 'view_all');
+                  router.push('/team');
+                }}
               />
             </div>
 
@@ -88,6 +113,7 @@ export default function DashboardPage() {
               <CoachFeedbackWidget
                 userId={user?.id || ''}
                 onViewAll={() => {
+                  handleWidgetInteraction('coach_feedback', 'view_all');
                   logger.debug('Coach feedback view all clicked');
                   router.push('/coaching');
                 }}
@@ -98,6 +124,7 @@ export default function DashboardPage() {
               <HealthMetricsWidget
                 userId={user?.id || ''}
                 onViewAll={() => {
+                  handleWidgetInteraction('health_metrics', 'view_all');
                   logger.debug('Health metrics view all clicked');
                   // TODO: Navigate to health page when implemented
                 }}
@@ -108,6 +135,7 @@ export default function DashboardPage() {
               <GoalsWidget
                 userId={user?.id || ''}
                 onViewAll={() => {
+                  handleWidgetInteraction('goals', 'view_all');
                   logger.debug('Goals view all clicked');
                   // TODO: Navigate to goals page when implemented
                 }}

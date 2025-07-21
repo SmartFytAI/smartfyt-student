@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 import {
   Trophy,
   Target,
@@ -11,7 +13,6 @@ import {
   ChevronUp,
   ChevronDown,
 } from 'lucide-react';
-import { useState } from 'react';
 
 import { AuthGuard } from '@/components/auth';
 import { PageLayout } from '@/components/layout/page-layout';
@@ -29,6 +30,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
+import { trackPageView, trackQuestInteraction } from '@/lib/analytics';
 import { logger } from '@/lib/logger';
 import {
   useCurrentQuests,
@@ -40,6 +42,7 @@ import {
   useAssignNewQuests,
 } from '@/lib/services/quest-service';
 
+
 export default function QuestsPage() {
   const { user } = useAuth();
 
@@ -48,7 +51,7 @@ export default function QuestsPage() {
   const [completionNotes, setCompletionNotes] = useState('');
   const [isOverviewExpanded, setIsOverviewExpanded] = useState(true);
 
-  // React Query hooks for data fetching with caching
+  // React Query hooks for data fetching
   const {
     data: currentQuests = [],
     isLoading: currentQuestsLoading,
@@ -83,6 +86,17 @@ export default function QuestsPage() {
     error: totalScoreError,
   } = useTotalQuestScore(user?.id || null);
 
+  // Track quests page view
+  useEffect(() => {
+    if (user?.id) {
+      trackPageView('quests', {
+        user_id: user.id,
+        current_quests_count: currentQuests?.length || 0,
+        completed_quests_count: completedQuests?.length || 0,
+      });
+    }
+  }, [user?.id, currentQuests?.length, completedQuests?.length]);
+
   // Mutation hooks
   const completeQuestMutation = useCompleteQuest();
   const assignNewQuestsMutation = useAssignNewQuests();
@@ -102,34 +116,41 @@ export default function QuestsPage() {
     questCompletionError ||
     totalScoreError;
 
-  const handleCompleteQuest = async (questId: string) => {
-    if (!user?.id) return;
-
+  const handleCompleteQuest = async (questId: string, notes?: string) => {
     try {
-      await completeQuestMutation.mutateAsync({
-        userId: user.id,
+      const result = await completeQuestMutation.mutateAsync({
+        userId: user?.id || '',
         questId,
-        notes: completionNotes,
+        notes,
       });
 
-      logger.debug('✅ Quest completed successfully');
-      setExpandedQuestId(null);
-      setCompletionNotes('');
-    } catch (err) {
-      logger.error('❌ Error completing quest:', err);
-      // Error handling is managed by React Query
+      if (result.success) {
+        trackQuestInteraction('completed', questId, {
+          user_id: user?.id,
+          quest_id: questId,
+          points_earned: result.points || 0,
+          new_level: result.newLevel || 0,
+        });
+        setExpandedQuestId(null);
+        setCompletionNotes('');
+      }
+    } catch (error) {
+      logger.error('Failed to complete quest:', error);
     }
   };
 
   const handleAssignNewQuests = async () => {
-    if (!user?.id) return;
-
     try {
-      await assignNewQuestsMutation.mutateAsync(user.id);
-      logger.debug('✅ New quests assigned successfully');
-    } catch (err) {
-      logger.error('❌ Error assigning new quests:', err);
-      // Error handling is managed by React Query
+      const result = await assignNewQuestsMutation.mutateAsync(user?.id || '');
+
+      if (result && result.length > 0) {
+        trackQuestInteraction('assigned_new', undefined, {
+          user_id: user?.id,
+          quests_assigned: result.length,
+        });
+      }
+    } catch (error) {
+      logger.error('Failed to assign new quests:', error);
     }
   };
 
@@ -563,7 +584,7 @@ export default function QuestsPage() {
                                     <Button
                                       onClick={e => {
                                         e.stopPropagation();
-                                        handleCompleteQuest(quest.id);
+                                        handleCompleteQuest(quest.id, completionNotes);
                                       }}
                                       disabled={completeQuestMutation.isPending}
                                       className='bg-success-600 hover:bg-success-700'

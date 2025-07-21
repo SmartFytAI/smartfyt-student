@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
 import { AuthProvider } from '@/components/auth/auth-provider';
+import { PostHogProvider } from '@/components/providers';
 import { ThemeProvider } from '@/components/theme/theme-provider';
 import { GlobalLoadingIndicator } from '@/components/ui/global-loading-indicator';
 import { ReactQueryProvider } from '@/lib/react-query';
@@ -149,10 +150,12 @@ export default function RootLayout({
       >
         <AuthProvider>
           <ReactQueryProvider>
-            <ThemeProvider>
-              <GlobalLoadingIndicator />
-              <div className='safe-area-inset min-h-screen'>{children}</div>
-            </ThemeProvider>
+            <PostHogProvider>
+              <ThemeProvider>
+                <GlobalLoadingIndicator />
+                <div className='safe-area-inset min-h-screen'>{children}</div>
+              </ThemeProvider>
+            </PostHogProvider>
           </ReactQueryProvider>
         </AuthProvider>
       </body>
