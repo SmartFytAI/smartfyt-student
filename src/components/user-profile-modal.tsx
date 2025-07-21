@@ -332,7 +332,7 @@ export function UserProfileModal({
                     <FormControl>
                       <Textarea
                         placeholder='Describe your athletic goals for this season...'
-                        className='min-h-[100px]'
+                        className='min-h-[100px] select-text'
                         {...field}
                       />
                     </FormControl>
@@ -353,7 +353,7 @@ export function UserProfileModal({
                     <FormControl>
                       <Textarea
                         placeholder='Describe your academic goals...'
-                        className='min-h-[100px]'
+                        className='min-h-[100px] select-text'
                         {...field}
                       />
                     </FormControl>
@@ -381,7 +381,7 @@ export function UserProfileModal({
                     <FormControl>
                       <Textarea
                         placeholder='Tell us a bit about yourself...'
-                        className='min-h-[100px]'
+                        className='min-h-[100px] select-text'
                         {...field}
                       />
                     </FormControl>

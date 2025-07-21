@@ -222,6 +222,20 @@ export class ApiClient {
     return this.request(`/users/${userId}/dashboard`);
   }
 
+  // Teams endpoints
+  async getUserTeams(userId: string) {
+    return this.request<
+      Array<{
+        id: string;
+        name: string;
+        sportID: string;
+        schoolID?: string;
+        sport: { id: string; name: string };
+        school?: { id: string; name: string };
+      }>
+    >(`/users/${userId}/teams`);
+  }
+
   // Metrics endpoints
   async getUserMetrics(userId: string) {
     return this.request(`/users/${userId}/metrics`);

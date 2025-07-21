@@ -13,6 +13,7 @@ export const queryKeys = {
   journals: (userId: string) => ['journals', userId],
   journalDates: (userId: string) => ['journals', userId, 'dates'],
   quests: (userId: string) => ['quests', userId],
+  teams: (userId: string) => ['teams', userId],
   questStats: (userId: string) => ['quest-stats', userId],
   completedQuests: (userId: string) => ['completed-quests', userId],
   questCategories: ['quest-categories'],
@@ -121,6 +122,19 @@ export function useUserQuests(userId: string | null) {
     },
     enabled: !!userId,
     staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+}
+
+// User teams
+export function useTeams(userId: string | null) {
+  return useQuery({
+    queryKey: queryKeys.teams(userId || ''),
+    queryFn: () => {
+      if (!userId) throw new Error('User ID required');
+      return apiClient.getUserTeams(userId);
+    },
+    enabled: !!userId,
+    staleTime: 10 * 60 * 1000, // 10 minutes - teams don't change often
   });
 }
 

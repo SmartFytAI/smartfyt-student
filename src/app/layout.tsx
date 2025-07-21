@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/components/auth/auth-provider';
 import { ThemeProvider } from '@/components/theme/theme-provider';
+import { ReactQueryProvider } from '@/lib/react-query';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -141,9 +142,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} h-full text-gray-900 antialiased dark:text-gray-100`}
       >
         <AuthProvider>
-          <ThemeProvider>
-            <div className='safe-area-inset min-h-screen'>{children}</div>
-          </ThemeProvider>
+          <ReactQueryProvider>
+            <ThemeProvider>
+              <div className='safe-area-inset min-h-screen'>{children}</div>
+            </ThemeProvider>
+          </ReactQueryProvider>
         </AuthProvider>
       </body>
     </html>

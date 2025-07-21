@@ -491,7 +491,7 @@ export default function QuestsPage() {
                                     setCompletionNotes(e.target.value)
                                   }
                                   maxLength={280}
-                                  className='mt-2'
+                                  className='mt-2 select-text'
                                 />
                                 <p className='mt-1 text-xs text-muted-foreground'>
                                   {completionNotes.length}/280 characters

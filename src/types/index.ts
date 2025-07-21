@@ -196,6 +196,101 @@ export interface School {
   name: string;
 }
 
+// Team types
+export interface Team {
+  id: string;
+  name: string;
+  sportID: string;
+  schoolID?: string;
+  sport?: { id: string; name: string };
+  school?: { id: string; name: string };
+}
+
+export interface TeamMembership {
+  id: string;
+  userId: string;
+  teamId: string;
+  role: 'coach' | 'member';
+  team: Team;
+}
+
+export interface LeaderboardEntry {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  profileImage: string | null;
+  engagementScore: number;
+  weeklySteps: number;
+  questsCompleted: number;
+  journalsCount: number;
+  rank: number;
+  trend: 'up' | 'down' | 'none';
+  claps: number;
+  isCurrentUser: boolean;
+}
+
+export interface TeamActivityData {
+  teamId: string;
+  teamName: string;
+  sport: string;
+  school: string | null;
+  memberCount: number;
+  totalWeeklySteps: number;
+  avgStepsPerMember: number;
+  totalEngagementScore: number;
+  avgEngagementScore: number;
+  totalActiveMinutes: number;
+  userRole: string;
+  isUserTeam: boolean;
+  topPerformers: {
+    userId: string;
+    firstName: string;
+    lastName: string;
+    profileImage: string | null;
+    weeklySteps: number;
+    engagementScore: number;
+  }[];
+}
+
+export interface TeamPost {
+  id: string;
+  title: string;
+  content: string;
+  formattedContent: string;
+  createdAt: string;
+  updatedAt: string;
+  published: boolean;
+  teamID: string;
+  authorID: string;
+  author: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    profileImage: string | null;
+  };
+}
+
+export interface TeamChallenge {
+  id: string;
+  title: string;
+  description: string;
+  type: 'steps' | 'quests' | 'journals' | 'activity';
+  target: number;
+  currentProgress: number;
+  deadline: string;
+  reward: string;
+  participatingTeams: string[];
+  leaderboard: TeamChallengeEntry[];
+  isActive: boolean;
+}
+
+export interface TeamChallengeEntry {
+  teamId: string;
+  teamName: string;
+  progress: number;
+  rank: number;
+}
+
 // API Response wrapper
 export interface ApiResponse<T> {
   data?: T;

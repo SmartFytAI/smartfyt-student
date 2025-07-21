@@ -126,7 +126,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     <summary className='cursor-pointer text-sm text-gray-500 hover:text-gray-700'>
                       Debug Info (Dev Only)
                     </summary>
-                    <pre className='mt-2 overflow-auto rounded bg-gray-100 p-3 text-xs'>
+                    <pre className='mt-2 select-text overflow-auto rounded bg-gray-100 p-3 text-xs'>
                       {this.state.error?.stack}
                     </pre>
                   </details>
@@ -178,7 +178,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   <div className='text-xs dark:text-gray-300'>
                     <strong>Error:</strong> {this.state.error?.message}
                   </div>
-                  <pre className='max-h-32 overflow-auto rounded bg-gray-100 p-2 text-xs dark:bg-gray-700 dark:text-gray-300'>
+                  <pre className='max-h-32 select-text overflow-auto rounded bg-gray-100 p-2 text-xs dark:bg-gray-700 dark:text-gray-300'>
                     {this.state.error?.stack}
                   </pre>
                 </div>

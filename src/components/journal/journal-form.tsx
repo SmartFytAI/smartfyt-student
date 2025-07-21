@@ -403,7 +403,7 @@ export function JournalForm({
                       handleInputChange('wentWell', e.target.value)
                     }
                     rows={4}
-                    className='text-base'
+                    className='select-text text-base'
                   />
                 </div>
 
@@ -418,7 +418,7 @@ export function JournalForm({
                     value={formData.notWell}
                     onChange={e => handleInputChange('notWell', e.target.value)}
                     rows={4}
-                    className='text-base'
+                    className='select-text text-base'
                   />
                 </div>
 
@@ -437,7 +437,7 @@ export function JournalForm({
                     value={formData.goals}
                     onChange={e => handleInputChange('goals', e.target.value)}
                     rows={4}
-                    className='text-base'
+                    className='select-text text-base'
                   />
                 </div>
               </div>

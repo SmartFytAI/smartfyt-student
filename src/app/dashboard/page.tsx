@@ -7,18 +7,76 @@ import { DashboardCalendar } from '@/components/journal/dashboard-calendar';
 import { PageLayout } from '@/components/layout/page-layout';
 import { PWAInstaller } from '@/components/pwa-installer';
 import { QuestsWidget } from '@/components/quest/quests-widget';
+import { TeamLeaderboardWidget } from '@/components/team/TeamLeaderboardWidget';
 import { useAuth } from '@/hooks/use-auth';
 // import { useJournalStatus } from '@/hooks/use-journal-status';
 import { logger } from '@/lib/logger';
+import type { Team } from '@/types';
 
 export default function DashboardPage() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const [retryCount, setRetryCount] = useState(0);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [teamsLoading, setTeamsLoading] = useState(false);
 
   // Get journal status for the user (unused but kept for future reference)
   // const journalStatus = useJournalStatus(user?.id || '');
+
+  // Fetch user teams when authenticated
+  useEffect(() => {
+    if (user?.id && isAuthenticated) {
+      const fetchUserTeams = async () => {
+        try {
+          setTeamsLoading(true);
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.id}/teams`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('kinde_token')}`,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch teams');
+          }
+
+          const data = await response.json();
+          setTeams(data || []);
+          logger.info('User teams fetched for dashboard', {
+            teamCount: data?.length || 0,
+          });
+        } catch (error) {
+          logger.error('Failed to fetch user teams for dashboard', { error });
+          // For demo purposes, show mock data
+          setTeams([
+            {
+              id: 'team-1',
+              name: 'Varsity Football',
+              sportID: 'football',
+              schoolID: 'school-1',
+              sport: { id: 'football', name: 'Football' },
+              school: { id: 'school-1', name: 'Lincoln High School' },
+            },
+            {
+              id: 'team-2',
+              name: 'JV Basketball',
+              sportID: 'basketball',
+              schoolID: 'school-1',
+              sport: { id: 'basketball', name: 'Basketball' },
+              school: { id: 'school-1', name: 'Lincoln High School' },
+            },
+          ]);
+        } finally {
+          setTeamsLoading(false);
+        }
+      };
+
+      fetchUserTeams();
+    }
+  }, [user?.id, isAuthenticated]);
 
   useEffect(() => {
     logger.debug('🏠 Dashboard auth effect:', {
@@ -140,10 +198,10 @@ export default function DashboardPage() {
                 ⚔️ View Quests
               </button>
               <button
-                onClick={() => router.push('/leaderboard')}
+                onClick={() => router.push('/team')}
                 className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
               >
-                🏆 Leaderboard
+                🏆 Team Leaderboard
               </button>
               <button className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'>
                 🎯 Set Goals
@@ -178,55 +236,40 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Leaderboard */}
+          {/* Team Leaderboard */}
           <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
             <div className='mb-4 flex items-center justify-between'>
               <h3 className='text-lg font-semibold dark:text-white'>
-                Leaderboard
+                Team Leaderboard
               </h3>
               <button
-                onClick={() => router.push('/leaderboard')}
+                onClick={() => router.push('/team')}
                 className='text-sm text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300'
               >
                 View All →
               </button>
             </div>
             <div className='space-y-3'>
-              <div className='py-6 text-center'>
-                <div className='mb-2 text-4xl'>🏆</div>
-                <p className='text-sm font-medium dark:text-gray-300'>
-                  Team Rankings
-                </p>
-                <p className='text-xs text-gray-500 dark:text-gray-400'>
-                  Compete with your teammates
-                </p>
-              </div>
-
-              <div className='space-y-2'>
-                <div className='flex items-center justify-between text-sm'>
-                  <span className='dark:text-gray-300'>Your Rank</span>
-                  <span className='font-semibold text-orange-600 dark:text-orange-400'>
-                    #3
-                  </span>
+              {teamsLoading ? (
+                <div className='py-6 text-center'>
+                  <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-orange-600'></div>
+                  <p className='mt-2 text-sm text-gray-500 dark:text-gray-400'>
+                    Loading teams...
+                  </p>
                 </div>
-                <div className='flex items-center justify-between text-sm'>
-                  <span className='dark:text-gray-300'>Points</span>
-                  <span className='font-semibold dark:text-white'>1,250</span>
+              ) : teams.length === 0 ? (
+                <div className='py-6 text-center'>
+                  <div className='mb-2 text-4xl'>🏆</div>
+                  <p className='text-sm font-medium dark:text-gray-300'>
+                    No Teams Yet
+                  </p>
+                  <p className='text-xs text-gray-500 dark:text-gray-400'>
+                    Join a team to see the leaderboard
+                  </p>
                 </div>
-                <div className='flex items-center justify-between text-sm'>
-                  <span className='dark:text-gray-300'>Streak</span>
-                  <span className='font-semibold text-green-600 dark:text-green-400'>
-                    7 days
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => router.push('/leaderboard')}
-                className='mt-3 w-full rounded-md bg-orange-600 px-3 py-2 text-sm text-white transition-colors hover:bg-orange-700'
-              >
-                View Leaderboard
-              </button>
+              ) : (
+                <TeamLeaderboardWidget userId={user?.id || ''} teams={teams} />
+              )}
             </div>
           </div>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 
 import { UserAvatar } from '@/components/user-avatar';
 import { useAuth } from '@/hooks/use-auth';
@@ -38,13 +39,18 @@ export function PageHeader({ title, subtitle }: PageHeaderProps) {
           {/* Logo and Title */}
           <div className='flex items-center gap-4'>
             <div className='flex-shrink-0'>
-              <Image
-                src='/logos/smartfyt-brain.png'
-                alt='SmartFyt Brain'
-                width={48}
-                height={48}
-                className='h-12 w-auto'
-              />
+              <Link
+                href='/dashboard'
+                className='block transition-opacity hover:opacity-80'
+              >
+                <Image
+                  src='/logos/smartfyt-brain.png'
+                  alt='SmartFyt Brain'
+                  width={48}
+                  height={48}
+                  className='h-12 w-auto'
+                />
+              </Link>
             </div>
             {(title || subtitle) && (
               <div>

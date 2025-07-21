@@ -693,7 +693,7 @@ export default function ProfilePage() {
                     <FormControl>
                       <Textarea
                         placeholder='Describe your athletic goals for this season...'
-                        className='min-h-[100px] resize-none'
+                        className='min-h-[100px] select-text resize-none'
                         {...field}
                       />
                     </FormControl>
@@ -714,7 +714,7 @@ export default function ProfilePage() {
                     <FormControl>
                       <Textarea
                         placeholder='Describe your academic goals...'
-                        className='min-h-[100px] resize-none'
+                        className='min-h-[100px] select-text resize-none'
                         {...field}
                       />
                     </FormControl>
@@ -742,7 +742,7 @@ export default function ProfilePage() {
                     <FormControl>
                       <Textarea
                         placeholder='Tell us a bit about yourself...'
-                        className='min-h-[100px] resize-none'
+                        className='min-h-[100px] select-text resize-none'
                         {...field}
                       />
                     </FormControl>
