@@ -210,7 +210,7 @@ export function JournalList({
             </h3>
             <p className='text-sm text-gray-600 dark:text-gray-400'>
               Start your journaling journey by creating your first entry using
-              the &quot;+ Today&apos;s Journal&quot; button above.
+              the &quot;Today&apos;s Journal&quot; button above.
             </p>
           </CardContent>
         </Card>

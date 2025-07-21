@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { CoachFeedbackWidget } from '@/components/dashboard/coach-feedback-widget';
 import { DashboardCalendar } from '@/components/journal/dashboard-calendar';
 import { PageLayout } from '@/components/layout/page-layout';
 import { PWAInstaller } from '@/components/pwa-installer';
@@ -179,35 +180,14 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-            <h3 className='mb-4 text-lg font-semibold dark:text-white'>
-              Quick Actions
-            </h3>
-            <div className='space-y-3'>
-              <button
-                onClick={() => router.push('/journal')}
-                className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
-              >
-                📝 Daily Journal
-              </button>
-              <button
-                onClick={() => router.push('/quests')}
-                className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
-              >
-                ⚔️ View Quests
-              </button>
-              <button
-                onClick={() => router.push('/team')}
-                className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
-              >
-                🏆 Team Leaderboard
-              </button>
-              <button className='w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'>
-                🎯 Set Goals
-              </button>
-            </div>
-          </div>
+          {/* Coach Feedback */}
+          <CoachFeedbackWidget
+            userId={user.id}
+            onViewAll={() => {
+              logger.debug('Coach feedback view all clicked');
+              router.push('/coaching');
+            }}
+          />
 
           {/* Health Metrics */}
           <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
