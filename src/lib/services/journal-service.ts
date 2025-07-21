@@ -1,3 +1,5 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { Journal } from '../../types';
 import { apiClient } from '../api-client';
 import { logger } from '../logger';
@@ -103,7 +105,7 @@ export class JournalService {
 
       return dateStrings;
     } catch (error) {
-      logger.error('❌ Journal dates service error:', { error, userId });
+      logger.error('❌ Journal service error:', { error, userId });
       throw error;
     }
   }
@@ -113,7 +115,7 @@ export class JournalService {
    */
   static async createJournal(data: CreateJournalData): Promise<Journal> {
     try {
-      logger.debug('📝 Creating new journal entry:', {
+      logger.debug('📝 Creating journal for user:', {
         userId: data.userId,
         title: data.title,
       });
@@ -123,7 +125,7 @@ export class JournalService {
       if (response.error) {
         logger.error('❌ Failed to create journal:', {
           error: response.error,
-          data,
+          userId: data.userId,
         });
         throw new Error(response.error);
       }
@@ -136,39 +138,54 @@ export class JournalService {
 
       return journal;
     } catch (error) {
-      logger.error('❌ Create journal service error:', { error, data });
+      logger.error('❌ Journal service error:', { error, userId: data.userId });
       throw error;
     }
   }
 
   /**
-   * Check if user has completed a journal today
+   * Check if user has a journal for today
    */
   static async hasJournalToday(userId: string): Promise<boolean> {
     try {
-      const response = await this.getJournals(userId);
-      const today = new Date().toDateString();
+      logger.debug('📅 Checking if user has journal today:', { userId });
 
-      return response.journals.some(journal => {
-        const journalDate = new Date(journal.createdAt).toDateString();
-        return journalDate === today;
+      const today = new Date();
+      const hasJournal = await this.hasJournalForDate(userId, today);
+
+      logger.debug('✅ Journal today check completed:', {
+        hasJournal,
+        userId,
       });
+
+      return hasJournal;
     } catch (error) {
-      logger.error("❌ Error checking today's journal:", { error, userId });
-      return false;
+      logger.error('❌ Journal service error:', { error, userId });
+      throw error;
     }
   }
 
   /**
-   * Get the most recent journal entry
+   * Get the latest journal for a user
    */
   static async getLatestJournal(userId: string): Promise<Journal | null> {
     try {
-      const response = await this.getJournals(userId);
-      return response.journals.length > 0 ? response.journals[0] : null;
+      logger.debug('📝 Fetching latest journal for user:', { userId });
+
+      const response = await this.getJournals(userId, { limit: 1 });
+
+      const latestJournal = response.journals[0] || null;
+
+      logger.debug('✅ Latest journal fetched:', {
+        hasJournal: !!latestJournal,
+        journalId: latestJournal?.id,
+        userId,
+      });
+
+      return latestJournal;
     } catch (error) {
-      logger.error('❌ Error getting latest journal:', { error, userId });
-      return null;
+      logger.error('❌ Journal service error:', { error, userId });
+      throw error;
     }
   }
 
@@ -177,23 +194,26 @@ export class JournalService {
    */
   static async hasJournalForDate(userId: string, date: Date): Promise<boolean> {
     try {
-      const targetDate = new Date(date);
-      targetDate.setHours(0, 0, 0, 0);
-
-      const response = await this.getJournals(userId);
-
-      return response.journals.some(journal => {
-        const journalDate = new Date(journal.createdAt);
-        journalDate.setHours(0, 0, 0, 0);
-        return journalDate.getTime() === targetDate.getTime();
-      });
-    } catch (error) {
-      logger.error('❌ Error checking journal for date:', {
-        error,
+      logger.debug('📅 Checking if user has journal for date:', {
         userId,
-        date,
+        date: date.toISOString().split('T')[0],
       });
-      return false;
+
+      const dateString = date.toISOString().split('T')[0];
+      const journalDates = await this.getJournalDates(userId);
+
+      const hasJournal = journalDates.includes(dateString);
+
+      logger.debug('✅ Journal date check completed:', {
+        hasJournal,
+        date: dateString,
+        userId,
+      });
+
+      return hasJournal;
+    } catch (error) {
+      logger.error('❌ Journal service error:', { error, userId });
+      throw error;
     }
   }
 
@@ -205,112 +225,255 @@ export class JournalService {
     date: Date
   ): Promise<Journal | null> {
     try {
-      const targetDate = new Date(date);
-      targetDate.setHours(0, 0, 0, 0);
+      logger.debug('📝 Fetching journal for specific date:', {
+        userId,
+        date: date.toISOString().split('T')[0],
+      });
 
+      const hasJournal = await this.hasJournalForDate(userId, date);
+
+      if (!hasJournal) {
+        logger.debug('✅ No journal found for date:', {
+          date: date.toISOString().split('T')[0],
+          userId,
+        });
+        return null;
+      }
+
+      // Get all journals and find the one for the specific date
       const response = await this.getJournals(userId);
+      const dateString = date.toISOString().split('T')[0];
 
-      const journal = response.journals.find(journal => {
-        const journalDate = new Date(journal.createdAt);
-        journalDate.setHours(0, 0, 0, 0);
-        return journalDate.getTime() === targetDate.getTime();
+      const journal = response.journals.find(j => {
+        const journalDate = new Date(j.createdAt);
+        const journalDateString = journalDate.toISOString().split('T')[0];
+        return journalDateString === dateString;
+      });
+
+      logger.debug('✅ Journal for date fetched:', {
+        found: !!journal,
+        journalId: journal?.id,
+        date: dateString,
+        userId,
       });
 
       return journal || null;
     } catch (error) {
-      logger.error('❌ Error getting journal for date:', {
-        error,
-        userId,
-        date,
-      });
-      return null;
+      logger.error('❌ Journal service error:', { error, userId });
+      throw error;
     }
   }
 
   /**
-   * Check if user has a journal for a specific date (efficient version using dates only)
+   * Efficient check if user has a journal for a specific date
+   * Uses the journal dates endpoint directly
    */
   static async hasJournalForDateEfficient(
     userId: string,
     date: Date
   ): Promise<boolean> {
     try {
-      const targetDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+      logger.debug('📅 Efficient check for journal date:', {
+        userId,
+        date: date.toISOString().split('T')[0],
+      });
+
+      const dateString = date.toISOString().split('T')[0];
       const journalDates = await this.getJournalDates(userId);
 
-      logger.debug('📅 Checking journal existence:', {
+      const hasJournal = journalDates.includes(dateString);
+
+      logger.debug('✅ Efficient journal date check completed:', {
+        hasJournal,
+        date: dateString,
         userId,
-        targetDate,
-        journalDatesCount: journalDates.length,
-        sampleDates: journalDates.slice(0, 3),
       });
 
-      return journalDates.includes(targetDate);
+      return hasJournal;
     } catch (error) {
-      logger.error('❌ Error checking journal for date (efficient):', {
-        error,
-        userId,
-        date: date.toISOString(),
-      });
-      return false;
+      logger.error('❌ Journal service error:', { error, userId });
+      throw error;
     }
   }
 
   /**
-   * Get journal for a specific date (efficient version)
+   * Efficient get journal for a specific date
+   * Uses the journal dates endpoint to check first, then fetches if exists
    */
   static async getJournalForDateEfficient(
     userId: string,
     date: Date
   ): Promise<Journal | null> {
     try {
-      // First check if a journal exists for this date using the efficient method
+      logger.debug('📝 Efficient journal fetch for date:', {
+        userId,
+        date: date.toISOString().split('T')[0],
+      });
+
       const hasJournal = await this.hasJournalForDateEfficient(userId, date);
 
       if (!hasJournal) {
-        logger.debug('📅 No journal found for date (efficient check):', {
+        logger.debug('✅ No journal found for date (efficient check):', {
+          date: date.toISOString().split('T')[0],
           userId,
-          date: date.toISOString(),
         });
         return null;
       }
 
-      // Use the new API endpoint to get the specific journal for this date
-      const targetDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
-      logger.debug('📅 Fetching journal for date:', {
-        userId,
-        date: targetDate,
-        originalDate: date.toISOString(),
+      // Get all journals and find the one for the specific date
+      const response = await this.getJournals(userId);
+      const dateString = date.toISOString().split('T')[0];
+
+      const journal = response.journals.find(j => {
+        const journalDate = new Date(j.createdAt);
+        const journalDateString = journalDate.toISOString().split('T')[0];
+        return journalDateString === dateString;
       });
 
-      const response = await apiClient.getJournalForDate(userId, targetDate);
-
-      if (response.error) {
-        logger.error('❌ Failed to fetch journal for date:', {
-          error: response.error,
-          userId,
-          date: targetDate,
-          status: response.status,
-        });
-        return null;
-      }
-
-      const journal = response.data as Journal;
-      logger.debug('✅ Journal for date fetched successfully:', {
-        journalId: journal.id,
+      logger.debug('✅ Journal for date fetched (efficient):', {
+        found: !!journal,
+        journalId: journal?.id,
+        date: dateString,
         userId,
-        date: targetDate,
-        journalCreatedAt: journal.createdAt,
       });
 
-      return journal;
+      return journal || null;
     } catch (error) {
-      logger.error('❌ Error getting journal for date (efficient):', {
-        error,
-        userId,
-        date: date.toISOString(),
-      });
-      return null;
+      logger.error('❌ Journal service error:', { error, userId });
+      throw error;
     }
   }
+}
+
+// ============================================================================
+// React Query Hooks for Caching
+// ============================================================================
+
+/**
+ * React Query hook for journals with pagination and caching
+ */
+export function useJournals(
+  userId: string | null,
+  pagination?: JournalPaginationParams
+) {
+  return useQuery({
+    queryKey: ['journals', userId, pagination],
+    queryFn: () => JournalService.getJournals(userId!, pagination),
+    enabled: !!userId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+/**
+ * React Query hook for journal dates with caching
+ */
+export function useJournalDates(userId: string | null) {
+  return useQuery({
+    queryKey: ['journals', 'dates', userId],
+    queryFn: () => JournalService.getJournalDates(userId!),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes (dates change less often)
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
+/**
+ * React Query hook for latest journal with caching
+ */
+export function useLatestJournal(userId: string | null) {
+  return useQuery({
+    queryKey: ['journals', 'latest', userId],
+    queryFn: () => JournalService.getLatestJournal(userId!),
+    enabled: !!userId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+/**
+ * React Query hook for journal for specific date with caching
+ */
+export function useJournalForDate(userId: string | null, date: Date | null) {
+  return useQuery({
+    queryKey: ['journals', 'date', userId, date?.toISOString().split('T')[0]],
+    queryFn: () => JournalService.getJournalForDateEfficient(userId!, date!),
+    enabled: !!userId && !!date,
+    staleTime: 5 * 60 * 1000, // 5 minutes (journal content doesn't change often)
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
+/**
+ * React Query hook for checking if journal exists for date with caching
+ */
+export function useHasJournalForDate(userId: string | null, date: Date | null) {
+  return useQuery({
+    queryKey: ['journals', 'has', userId, date?.toISOString().split('T')[0]],
+    queryFn: () => JournalService.hasJournalForDateEfficient(userId!, date!),
+    enabled: !!userId && !!date,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
+/**
+ * React Query hook for checking if user has journal today with caching
+ */
+export function useHasJournalToday(userId: string | null) {
+  return useQuery({
+    queryKey: ['journals', 'today', userId],
+    queryFn: () => JournalService.hasJournalToday(userId!),
+    enabled: !!userId,
+    staleTime: 1 * 60 * 1000, // 1 minute (today status changes frequently)
+    gcTime: 2 * 60 * 1000, // 2 minutes
+  });
+}
+
+/**
+ * React Query mutation for creating journals with cache invalidation
+ */
+export function useCreateJournal() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreateJournalData) => JournalService.createJournal(data),
+    onSuccess: (data, variables) => {
+      // Invalidate related queries to refetch fresh data
+      queryClient.invalidateQueries({
+        queryKey: ['journals', variables.userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['journals', 'dates', variables.userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['journals', 'latest', variables.userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['journals', 'today', variables.userId],
+      });
+
+      // Invalidate specific date queries
+      if (variables.createdAt) {
+        const dateString = new Date(variables.createdAt)
+          .toISOString()
+          .split('T')[0];
+        queryClient.invalidateQueries({
+          queryKey: ['journals', 'date', variables.userId, dateString],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['journals', 'has', variables.userId, dateString],
+        });
+      } else {
+        // If no specific date, invalidate today's queries
+        const todayString = new Date().toISOString().split('T')[0];
+        queryClient.invalidateQueries({
+          queryKey: ['journals', 'date', variables.userId, todayString],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['journals', 'has', variables.userId, todayString],
+        });
+      }
+    },
+  });
 }

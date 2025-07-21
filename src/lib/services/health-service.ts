@@ -1,3 +1,5 @@
+import { useQuery } from '@tanstack/react-query';
+
 import { apiClient } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 import type {
@@ -6,6 +8,62 @@ import type {
   SleepDetail,
   ActivityDetail,
 } from '@/types';
+
+/**
+ * React Query hook for health data with caching
+ */
+export function useHealthData(userId: string | null) {
+  return useQuery({
+    queryKey: ['health', 'data', userId],
+    queryFn: () => HealthService.getHealthData(userId!),
+    enabled: !!userId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+/**
+ * React Query hook for health summary with caching
+ */
+export function useHealthSummary(userId: string | null) {
+  return useQuery({
+    queryKey: ['health', 'summary', userId],
+    queryFn: () => HealthService.getHealthSummary(userId!),
+    enabled: !!userId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+/**
+ * React Query hook for latest sleep data with caching
+ */
+export function useLatestSleepData(userId: string | null) {
+  return useQuery({
+    queryKey: ['health', 'sleep', 'latest', userId],
+    queryFn: () => HealthService.getLatestSleepData(userId!),
+    enabled: !!userId,
+    staleTime: 1 * 60 * 1000, // 1 minute
+    gcTime: 3 * 60 * 1000, // 3 minutes
+  });
+}
+
+/**
+ * React Query hook for latest activity data with caching
+ */
+export function useLatestActivityData(userId: string | null) {
+  return useQuery({
+    queryKey: ['health', 'activity', 'latest', userId],
+    queryFn: () => HealthService.getLatestActivityData(userId!),
+    enabled: !!userId,
+    staleTime: 1 * 60 * 1000, // 1 minute
+    gcTime: 3 * 60 * 1000, // 3 minutes
+  });
+}
+
+// ============================================================================
+// Original Service Class
+// ============================================================================
 
 export interface HealthServiceResponse<T> {
   data: T | null;

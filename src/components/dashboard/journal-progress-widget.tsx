@@ -4,6 +4,7 @@ import React from 'react';
 
 import { CardErrorBoundary } from '@/components/error/error-boundary';
 import { DashboardCalendar } from '@/components/journal/dashboard-calendar';
+import { WidgetCard } from '@/components/ui/widget-card';
 import { logger } from '@/lib/logger';
 
 interface JournalProgressWidgetProps {
@@ -35,20 +36,15 @@ export function JournalProgressWidget({
   onViewAll,
 }: JournalProgressWidgetProps) {
   return (
-    <CardErrorBoundary
-      fallback={
-        <div className='py-6 text-center'>
-          <div className='mb-2 text-4xl'>📅</div>
-          <p className='text-sm font-medium dark:text-gray-300'>
-            Journal Progress
-          </p>
-          <p className='text-xs text-gray-500 dark:text-gray-400'>
-            Unable to load journal progress
-          </p>
-        </div>
-      }
-    >
-      <JournalProgressWidgetContent userId={userId} onViewAll={onViewAll} />
+    <CardErrorBoundary>
+      <WidgetCard
+        title='Journal Progress'
+        onViewAll={onViewAll}
+        colorScheme='primary'
+        showSkeleton={true}
+      >
+        <JournalProgressWidgetContent userId={userId} onViewAll={onViewAll} />
+      </WidgetCard>
     </CardErrorBoundary>
   );
 }

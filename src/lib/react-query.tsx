@@ -46,10 +46,15 @@ export function ReactQueryProvider({
       new QueryClient({
         defaultOptions: {
           queries: {
-            // With SSR, we usually want to set some default staleTime
-            // above 0 to avoid refetching immediately on the client
-            staleTime: 60 * 1000, // 1 minute
-            refetchOnWindowFocus: false,
+            // Extended stale time for better caching
+            staleTime: 5 * 60 * 1000, // 5 minutes (increased from 1 minute)
+            // Cache data for longer to show immediately on navigation
+            gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+            // Refetch in background when window regains focus
+            refetchOnWindowFocus: true,
+            // Refetch when reconnecting to network
+            refetchOnReconnect: true,
+            // Retry configuration
             retry: (failureCount, error: unknown) => {
               // Don't retry on 401 (unauthorized) errors
               const err = error as { status?: number };
@@ -57,6 +62,10 @@ export function ReactQueryProvider({
               // Retry up to 3 times for other errors
               return failureCount < 3;
             },
+            // Show cached data immediately while refetching
+            refetchOnMount: true,
+            // Background refetch interval (disabled by default, can be overridden)
+            refetchInterval: false,
           },
           mutations: {
             retry: 1,

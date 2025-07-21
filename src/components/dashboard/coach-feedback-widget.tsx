@@ -1,19 +1,12 @@
-import { useState } from 'react';
-
 import { CardErrorBoundary } from '@/components/error/error-boundary';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { WidgetCard } from '@/components/ui/widget-card';
 import { logger } from '@/lib/logger';
-
-interface CoachFeedback {
-  id: string;
-  coachName: string;
-  message: string;
-  date: string;
-  type: 'positive' | 'improvement' | 'general';
-  isRead: boolean;
-}
+import {
+  useCoachFeedback,
+  useMarkFeedbackAsRead,
+} from '@/lib/services/coach-feedback-service';
 
 interface CoachFeedbackWidgetProps {
   userId: string;
@@ -24,45 +17,29 @@ function CoachFeedbackWidgetContent({
   userId,
   onViewAll,
 }: CoachFeedbackWidgetProps) {
-  const [feedback, setFeedback] = useState<CoachFeedback[]>([
-    {
-      id: '1',
-      coachName: 'Coach Johnson',
-      message:
-        'Great work on your conditioning this week! Your sprint times are improving.',
-      date: '2024-01-15',
-      type: 'positive',
-      isRead: false,
-    },
-    {
-      id: '2',
-      coachName: 'Coach Smith',
-      message:
-        "Focus on your form during weight training. Let's work on technique.",
-      date: '2024-01-14',
-      type: 'improvement',
-      isRead: true,
-    },
-    {
-      id: '3',
-      coachName: 'Coach Davis',
-      message: 'Remember to hydrate properly before practice tomorrow.',
-      date: '2024-01-13',
-      type: 'general',
-      isRead: true,
-    },
-  ]);
+  // React Query hooks for coach feedback with caching
+  const {
+    data: feedbackResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useCoachFeedback(userId);
 
+  const markAsReadMutation = useMarkFeedbackAsRead();
+
+  const feedback = feedbackResponse?.data || [];
   const unreadCount = feedback.filter(f => !f.isRead).length;
 
-  const handleMarkAsRead = (feedbackId: string) => {
-    setFeedback(prev =>
-      prev.map(f => (f.id === feedbackId ? { ...f, isRead: true } : f))
-    );
-    logger.info('Coach feedback marked as read', { feedbackId, userId });
+  const handleMarkAsRead = async (feedbackId: string) => {
+    try {
+      await markAsReadMutation.mutateAsync({ userId, feedbackId });
+      logger.info('Coach feedback marked as read', { feedbackId, userId });
+    } catch (err) {
+      logger.error('Error marking feedback as read:', err);
+    }
   };
 
-  const getTypeColor = (type: CoachFeedback['type']) => {
+  const getTypeColor = (type: 'positive' | 'improvement' | 'general') => {
     switch (type) {
       case 'positive':
         return 'bg-success-100 text-success-800 dark:bg-success-900/20 dark:text-success-400';
@@ -75,7 +52,7 @@ function CoachFeedbackWidgetContent({
     }
   };
 
-  const getTypeIcon = (type: CoachFeedback['type']) => {
+  const getTypeIcon = (type: 'positive' | 'improvement' | 'general') => {
     switch (type) {
       case 'positive':
         return '👍';
@@ -89,6 +66,20 @@ function CoachFeedbackWidgetContent({
   };
 
   const renderContent = () => {
+    if (error) {
+      return (
+        <div className='py-6 text-center'>
+          <div className='mb-2 text-4xl'>⚠️</div>
+          <p className='text-sm font-medium dark:text-gray-300'>
+            Unable to load feedback
+          </p>
+          <p className='text-xs text-gray-500 dark:text-gray-400'>
+            {error instanceof Error ? error.message : 'Unknown error'}
+          </p>
+        </div>
+      );
+    }
+
     if (feedback.length === 0) {
       return (
         <div className='py-6 text-center'>
@@ -105,79 +96,62 @@ function CoachFeedbackWidgetContent({
 
     return (
       <div className='space-y-3'>
-        {feedback.slice(0, 2).map(item => (
+        {feedback.slice(0, 3).map(item => (
           <div
             key={item.id}
-            className={`rounded-lg border p-3 transition-colors ${
+            className={`rounded-lg border p-3 ${
               item.isRead
-                ? 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50'
-                : 'border-secondary-200 bg-secondary-50 dark:border-secondary-700 dark:bg-secondary-900/20'
+                ? 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800'
+                : 'border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-900/20'
             }`}
           >
-            <div className='flex items-start justify-between'>
-              <div className='flex-1'>
-                <div className='mb-1 flex items-center gap-2'>
-                  <span className='text-sm font-medium dark:text-gray-300'>
-                    {item.coachName}
-                  </span>
-                  <Badge
-                    variant='secondary'
-                    className={`text-xs ${getTypeColor(item.type)}`}
-                  >
-                    {getTypeIcon(item.type)} {item.type}
-                  </Badge>
-                </div>
-                <p className='line-clamp-2 text-sm text-gray-600 dark:text-gray-400'>
-                  {item.message}
-                </p>
-                <p className='mt-1 text-xs text-gray-500 dark:text-gray-500'>
-                  {new Date(item.date).toLocaleDateString()}
-                </p>
+            <div className='mb-2 flex items-start justify-between'>
+              <div className='flex items-center gap-2'>
+                <span className='text-lg'>{getTypeIcon(item.type)}</span>
+                <span className='text-sm font-medium text-gray-900 dark:text-white'>
+                  {item.coachName}
+                </span>
+                <Badge
+                  variant='outline'
+                  className={`text-xs ${getTypeColor(item.type)}`}
+                >
+                  {item.type}
+                </Badge>
               </div>
               {!item.isRead && (
                 <Button
-                  variant='ghost'
                   size='sm'
+                  variant='ghost'
                   onClick={() => handleMarkAsRead(item.id)}
-                  className='ml-2 h-6 w-6 p-0 text-secondary-600 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-300'
+                  disabled={markAsReadMutation.isPending}
+                  className='h-6 px-2 text-xs'
                 >
-                  ✓
+                  Mark Read
                 </Button>
               )}
             </div>
+            <p className='text-sm text-gray-700 dark:text-gray-300'>
+              {item.message}
+            </p>
+            <p className='mt-2 text-xs text-gray-500 dark:text-gray-400'>
+              {new Date(item.date).toLocaleDateString()}
+            </p>
           </div>
         ))}
-
-        {feedback.length > 2 && (
-          <div className='pt-2'>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={onViewAll}
-              className='w-full text-sm'
-            >
-              View All Feedback ({feedback.length})
-            </Button>
-          </div>
-        )}
       </div>
     );
   };
 
   return (
     <WidgetCard
-      title='Coach Feedback'
+      title={`Coach Feedback${unreadCount > 0 ? ` (${unreadCount})` : ''}`}
       onViewAll={onViewAll}
+      loading={isLoading}
+      error={error instanceof Error ? error.message : error}
       colorScheme='primary'
-      showHeader={true}
+      onRetry={() => refetch()}
+      showSkeleton={true}
     >
-      <div className='mb-3 flex items-center justify-between'>
-        {unreadCount > 0 && (
-          <Badge variant='destructive' className='text-xs'>
-            {unreadCount} new
-          </Badge>
-        )}
-      </div>
       {renderContent()}
     </WidgetCard>
   );

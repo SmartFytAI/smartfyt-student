@@ -1,11 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-
 import { CardErrorBoundary } from '@/components/error/error-boundary';
 import { WidgetCard } from '@/components/ui/widget-card';
-import { logger } from '@/lib/logger';
-import { getCurrentQuests, type Quest } from '@/lib/services/quest-service';
+import { useCurrentQuests } from '@/lib/services/quest-service';
 
 interface QuestsWidgetProps {
   userId: string;
@@ -13,33 +10,13 @@ interface QuestsWidgetProps {
 }
 
 function QuestsWidgetContent({ userId, onViewAll }: QuestsWidgetProps) {
-  const [quests, setQuests] = useState<Quest[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchQuests = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      logger.debug('⚔️ Fetching quests for dashboard widget:', { userId });
-
-      const quests = await getCurrentQuests(userId);
-      setQuests(quests);
-
-      logger.debug('✅ Dashboard quests fetched successfully:', {
-        count: quests.length,
-      });
-    } catch (err) {
-      logger.error('❌ Error fetching dashboard quests:', err);
-      setError('Failed to load quests');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId]);
-
-  useEffect(() => {
-    fetchQuests();
-  }, [userId, fetchQuests]);
+  // React Query hook for data fetching with caching
+  const {
+    data: quests = [],
+    isLoading,
+    error,
+    refetch,
+  } = useCurrentQuests(userId);
 
   const getCategoryIcon = (categoryName: string) => {
     switch (categoryName.toLowerCase()) {
@@ -143,9 +120,10 @@ function QuestsWidgetContent({ userId, onViewAll }: QuestsWidgetProps) {
       title={`Today's Quests${quests.length > 0 ? ` (${quests.length})` : ''}`}
       onViewAll={onViewAll}
       loading={isLoading}
-      error={error}
+      error={error instanceof Error ? error.message : error}
       colorScheme='primary'
-      onRetry={fetchQuests}
+      onRetry={() => refetch()}
+      showSkeleton={true}
     >
       {renderContent()}
     </WidgetCard>

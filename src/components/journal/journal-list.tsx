@@ -131,12 +131,40 @@ export function JournalList({
 
   if (isLoading) {
     return (
-      <div className='flex items-center justify-center py-8'>
-        <div className='text-center'>
-          <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-secondary-600'></div>
-          <p className='mt-2 text-sm text-gray-600 dark:text-gray-400'>
-            Loading journals...
-          </p>
+      <div className='space-y-4'>
+        {/* Pagination Skeleton */}
+        <div className='flex items-center justify-between border-b border-gray-200 pb-3 dark:border-gray-700'>
+          <div className='h-4 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+          <div className='flex items-center gap-2'>
+            <div className='h-8 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+            <div className='h-8 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+          </div>
+        </div>
+
+        {/* Journal Cards Skeleton */}
+        <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-1'>
+          {[1, 2, 3, 4].map(i => (
+            <Card key={i}>
+              <CardHeader>
+                <div className='flex items-start gap-3'>
+                  <div className='h-10 w-10 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700'></div>
+                  <div className='flex-1 space-y-2'>
+                    <div className='flex items-center justify-between'>
+                      <div className='h-5 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                      <div className='h-5 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                    </div>
+                    <div className='h-4 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                    <div className='h-4 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                    <div className='flex items-center gap-2'>
+                      <div className='h-4 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                      <div className='h-4 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                      <div className='h-4 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+          ))}
         </div>
       </div>
     );

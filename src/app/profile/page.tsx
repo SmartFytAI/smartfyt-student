@@ -30,8 +30,13 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
-import { useUserProfile } from '@/hooks/use-user-profile';
 import { logger } from '@/lib/logger';
+import {
+  useUserProfile,
+  useSchools,
+  useSports,
+  useUpdateUserProfile,
+} from '@/lib/services/user-service';
 
 // Profile form schema
 const profileFormSchema = z.object({
@@ -68,18 +73,32 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 export default function ProfilePage() {
   const router = useRouter();
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [profileImage, setProfileImage] = useState<string | undefined>();
 
-  // Use the user profile hook
+  // Use React Query hooks for data fetching with caching
   const {
-    profile,
-    schools,
-    sports,
+    data: profile,
     isLoading: profileLoading,
-    error,
-    updateProfile,
-  } = useUserProfile(user?.id || '');
+    error: profileError,
+  } = useUserProfile(user?.id || null);
+
+  const {
+    data: schools = [],
+    isLoading: schoolsLoading,
+    error: schoolsError,
+  } = useSchools();
+
+  const {
+    data: sports = [],
+    isLoading: sportsLoading,
+    error: sportsError,
+  } = useSports();
+
+  const updateProfileMutation = useUpdateUserProfile();
+
+  const isLoading = profileLoading || schoolsLoading || sportsLoading;
+  const error = profileError || schoolsError || sportsError;
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -149,7 +168,7 @@ export default function ProfilePage() {
   const onSubmit = async (data: ProfileFormValues) => {
     if (!user?.id) return;
 
-    setIsLoading(true);
+    setIsSubmitting(true);
     try {
       // Map form data to profile data
       const profileData = {
@@ -157,14 +176,17 @@ export default function ProfilePage() {
         profileImage: data.profileImageUrl, // Map the form field to the profile field
       };
 
-      await updateProfile(profileData);
+      await updateProfileMutation.mutateAsync({
+        userId: user.id,
+        profileData: profileData,
+      });
       logger.info('Profile updated successfully');
       // Optionally redirect back to dashboard
-      // router.push('/dashboard');
+      router.push('/dashboard');
     } catch (error) {
       logger.error('Error saving profile:', error);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -173,35 +195,41 @@ export default function ProfilePage() {
     return `${profile?.firstName?.[0] || ''}${profile?.lastName?.[0] || ''}`.toUpperCase();
   };
 
-  if (profileLoading) {
+  // Show loading state
+  if (isLoading) {
     return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
-        <div className='flex min-h-screen items-center justify-center'>
-          <div className='text-center'>
-            <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-athletic-orange'></div>
-            <p className='mt-4 text-gray-600 dark:text-gray-400'>
-              Loading profile...
-            </p>
+      <AuthGuard>
+        <PageLayout title='Profile' subtitle='Manage your account settings'>
+          <div className='mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8'>
+            <div className='flex items-center justify-center py-12'>
+              <div className='h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent'></div>
+            </div>
           </div>
-        </div>
-      </div>
+        </PageLayout>
+      </AuthGuard>
     );
   }
 
+  // Show error state
   if (error) {
     return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
-        <div className='flex min-h-screen items-center justify-center'>
-          <div className='text-center'>
-            <p className='text-danger-600 dark:text-danger-400'>
-              Error loading profile: {error}
-            </p>
-            <Button onClick={() => router.back()} className='mt-4'>
-              Go Back
-            </Button>
+      <AuthGuard>
+        <PageLayout title='Profile' subtitle='Manage your account settings'>
+          <div className='mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8'>
+            <div className='rounded-lg border border-danger-200 bg-danger-50 p-6 text-center dark:border-danger-700 dark:bg-danger-900/20'>
+              <div className='mb-4 text-4xl'>⚠️</div>
+              <h3 className='mb-2 text-lg font-semibold text-danger-800 dark:text-danger-200'>
+                Unable to Load Profile
+              </h3>
+              <p className='text-danger-600 dark:text-danger-300'>
+                {error instanceof Error
+                  ? error.message
+                  : 'An error occurred while loading your profile'}
+              </p>
+            </div>
           </div>
-        </div>
-      </div>
+        </PageLayout>
+      </AuthGuard>
     );
   }
 
@@ -772,10 +800,10 @@ export default function ProfilePage() {
                 <Button
                   type='submit'
                   className='h-12 w-full bg-primary-500 text-lg font-semibold text-white shadow-md hover:bg-primary-600'
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                 >
                   <Save className='mr-2 h-5 w-5' />
-                  {isLoading ? 'Saving...' : 'Save Changes'}
+                  {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </Button>
               </div>
             </form>

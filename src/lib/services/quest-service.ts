@@ -1,3 +1,5 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { apiClient } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 
@@ -110,7 +112,7 @@ export async function getUserStats(userId: string): Promise<UserStat[]> {
 }
 
 /**
- * Complete a quest
+ * Complete a quest for a user
  */
 export async function completeQuest(
   userId: string,
@@ -136,13 +138,15 @@ export async function completeQuest(
       return { success: false };
     }
 
-    logger.debug('✅ Quest completed successfully');
+    logger.debug('✅ Quest completed successfully:', response.data);
+
+    // Handle the response data safely
+    const responseData = response.data as any;
     return {
       success: true,
-      // Note: The API response structure may need to be updated to include these fields
-      points: 0,
-      newLevel: 1,
-      totalPoints: 0,
+      points: responseData?.points || 0,
+      newLevel: responseData?.newLevel || 1,
+      totalPoints: responseData?.totalPoints || 0,
     };
   } catch (error) {
     logger.error('❌ Error completing quest:', error);
@@ -155,12 +159,12 @@ export async function completeQuest(
  */
 export async function assignNewQuests(userId: string): Promise<Quest[]> {
   try {
-    logger.debug('🎲 Assigning new quests for user:', userId);
+    logger.debug('🎯 Assigning new quests for user:', userId);
 
     const response = await apiClient.assignQuests(userId);
 
     if (response.error) {
-      logger.error('❌ Failed to assign quests:', response.error);
+      logger.error('❌ Failed to assign new quests:', response.error);
       return [];
     }
 
@@ -168,20 +172,21 @@ export async function assignNewQuests(userId: string): Promise<Quest[]> {
     logger.debug('✅ New quests assigned:', quests.length);
     return quests;
   } catch (error) {
-    logger.error('❌ Error assigning quests:', error);
+    logger.error('❌ Error assigning new quests:', error);
     return [];
   }
 }
 
 /**
- * Get quest completion statistics
+ * Get quest completion statistics for a user
  */
 export async function getQuestCompletion(
   userId: string
 ): Promise<QuestCompletion> {
   try {
-    logger.debug('📊 Getting quest completion stats for user:', userId);
+    logger.debug('📊 Fetching quest completion for user:', userId);
 
+    // Calculate completion from current and completed quests
     const [currentQuests, completedQuests] = await Promise.all([
       getCurrentQuests(userId),
       getCompletedQuests(userId),
@@ -192,19 +197,16 @@ export async function getQuestCompletion(
     const percentage =
       totalQuests > 0 ? Math.round((completedCount / totalQuests) * 100) : 0;
 
-    logger.debug('✅ Quest completion stats:', {
-      totalQuests,
-      completedCount,
-      percentage,
-    });
-
-    return {
+    const completion = {
       totalQuests,
       completedQuests: completedCount,
       percentage,
     };
+
+    logger.debug('✅ Quest completion stats:', completion);
+    return completion;
   } catch (error) {
-    logger.error('❌ Error getting quest completion:', error);
+    logger.error('❌ Error fetching quest completion:', error);
     return {
       totalQuests: 0,
       completedQuests: 0,
@@ -230,7 +232,7 @@ export async function getTeamLeaderboard(
     }
 
     const leaderboard = response.data || [];
-    logger.debug('✅ Found team leaderboard:', leaderboard.length);
+    logger.debug('✅ Team leaderboard fetched:', leaderboard.length);
     return leaderboard;
   } catch (error) {
     logger.error('❌ Error fetching team leaderboard:', error);
@@ -255,7 +257,7 @@ export async function getSchoolLeaderboard(
     }
 
     const leaderboard = response.data || [];
-    logger.debug('✅ Found school leaderboard:', leaderboard.length);
+    logger.debug('✅ School leaderboard fetched:', leaderboard.length);
     return leaderboard;
   } catch (error) {
     logger.error('❌ Error fetching school leaderboard:', error);
@@ -264,29 +266,31 @@ export async function getSchoolLeaderboard(
 }
 
 /**
- * Get all leaderboard data (team and school)
+ * Get quest leaderboard (team and school)
  */
 export async function getQuestLeaderboard(
   userId: string,
   teamId?: string
 ): Promise<QuestLeaderboard> {
   try {
-    logger.debug('🏆 Fetching quest leaderboard data:', { userId, teamId });
+    logger.debug('🏆 Fetching quest leaderboard:', { userId, teamId });
 
-    const [schoolLeaderboard, teamLeaderboard] = await Promise.all([
-      getSchoolLeaderboard(userId),
+    const [teamLeaderboard, schoolLeaderboard] = await Promise.all([
       teamId ? getTeamLeaderboard(teamId) : Promise.resolve([]),
+      getSchoolLeaderboard(userId),
     ]);
 
-    logger.debug('✅ Quest leaderboard data fetched:', {
-      school: schoolLeaderboard.length,
-      team: teamLeaderboard.length,
-    });
-
-    return {
+    const leaderboard = {
       teamLeaderboard,
       schoolLeaderboard,
     };
+
+    logger.debug('✅ Quest leaderboard fetched:', {
+      teamCount: teamLeaderboard.length,
+      schoolCount: schoolLeaderboard.length,
+    });
+
+    return leaderboard;
   } catch (error) {
     logger.error('❌ Error fetching quest leaderboard:', error);
     return {
@@ -297,11 +301,11 @@ export async function getQuestLeaderboard(
 }
 
 /**
- * Get user's total quest score across all categories
+ * Get total quest score for a user
  */
 export async function getTotalQuestScore(userId: string): Promise<number> {
   try {
-    logger.debug('📊 Getting total quest score for user:', userId);
+    logger.debug('🏆 Fetching total quest score for user:', userId);
 
     const stats = await getUserStats(userId);
     const totalScore = stats.reduce((sum, stat) => sum + stat.points, 0);
@@ -309,7 +313,175 @@ export async function getTotalQuestScore(userId: string): Promise<number> {
     logger.debug('✅ Total quest score:', totalScore);
     return totalScore;
   } catch (error) {
-    logger.error('❌ Error getting total quest score:', error);
+    logger.error('❌ Error fetching total quest score:', error);
     return 0;
   }
+}
+
+// ============================================================================
+// React Query Hooks for Caching
+// ============================================================================
+
+/**
+ * React Query hook for current quests with caching
+ */
+export function useCurrentQuests(userId: string | null) {
+  return useQuery({
+    queryKey: ['quests', 'current', userId],
+    queryFn: () => getCurrentQuests(userId!),
+    enabled: !!userId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+/**
+ * React Query hook for completed quests with caching
+ */
+export function useCompletedQuests(userId: string | null) {
+  return useQuery({
+    queryKey: ['quests', 'completed', userId],
+    queryFn: () => getCompletedQuests(userId!),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes (completed quests change less often)
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
+/**
+ * React Query hook for user stats with caching
+ */
+export function useUserStats(userId: string | null) {
+  return useQuery({
+    queryKey: ['user', 'stats', userId],
+    queryFn: () => getUserStats(userId!),
+    enabled: !!userId,
+    staleTime: 3 * 60 * 1000, // 3 minutes
+    gcTime: 8 * 60 * 1000, // 8 minutes
+  });
+}
+
+/**
+ * React Query hook for quest completion with caching
+ */
+export function useQuestCompletion(userId: string | null) {
+  return useQuery({
+    queryKey: ['quests', 'completion', userId],
+    queryFn: () => getQuestCompletion(userId!),
+    enabled: !!userId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+/**
+ * React Query hook for total quest score with caching
+ */
+export function useTotalQuestScore(userId: string | null) {
+  return useQuery({
+    queryKey: ['quests', 'score', userId],
+    queryFn: () => getTotalQuestScore(userId!),
+    enabled: !!userId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+/**
+ * React Query hook for team leaderboard with caching
+ */
+export function useTeamLeaderboard(teamId: string | null) {
+  return useQuery({
+    queryKey: ['leaderboard', 'team', teamId],
+    queryFn: () => getTeamLeaderboard(teamId!),
+    enabled: !!teamId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
+/**
+ * React Query hook for school leaderboard with caching
+ */
+export function useSchoolLeaderboard(userId: string | null) {
+  return useQuery({
+    queryKey: ['leaderboard', 'school', userId],
+    queryFn: () => getSchoolLeaderboard(userId!),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
+/**
+ * React Query hook for quest leaderboard with caching
+ */
+export function useQuestLeaderboard(userId: string | null, teamId?: string) {
+  return useQuery({
+    queryKey: ['leaderboard', 'quest', userId, teamId],
+    queryFn: () => getQuestLeaderboard(userId!, teamId),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
+/**
+ * React Query mutation for completing quests with cache invalidation
+ */
+export function useCompleteQuest() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      userId,
+      questId,
+      notes,
+    }: {
+      userId: string;
+      questId: string;
+      notes?: string;
+    }) => completeQuest(userId, questId, notes),
+    onSuccess: (data, variables) => {
+      if (data.success) {
+        // Invalidate related queries to refetch fresh data
+        queryClient.invalidateQueries({
+          queryKey: ['quests', 'current', variables.userId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['quests', 'completed', variables.userId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['quests', 'completion', variables.userId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['quests', 'score', variables.userId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['user', 'stats', variables.userId],
+        });
+        queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+      }
+    },
+  });
+}
+
+/**
+ * React Query mutation for assigning new quests with cache invalidation
+ */
+export function useAssignNewQuests() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: assignNewQuests,
+    onSuccess: (data, userId) => {
+      // Invalidate current quests to show new assignments
+      queryClient.invalidateQueries({
+        queryKey: ['quests', 'current', userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['quests', 'completion', userId],
+      });
+    },
+  });
 }

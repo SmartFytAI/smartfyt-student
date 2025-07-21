@@ -1,12 +1,11 @@
 'use client';
 
 import { Calendar, TrendingUp } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { logger } from '@/lib/logger';
-import { JournalService } from '@/lib/services/journal-service';
+import { useJournalDates } from '@/lib/services/journal-service';
 
 interface JournalCalendarProps {
   userId: string;
@@ -26,42 +25,17 @@ export function JournalCalendar({
   userId,
   onDayClick,
   onViewStats,
-  refreshKey,
+  refreshKey: _refreshKey,
 }: JournalCalendarProps) {
-  const [journalDates, setJournalDates] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  const loadJournalDates = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      logger.debug('📅 Loading journal dates for calendar:', { userId });
-      const dates = await JournalService.getJournalDates(userId);
-      setJournalDates(dates);
-
-      logger.debug('✅ Journal dates loaded for calendar:', {
-        count: dates.length,
-        dates: dates.slice(0, 10), // Log first 10 dates for debugging
-      });
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to load journal dates';
-      logger.error('❌ Error loading journal dates for calendar:', {
-        error: err,
-        userId,
-      });
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId]);
-
-  useEffect(() => {
-    loadJournalDates();
-  }, [loadJournalDates, refreshKey]);
+  // React Query hook for journal dates with caching
+  const {
+    data: journalDates = [],
+    isLoading,
+    error,
+    refetch,
+  } = useJournalDates(userId);
 
   const generateCalendarDays = (): CalendarDay[] => {
     const days: CalendarDay[] = [];
@@ -98,10 +72,9 @@ export function JournalCalendar({
     const currentDate = new Date(startDate);
     while (currentDate <= endDate) {
       const date = new Date(currentDate);
-
       const dateString = date.toISOString().split('T')[0];
       const isCompleted = journalDates.includes(dateString);
-      const isToday = date.toDateString() === today.toDateString();
+      const isToday = date.getTime() === today.getTime();
       const isFuture = date > today;
 
       days.push({
@@ -163,49 +136,52 @@ export function JournalCalendar({
   };
 
   const getCompletionStats = () => {
-    const days = generateCalendarDays();
-    const completedDays = days.filter(day => day.isCompleted).length;
-    const totalDays = days.filter(day => !day.isFuture).length;
-    return { completedDays, totalDays };
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+
+    const monthDays = journalDates.filter(dateString => {
+      const date = new Date(dateString);
+      return (
+        date.getFullYear() === currentYear && date.getMonth() === currentMonth
+      );
+    });
+
+    const totalDaysInMonth = new Date(
+      currentYear,
+      currentMonth + 1,
+      0
+    ).getDate();
+    const completionRate = Math.round(
+      (monthDays.length / totalDaysInMonth) * 100
+    );
+
+    return {
+      completed: monthDays.length,
+      total: totalDaysInMonth,
+      rate: completionRate,
+    };
   };
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className='flex items-center justify-center py-8'>
-          <div className='text-center'>
-            <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-secondary-600'></div>
-            <p className='mt-2 text-sm text-gray-600 dark:text-gray-400'>
-              Loading calendar...
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const calendarDays = generateCalendarDays();
+  const stats = getCompletionStats();
 
   if (error) {
     return (
       <Card>
-        <CardContent className='py-8 text-center'>
-          <div className='mb-2 text-danger-600 dark:text-danger-400'>
-            <Calendar className='mx-auto h-8 w-8' />
-          </div>
-          <p className='mb-4 text-sm text-gray-600 dark:text-gray-400'>
-            {error}
+        <CardContent className='flex flex-col items-center justify-center py-8'>
+          <div className='mb-4 text-4xl'>⚠️</div>
+          <p className='text-center text-muted-foreground'>
+            Compete with your teammates and see who&apos;s earning the most
+            quest points!
           </p>
-          <Button onClick={loadJournalDates} variant='outline' size='sm'>
-            Try Again
+          <Button onClick={() => refetch()} variant='outline'>
+            Retry
           </Button>
         </CardContent>
       </Card>
     );
   }
-
-  const calendarDays = generateCalendarDays();
-  const { completedDays, totalDays } = getCompletionStats();
-  const completionRate =
-    totalDays > 0 ? Math.round((completedDays / totalDays) * 100) : 0;
 
   return (
     <Card>
@@ -231,90 +207,118 @@ export function JournalCalendar({
           <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
             {formatMonthYear(currentMonth)}
           </h3>
-          <p className='text-sm text-gray-600 dark:text-gray-400'>
-            {completedDays} of {totalDays} days completed ({completionRate}%)
-          </p>
           <p className='mt-1 text-xs text-gray-500 dark:text-gray-500'>
             Click on any past day to view or create a journal entry
           </p>
         </div>
       </CardHeader>
-
       <CardContent>
-        {/* Day Headers */}
-        <div className='mb-2 grid grid-cols-7 gap-1'>
-          {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-            <div
-              key={day}
-              className='py-1 text-center text-xs font-medium text-gray-500 dark:text-gray-400'
-            >
-              {day}
-            </div>
-          ))}
-        </div>
+        {/* Loading State */}
+        {isLoading && (
+          <div className='flex items-center justify-center py-8'>
+            <div className='h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent'></div>
+          </div>
+        )}
 
         {/* Calendar Grid */}
-        <div className='grid grid-cols-7 gap-1 px-6 py-4'>
-          {calendarDays.map(day => {
-            const tooltipText = day.isFuture
-              ? `${day.date.toLocaleDateString()} (Future date)`
-              : day.isCompleted
-                ? `${day.date.toLocaleDateString()} - Journal completed (click to view)`
-                : `${day.date.toLocaleDateString()} - No journal (click to create)`;
+        {!isLoading && (
+          <>
+            {/* Day Headers */}
+            <div className='mb-2 grid grid-cols-7 gap-1 text-center'>
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(
+                (day, index) => (
+                  <div
+                    key={`header-${index}`}
+                    className='text-xs font-medium text-gray-500'
+                  >
+                    {day}
+                  </div>
+                )
+              )}
+            </div>
 
-            return (
-              <div
-                key={day.date.toISOString()}
-                className={`
-                  relative flex aspect-square items-center justify-center rounded-lg transition-all duration-200
-                  ${getDayClass(day)}
-                  ${!day.isFuture ? 'hover:scale-105' : ''}
-                `}
-                onClick={() => handleDayClick(day)}
-                title={tooltipText}
-              >
-                <span className='text-xs font-medium text-white'>
-                  {day.date.getDate()}
+            {/* Calendar Days */}
+            <div className='grid grid-cols-7 gap-1 px-6 py-4'>
+              {calendarDays.map((day, _index) => (
+                <div
+                  key={`day-${day.date.toISOString()}`}
+                  className={`
+                    relative flex aspect-square items-center justify-center rounded-lg transition-all duration-200
+                    ${getDayClass(day)}
+                    ${!day.isFuture ? 'hover:scale-105' : ''}
+                  `}
+                  onClick={() => handleDayClick(day)}
+                  title={
+                    day.isToday
+                      ? 'Today'
+                      : day.isCompleted
+                        ? `Journal completed on ${day.date.toLocaleDateString()}`
+                        : day.isFuture
+                          ? 'Future date'
+                          : `Click to view journal for ${day.date.toLocaleDateString()}`
+                  }
+                >
+                  <span className='text-xs font-medium text-white'>
+                    {day.date.getDate()}
+                  </span>
+                  {day.isCompleted && (
+                    <div className='absolute -right-1 -top-1 h-2 w-2 rounded-full bg-white opacity-80'></div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Completion Stats */}
+            <div className='mt-4 rounded-lg bg-gray-50 p-3 dark:bg-gray-800'>
+              <div className='flex items-center justify-between text-sm'>
+                <span className='text-gray-600 dark:text-gray-400'>
+                  This month&apos;s completion
                 </span>
-                {day.isCompleted && (
-                  <div className='absolute -right-1 -top-1 h-2 w-2 rounded-full bg-white opacity-80'></div>
-                )}
+                <span className='font-medium'>
+                  {stats.completed}/{stats.total} days ({stats.rate}%)
+                </span>
               </div>
-            );
-          })}
-        </div>
-
-        {/* Legend */}
-        <div className='mt-4 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400'>
-          <div className='flex items-center gap-4'>
-            <div className='flex items-center gap-1'>
-              <div className='relative h-3 w-3 rounded bg-gradient-to-br from-orange-400 to-orange-600'>
-                <div className='absolute -right-0.5 -top-0.5 h-1 w-1 rounded-full bg-white opacity-80'></div>
+              <div className='mt-2 h-2 rounded-full bg-gray-200 dark:bg-gray-700'>
+                <div
+                  className='h-2 rounded-full bg-primary-500 transition-all duration-300'
+                  style={{ width: `${stats.rate}%` }}
+                ></div>
               </div>
-              <span>Completed (click to view)</span>
             </div>
-            <div className='flex items-center gap-1'>
-              <div className='h-3 w-3 rounded border border-white bg-gradient-to-br from-orange-400 to-orange-600'></div>
-              <span>Today</span>
-            </div>
-            <div className='flex items-center gap-1'>
-              <div className='h-3 w-3 rounded border border-gray-600 bg-gray-700'></div>
-              <span>Empty (click to create)</span>
-            </div>
-          </div>
 
-          {onViewStats && (
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={onViewStats}
-              className='flex items-center gap-1'
-            >
-              <TrendingUp className='h-3 w-3' />
-              VIEW STATS
-            </Button>
-          )}
-        </div>
+            {/* Legend */}
+            <div className='mt-4 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400'>
+              <div className='flex items-center gap-4'>
+                <div className='flex items-center gap-1'>
+                  <div className='relative h-3 w-3 rounded bg-gradient-to-br from-orange-400 to-orange-600'>
+                    <div className='absolute -right-0.5 -top-0.5 h-1 w-1 rounded-full bg-white opacity-80'></div>
+                  </div>
+                  <span>Completed (click to view)</span>
+                </div>
+                <div className='flex items-center gap-1'>
+                  <div className='h-3 w-3 rounded border border-white bg-gradient-to-br from-orange-400 to-orange-600'></div>
+                  <span>Today</span>
+                </div>
+                <div className='flex items-center gap-1'>
+                  <div className='h-3 w-3 rounded border border-gray-600 bg-gray-700'></div>
+                  <span>Empty (click to create)</span>
+                </div>
+              </div>
+
+              {onViewStats && (
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={onViewStats}
+                  className='flex items-center gap-1'
+                >
+                  <TrendingUp className='h-3 w-3' />
+                  VIEW STATS
+                </Button>
+              )}
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );

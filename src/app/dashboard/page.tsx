@@ -57,115 +57,61 @@ export default function DashboardPage() {
         {/* Dashboard Content */}
         <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
           <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-            {/* Today's Quests */}
-            <QuestsWidget
-              userId={user?.id || ''}
-              onViewAll={() => router.push('/quests')}
-            />
-
-            {/* Journal Progress */}
-            <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-              <div className='mb-4 flex items-center justify-between'>
-                <h3 className='text-lg font-semibold dark:text-white'>
-                  Journal Progress
-                </h3>
-                <button
-                  onClick={() => router.push('/journal')}
-                  className='text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
-                >
-                  View All →
-                </button>
-              </div>
-              <div className='space-y-3'>
-                <JournalProgressWidget
-                  userId={user?.id || ''}
-                  onViewAll={() => {
-                    logger.debug('📅 Journal progress view all clicked');
-                    router.push('/journal');
-                  }}
-                />
-              </div>
+            {/* Top Row - Fixed height based on journal progress widget */}
+            <div className='h-[500px]'>
+              <QuestsWidget
+                userId={user?.id || ''}
+                onViewAll={() => router.push('/quests')}
+              />
             </div>
 
-            {/* Coach Feedback */}
-            <CoachFeedbackWidget
-              userId={user?.id || ''}
-              onViewAll={() => {
-                logger.debug('Coach feedback view all clicked');
-                router.push('/coaching');
-              }}
-            />
-
-            {/* Health Metrics */}
-            <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-              <div className='mb-4 flex items-center justify-between'>
-                <h3 className='text-lg font-semibold dark:text-white'>
-                  Health Metrics
-                </h3>
-                <button
-                  onClick={() => {
-                    logger.debug('Health metrics view all clicked');
-                    // TODO: Navigate to health page when implemented
-                  }}
-                  className='text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
-                >
-                  View All →
-                </button>
-              </div>
-              <div className='space-y-3'>
-                <HealthMetricsWidget
-                  userId={user?.id || ''}
-                  onViewAll={() => {
-                    logger.debug('Health metrics view all clicked');
-                    // TODO: Navigate to health page when implemented
-                  }}
-                />
-              </div>
+            <div className='h-[500px]'>
+              <JournalProgressWidget
+                userId={user?.id || ''}
+                onViewAll={() => {
+                  logger.debug('📅 Journal progress view all clicked');
+                  router.push('/journal');
+                }}
+              />
             </div>
 
-            {/* Team Leaderboard */}
-            <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-              <div className='mb-4 flex items-center justify-between'>
-                <h3 className='text-lg font-semibold dark:text-white'>
-                  Team Leaderboard
-                </h3>
-                <button
-                  onClick={() => router.push('/team')}
-                  className='text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
-                >
-                  View All →
-                </button>
-              </div>
-              <div className='space-y-3'>
-                <TeamLeaderboardWidget userId={user?.id || ''} teams={teams} />
-              </div>
+            <div className='h-[500px]'>
+              <TeamLeaderboardWidget
+                userId={user?.id || ''}
+                teams={teams}
+                onViewAll={() => router.push('/team')}
+              />
             </div>
 
-            {/* Goals */}
-            <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-              <div className='mb-4 flex items-center justify-between'>
-                <h3 className='text-lg font-semibold dark:text-white'>
-                  Your Goals
-                </h3>
-                <button
-                  onClick={() => {
-                    logger.debug('Goals view all clicked');
-                    // TODO: Navigate to goals page when implemented
-                  }}
-                  className='text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
-                >
-                  View All →
-                </button>
-              </div>
-              <div className='space-y-3'>
-                <GoalsWidget
-                  userId={user?.id || ''}
-                  onViewAll={() => {
-                    logger.debug('Goals view all clicked');
-                    // TODO: Navigate to goals page when implemented
-                  }}
-                />
-              </div>
+            {/* Bottom Row - Fixed height based on health metrics widget */}
+            <div className='h-[400px]'>
+              <CoachFeedbackWidget
+                userId={user?.id || ''}
+                onViewAll={() => {
+                  logger.debug('Coach feedback view all clicked');
+                  router.push('/coaching');
+                }}
+              />
+            </div>
+
+            <div className='h-[400px]'>
+              <HealthMetricsWidget
+                userId={user?.id || ''}
+                onViewAll={() => {
+                  logger.debug('Health metrics view all clicked');
+                  // TODO: Navigate to health page when implemented
+                }}
+              />
+            </div>
+
+            <div className='h-[400px]'>
+              <GoalsWidget
+                userId={user?.id || ''}
+                onViewAll={() => {
+                  logger.debug('Goals view all clicked');
+                  // TODO: Navigate to goals page when implemented
+                }}
+              />
             </div>
           </div>
         </div>

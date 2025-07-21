@@ -12,11 +12,37 @@ interface WidgetCardProps {
   colorScheme?: 'primary' | 'secondary';
   showHeader?: boolean;
   onRetry?: () => void;
+  showSkeleton?: boolean;
 }
 
 interface ErrorMessageProps {
   message: string;
   onRetry?: () => void;
+}
+
+// Skeleton component for widget content
+function WidgetSkeleton() {
+  return (
+    <div className='space-y-3'>
+      {/* Quest/Item Skeletons */}
+      {[1, 2, 3].map(i => (
+        <div
+          key={i}
+          className='flex items-center gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700'
+        >
+          <div className='h-8 w-8 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700'></div>
+          <div className='min-w-0 flex-1 space-y-2'>
+            <div className='h-4 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+            <div className='h-3 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+          </div>
+          <div className='h-6 w-12 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700'></div>
+        </div>
+      ))}
+
+      {/* Button Skeleton */}
+      <div className='h-10 w-full animate-pulse rounded-md bg-gray-200 dark:bg-gray-700'></div>
+    </div>
+  );
 }
 
 function ErrorMessage({ message, onRetry }: ErrorMessageProps) {
@@ -61,6 +87,7 @@ export function WidgetCard({
   colorScheme = 'primary',
   showHeader = true,
   onRetry,
+  showSkeleton = true,
 }: WidgetCardProps) {
   const colors =
     colorScheme === 'primary'
@@ -70,7 +97,7 @@ export function WidgetCard({
   return (
     <Card className={`h-full ${className}`}>
       {showHeader && (
-        <CardHeader className='pb-3'>
+        <CardHeader className='pb-0'>
           <div className='flex items-center justify-between'>
             <CardTitle className='text-lg font-semibold dark:text-white'>
               {title}
@@ -83,8 +110,9 @@ export function WidgetCard({
           </div>
         </CardHeader>
       )}
-      <CardContent className='space-y-3'>
-        {loading && <LoadingSpinner color={colorScheme} />}
+      <CardContent className='max-h-[calc(100%-4rem)] space-y-3 overflow-y-scroll px-6 pr-4 pt-0 [&::-webkit-scrollbar-thumb]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-200 hover:[&::-webkit-scrollbar-thumb]:hover:bg-gray-300 dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-600 dark:hover:[&::-webkit-scrollbar-thumb]:hover:bg-gray-500 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5'>
+        {loading && showSkeleton && <WidgetSkeleton />}
+        {loading && !showSkeleton && <LoadingSpinner color={colorScheme} />}
         {error && <ErrorMessage message={error} onRetry={onRetry} />}
         {!loading && !error && children}
       </CardContent>

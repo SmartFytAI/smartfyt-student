@@ -1,4 +1,118 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { logger } from '@/lib/logger';
+
+// ============================================================================
+// React Query Hooks for Caching
+// ============================================================================
+
+/**
+ * React Query hook for user profile with caching
+ */
+export function useUserProfile(userId: string | null) {
+  return useQuery({
+    queryKey: ['user', 'profile', userId],
+    queryFn: () => userService.getUserProfile(userId!),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
+/**
+ * React Query hook for user goals with caching
+ */
+export function useUserGoals(userId: string | null) {
+  return useQuery({
+    queryKey: ['user', 'goals', userId],
+    queryFn: () => userService.getUserGoals(userId!),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
+/**
+ * React Query hook for schools list with caching
+ */
+export function useSchools() {
+  return useQuery({
+    queryKey: ['user', 'schools'],
+    queryFn: () => userService.getSchools(),
+    staleTime: 30 * 60 * 1000, // 30 minutes (rarely changes)
+    gcTime: 60 * 60 * 1000, // 1 hour
+  });
+}
+
+/**
+ * React Query hook for sports list with caching
+ */
+export function useSports() {
+  return useQuery({
+    queryKey: ['user', 'sports'],
+    queryFn: () => userService.getSports(),
+    staleTime: 30 * 60 * 1000, // 30 minutes (rarely changes)
+    gcTime: 60 * 60 * 1000, // 1 hour
+  });
+}
+
+/**
+ * React Query mutation for updating user profile with cache invalidation
+ */
+export function useUpdateUserProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      userId,
+      profileData,
+    }: {
+      userId: string;
+      profileData: Partial<UserProfile>;
+    }) => userService.updateUserProfile(userId, profileData),
+    onSuccess: (data, variables) => {
+      // Invalidate related queries to refetch fresh data
+      queryClient.invalidateQueries({
+        queryKey: ['user', 'profile', variables.userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['user', 'goals', variables.userId],
+      });
+    },
+  });
+}
+
+/**
+ * React Query mutation for updating user goals with cache invalidation
+ */
+export function useUpdateUserGoals() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      userId,
+      goalType,
+      value,
+    }: {
+      userId: string;
+      goalType: 'athletic' | 'academic';
+      value: string;
+    }) => userService.updateUserGoals(userId, goalType, value),
+    onSuccess: (data, variables) => {
+      // Invalidate related queries to refetch fresh data
+      queryClient.invalidateQueries({
+        queryKey: ['user', 'goals', variables.userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['user', 'profile', variables.userId],
+      });
+    },
+  });
+}
+
+// ============================================================================
+// Original Service Class
+// ============================================================================
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 

@@ -11,7 +11,7 @@ import {
   ChevronUp,
   ChevronDown,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { AuthGuard } from '@/components/auth';
 import { PageLayout } from '@/components/layout/page-layout';
@@ -31,97 +31,93 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
 import {
-  getCurrentQuests,
-  getCompletedQuests,
-  getUserStats,
-  completeQuest,
-  assignNewQuests,
-  getQuestCompletion,
-  getTotalQuestScore,
-  type Quest,
-  type UserStat,
-  type QuestCompletion,
+  useCurrentQuests,
+  useCompletedQuests,
+  useUserStats,
+  useQuestCompletion,
+  useTotalQuestScore,
+  useCompleteQuest,
+  useAssignNewQuests,
 } from '@/lib/services/quest-service';
 
 export default function QuestsPage() {
   const { user } = useAuth();
 
-  const [currentQuests, setCurrentQuests] = useState<Quest[]>([]);
-  const [completedQuests, setCompletedQuests] = useState<Quest[]>([]);
-  const [userStats, setUserStats] = useState<UserStat[]>([]);
-  const [questCompletion, setQuestCompletion] = useState<QuestCompletion>({
-    totalQuests: 0,
-    completedQuests: 0,
-    percentage: 0,
-  });
-  const [totalScore, setTotalScore] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   // Quest completion state
   const [expandedQuestId, setExpandedQuestId] = useState<string | null>(null);
   const [completionNotes, setCompletionNotes] = useState('');
-  const [isCompleting, setIsCompleting] = useState(false);
   const [isOverviewExpanded, setIsOverviewExpanded] = useState(true);
 
-  const fetchQuestData = useCallback(async () => {
-    if (!user?.id) return;
+  // React Query hooks for data fetching with caching
+  const {
+    data: currentQuests = [],
+    isLoading: currentQuestsLoading,
+    error: currentQuestsError,
+  } = useCurrentQuests(user?.id || null);
 
-    try {
-      setIsLoading(true);
-      setError(null);
+  const {
+    data: completedQuests = [],
+    isLoading: completedQuestsLoading,
+    error: completedQuestsError,
+  } = useCompletedQuests(user?.id || null);
 
-      logger.debug('🔍 Fetching quest data for user:', user.id);
+  const {
+    data: userStats = [],
+    isLoading: userStatsLoading,
+    error: userStatsError,
+  } = useUserStats(user?.id || null);
 
-      const [current, completed, stats, completion, score] = await Promise.all([
-        getCurrentQuests(user.id),
-        getCompletedQuests(user.id),
-        getUserStats(user.id),
-        getQuestCompletion(user.id),
-        getTotalQuestScore(user.id),
-      ]);
+  const {
+    data: questCompletion = {
+      totalQuests: 0,
+      completedQuests: 0,
+      percentage: 0,
+    },
+    isLoading: questCompletionLoading,
+    error: questCompletionError,
+  } = useQuestCompletion(user?.id || null);
 
-      setCurrentQuests(current);
-      setCompletedQuests(completed);
-      setUserStats(stats);
-      setQuestCompletion(completion);
-      setTotalScore(score);
+  const {
+    data: totalScore = 0,
+    isLoading: totalScoreLoading,
+    error: totalScoreError,
+  } = useTotalQuestScore(user?.id || null);
 
-      logger.debug('✅ Quest data fetched successfully');
-    } catch (err) {
-      logger.error('❌ Error fetching quest data:', err);
-      setError('Failed to load quest data');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user?.id]);
+  // Mutation hooks
+  const completeQuestMutation = useCompleteQuest();
+  const assignNewQuestsMutation = useAssignNewQuests();
 
-  useEffect(() => {
-    fetchQuestData();
-  }, [fetchQuestData]);
+  // Loading and error states
+  const isLoading =
+    currentQuestsLoading ||
+    completedQuestsLoading ||
+    userStatsLoading ||
+    questCompletionLoading ||
+    totalScoreLoading;
+
+  const error =
+    currentQuestsError ||
+    completedQuestsError ||
+    userStatsError ||
+    questCompletionError ||
+    totalScoreError;
 
   const handleCompleteQuest = async (questId: string) => {
     if (!user?.id) return;
 
     try {
-      setIsCompleting(true);
+      await completeQuestMutation.mutateAsync({
+        userId: user.id,
+        questId,
+        notes: completionNotes,
+      });
 
-      const result = await completeQuest(user.id, questId, completionNotes);
-
-      if (result.success) {
-        logger.debug('✅ Quest completed successfully');
-        setExpandedQuestId(null);
-        setCompletionNotes('');
-        // Refresh quest data
-        await fetchQuestData();
-      } else {
-        setError('Failed to complete quest');
-      }
+      logger.debug('✅ Quest completed successfully');
+      setExpandedQuestId(null);
+      setCompletionNotes('');
     } catch (err) {
       logger.error('❌ Error completing quest:', err);
-      setError('Failed to complete quest');
-    } finally {
-      setIsCompleting(false);
+      // Error handling is managed by React Query
     }
   };
 
@@ -129,14 +125,11 @@ export default function QuestsPage() {
     if (!user?.id) return;
 
     try {
-      setIsLoading(true);
-      await assignNewQuests(user.id);
-      await fetchQuestData();
+      await assignNewQuestsMutation.mutateAsync(user.id);
+      logger.debug('✅ New quests assigned successfully');
     } catch (err) {
       logger.error('❌ Error assigning new quests:', err);
-      setError('Failed to assign new quests');
-    } finally {
-      setIsLoading(false);
+      // Error handling is managed by React Query
     }
   };
 
@@ -200,14 +193,61 @@ export default function QuestsPage() {
         title='Quests'
         subtitle='Complete challenges to earn points and level up'
       >
-        {/* Loading State */}
+        {/* Loading State - Show skeleton content instead of blocking spinner */}
         {isLoading && (
-          <div className='flex items-center justify-center py-12'>
-            <div className='text-center'>
-              <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-primary-600'></div>
-              <p className='mt-4 text-gray-600 dark:text-gray-400'>
-                Loading quests...
-              </p>
+          <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
+            <div className='space-y-6'>
+              {/* Quest Overview Skeleton */}
+              <Card>
+                <CardHeader>
+                  <div className='flex items-center justify-between'>
+                    <div className='flex items-center gap-2'>
+                      <div className='h-5 w-5 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                      <div className='h-6 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                    </div>
+                    <div className='h-8 w-8 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                  </div>
+                  <div className='h-4 w-64 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                </CardHeader>
+                <CardContent className='space-y-6'>
+                  {/* Quest Overview Cards Skeleton */}
+                  <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+                    {[1, 2, 3, 4].map(i => (
+                      <Card key={i}>
+                        <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                          <div className='h-4 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                          <div className='h-4 w-4 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className='h-8 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                          <div className='mt-2 h-3 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Quest Cards Skeleton */}
+              <div className='space-y-4'>
+                <div className='h-6 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-1'>
+                  {[1, 2, 3].map(i => (
+                    <Card key={i}>
+                      <CardHeader>
+                        <div className='flex items-start gap-3'>
+                          <div className='h-10 w-10 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700'></div>
+                          <div className='flex-1 space-y-2'>
+                            <div className='h-5 w-48 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                            <div className='h-4 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                            <div className='h-4 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                          </div>
+                        </div>
+                      </CardHeader>
+                    </Card>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -217,8 +257,12 @@ export default function QuestsPage() {
           <div className='flex items-center justify-center py-12'>
             <div className='text-center'>
               <div className='mb-4 text-4xl'>⚠️</div>
-              <p className='text-gray-600 dark:text-gray-400'>{error}</p>
-              <Button onClick={fetchQuestData} className='mt-4'>
+              <p className='text-gray-600 dark:text-gray-400'>
+                {error instanceof Error
+                  ? error.message
+                  : 'Failed to load quest data'}
+              </p>
+              <Button onClick={() => window.location.reload()} className='mt-4'>
                 Retry
               </Button>
             </div>
@@ -385,10 +429,12 @@ export default function QuestsPage() {
                     <h3 className='text-lg font-semibold'>Active Quests</h3>
                     <Button
                       onClick={handleAssignNewQuests}
-                      disabled={isLoading}
+                      disabled={assignNewQuestsMutation.isPending}
                     >
                       <Plus className='mr-2 h-4 w-4' />
-                      Get New Quests
+                      {assignNewQuestsMutation.isPending
+                        ? 'Getting Quests...'
+                        : 'Get New Quests'}
                     </Button>
                   </div>
 
@@ -403,9 +449,14 @@ export default function QuestsPage() {
                           You don&apos;t have any active quests. Get new quests
                           to start earning points!
                         </p>
-                        <Button onClick={handleAssignNewQuests}>
+                        <Button
+                          onClick={handleAssignNewQuests}
+                          disabled={assignNewQuestsMutation.isPending}
+                        >
                           <Plus className='mr-2 h-4 w-4' />
-                          Get New Quests
+                          {assignNewQuestsMutation.isPending
+                            ? 'Getting Quests...'
+                            : 'Get New Quests'}
                         </Button>
                       </CardContent>
                     </Card>
@@ -514,11 +565,11 @@ export default function QuestsPage() {
                                         e.stopPropagation();
                                         handleCompleteQuest(quest.id);
                                       }}
-                                      disabled={isCompleting}
+                                      disabled={completeQuestMutation.isPending}
                                       className='bg-success-600 hover:bg-success-700'
                                       size='sm'
                                     >
-                                      {isCompleting
+                                      {completeQuestMutation.isPending
                                         ? 'Completing...'
                                         : 'Complete Quest'}
                                     </Button>
