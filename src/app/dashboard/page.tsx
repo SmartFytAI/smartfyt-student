@@ -8,7 +8,7 @@ import { DashboardCalendar } from '@/components/journal/dashboard-calendar';
 import { PageLayout } from '@/components/layout/page-layout';
 import { PWAInstaller } from '@/components/pwa-installer';
 import { QuestsWidget } from '@/components/quest/quests-widget';
-import { TeamLeaderboardWidget } from '@/components/team/TeamLeaderboardWidget';
+import { TeamLeaderboardWidget } from '@/components/team/team-leaderboard-widget';
 import { useAuth } from '@/hooks/use-auth';
 // import { useJournalStatus } from '@/hooks/use-journal-status';
 import { logger } from '@/lib/logger';
@@ -121,7 +121,7 @@ export default function DashboardPage() {
     return (
       <div className='flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900'>
         <div className='text-center'>
-          <div className='mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600'></div>
+          <div className='mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-secondary-600'></div>
           <p className='mt-4 text-gray-600 dark:text-gray-400'>
             Loading dashboard...
           </p>
@@ -164,7 +164,7 @@ export default function DashboardPage() {
               </h3>
               <button
                 onClick={() => router.push('/journal')}
-                className='text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300'
+                className='text-sm text-secondary-600 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-300'
               >
                 View All →
               </button>
@@ -197,19 +197,19 @@ export default function DashboardPage() {
             <div className='space-y-4'>
               <div className='flex items-center justify-between'>
                 <span className='dark:text-gray-300'>Sleep</span>
-                <span className='font-semibold text-green-600 dark:text-green-400'>
+                <span className='font-semibold text-success-600 dark:text-success-400'>
                   8h
                 </span>
               </div>
               <div className='flex items-center justify-between'>
                 <span className='dark:text-gray-300'>Steps</span>
-                <span className='font-semibold text-blue-600 dark:text-blue-400'>
+                <span className='font-semibold text-secondary-600 dark:text-secondary-400'>
                   6,420
                 </span>
               </div>
               <div className='flex items-center justify-between'>
                 <span className='dark:text-gray-300'>Hydration</span>
-                <span className='font-semibold text-purple-600 dark:text-purple-400'>
+                <span className='font-semibold text-primary-600 dark:text-primary-400'>
                   64oz
                 </span>
               </div>
@@ -224,7 +224,7 @@ export default function DashboardPage() {
               </h3>
               <button
                 onClick={() => router.push('/team')}
-                className='text-sm text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300'
+                className='text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
               >
                 View All →
               </button>
@@ -232,7 +232,7 @@ export default function DashboardPage() {
             <div className='space-y-3'>
               {teamsLoading ? (
                 <div className='py-6 text-center'>
-                  <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-orange-600'></div>
+                  <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-primary-600'></div>
                   <p className='mt-2 text-sm text-gray-500 dark:text-gray-400'>
                     Loading teams...
                   </p>
@@ -259,19 +259,19 @@ export default function DashboardPage() {
               Your Goals
             </h3>
             <div className='space-y-3'>
-              <div className='rounded-md bg-blue-50 p-3 dark:bg-blue-900/20'>
-                <p className='text-sm font-medium text-blue-900 dark:text-blue-100'>
+              <div className='rounded-md bg-secondary-50 p-3 dark:bg-secondary-900/20'>
+                <p className='text-sm font-medium text-secondary-900 dark:text-secondary-100'>
                   Improve 40-yard dash
                 </p>
-                <p className='text-xs text-blue-700 dark:text-blue-300'>
+                <p className='text-xs text-secondary-700 dark:text-secondary-300'>
                   Target: 4.8s
                 </p>
               </div>
-              <div className='rounded-md bg-green-50 p-3 dark:bg-green-900/20'>
-                <p className='text-sm font-medium text-green-900 dark:text-green-100'>
+              <div className='rounded-md bg-success-50 p-3 dark:bg-success-900/20'>
+                <p className='text-sm font-medium text-success-900 dark:text-success-100'>
                   Maintain 3.5 GPA
                 </p>
-                <p className='text-xs text-green-700 dark:text-green-300'>
+                <p className='text-xs text-success-700 dark:text-success-300'>
                   Current: 3.6
                 </p>
               </div>

@@ -117,10 +117,10 @@ export function JournalList({
 
   const getStressLevelColor = (stress: number) => {
     if (stress <= 2)
-      return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+      return 'bg-success-100 text-success-800 dark:bg-success-900/20 dark:text-success-400';
     if (stress <= 4)
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
-    return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
+      return 'bg-warning-100 text-warning-800 dark:bg-warning-900/20 dark:text-warning-400';
+    return 'bg-danger-100 text-danger-800 dark:bg-danger-900/20 dark:text-danger-400';
   };
 
   const getStressLevelText = (stress: number) => {
@@ -133,7 +133,7 @@ export function JournalList({
     return (
       <div className='flex items-center justify-center py-8'>
         <div className='text-center'>
-          <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600'></div>
+          <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-secondary-600'></div>
           <p className='mt-2 text-sm text-gray-600 dark:text-gray-400'>
             Loading journals...
           </p>
@@ -146,7 +146,7 @@ export function JournalList({
     return (
       <Card>
         <CardContent className='py-8 text-center'>
-          <div className='mb-2 text-red-600 dark:text-red-400'>
+          <div className='mb-2 text-danger-600 dark:text-danger-400'>
             <BookOpen className='mx-auto h-8 w-8' />
           </div>
           <p className='mb-4 text-sm text-gray-600 dark:text-gray-400'>

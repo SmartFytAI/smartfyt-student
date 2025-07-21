@@ -60,14 +60,14 @@ export class ErrorBoundary extends Component<Props, State> {
       // Card-level error boundary
       if (level === 'card') {
         return (
-          <div className='rounded-lg border border-red-200 bg-red-50 p-4 text-center'>
+          <div className='rounded-lg border border-danger-200 bg-danger-50 p-4 text-center'>
             <div className='mb-3'>
               <span className='text-2xl'>⚠️</span>
             </div>
-            <h3 className='mb-2 text-sm font-medium text-red-800'>
+            <h3 className='mb-2 text-sm font-medium text-danger-800'>
               {name ? `${name} Error` : 'Card Error'}
             </h3>
-            <p className='mb-3 text-xs text-red-600'>
+            <p className='mb-3 text-xs text-danger-600'>
               Something went wrong loading this content.
             </p>
             <div className='flex flex-col gap-2'>
@@ -93,7 +93,7 @@ export class ErrorBoundary extends Component<Props, State> {
       if (level === 'page') {
         return (
           <div className='min-h-screen-mobile flex items-center justify-center p-4'>
-            <div className='w-full max-w-md rounded-lg border border-red-200 bg-white'>
+            <div className='w-full max-w-md rounded-lg border border-danger-200 bg-white'>
               <div className='p-8 text-center'>
                 <div className='mb-6'>
                   <span className='text-6xl'>🏃‍♂️💥</span>

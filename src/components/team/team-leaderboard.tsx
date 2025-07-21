@@ -111,9 +111,9 @@ export function TeamLeaderboard({ userId, teams }: TeamLeaderboardProps) {
   const getTrendIcon = (trend: 'up' | 'down' | 'none') => {
     switch (trend) {
       case 'up':
-        return <TrendingUp className='h-4 w-4 text-green-500' />;
+        return <TrendingUp className='h-4 w-4 text-success-500' />;
       case 'down':
-        return <TrendingDown className='h-4 w-4 text-red-500' />;
+        return <TrendingDown className='h-4 w-4 text-danger-500' />;
       default:
         return <Minus className='h-4 w-4 text-gray-400' />;
     }
@@ -137,7 +137,7 @@ export function TeamLeaderboard({ userId, teams }: TeamLeaderboardProps) {
       className={cn(
         'flex items-center rounded-lg p-4 transition-all duration-200',
         entry.isCurrentUser
-          ? 'border-2 border-blue-200 bg-blue-50'
+          ? 'border-2 border-secondary-200 bg-secondary-50'
           : 'border border-gray-100 bg-white hover:bg-gray-50'
       )}
     >
@@ -188,7 +188,7 @@ export function TeamLeaderboard({ userId, teams }: TeamLeaderboardProps) {
         variant='ghost'
         size='sm'
         onClick={() => handleClap(entry)}
-        className='ml-2 hover:bg-orange-50 hover:text-orange-600'
+        className='ml-2 hover:bg-primary-50 hover:text-primary-600'
         disabled={entry.isCurrentUser}
       >
         <Heart className='h-4 w-4' />
@@ -202,7 +202,7 @@ export function TeamLeaderboard({ userId, teams }: TeamLeaderboardProps) {
       <Card>
         <CardHeader>
           <CardTitle className='flex items-center space-x-2'>
-            <Trophy className='h-5 w-5 text-orange-500' />
+            <Trophy className='h-5 w-5 text-primary-500' />
             <span>Team Leaderboard</span>
           </CardTitle>
         </CardHeader>
@@ -225,7 +225,7 @@ export function TeamLeaderboard({ userId, teams }: TeamLeaderboardProps) {
       <CardHeader>
         <div className='flex items-center justify-between'>
           <CardTitle className='flex items-center space-x-2'>
-            <Trophy className='h-5 w-5 text-orange-500' />
+            <Trophy className='h-5 w-5 text-primary-500' />
             <span>Team Leaderboard</span>
           </CardTitle>
           {teams.length > 1 && (
@@ -280,7 +280,7 @@ export function TeamLeaderboard({ userId, teams }: TeamLeaderboardProps) {
               </div>
             ) : error ? (
               <div className='py-8 text-center'>
-                <p className='text-red-500'>{error}</p>
+                <p className='text-danger-500'>{error}</p>
                 <Button
                   variant='outline'
                   size='sm'
@@ -325,7 +325,7 @@ export function TeamLeaderboard({ userId, teams }: TeamLeaderboardProps) {
               </div>
             ) : error ? (
               <div className='py-8 text-center'>
-                <p className='text-red-500'>{error}</p>
+                <p className='text-danger-500'>{error}</p>
                 <Button
                   variant='outline'
                   size='sm'

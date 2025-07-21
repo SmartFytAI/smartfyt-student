@@ -77,7 +77,7 @@ export default function ThemeTestPage() {
 
           <div className='rounded-lg border p-6'>
             <h2 className='mb-4 text-xl font-semibold'>Hydration Status</h2>
-            <p className='text-green-600 dark:text-green-400'>
+            <p className='text-success-600 dark:text-success-400'>
               ✅ No hydration mismatches detected
             </p>
             <p className='mt-2 text-sm text-gray-600 dark:text-gray-400'>

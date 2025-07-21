@@ -53,10 +53,10 @@ export function BottomNavigation({ className }: BottomNavigationProps) {
               key={item.id}
               onClick={() => handleNavigation(item.route)}
               className={cn(
-                'flex min-w-0 flex-1 flex-col items-center justify-center rounded-lg px-1 py-2 transition-all duration-200',
+                'mx-1 flex min-w-0 flex-1 flex-col items-center justify-center rounded-lg px-2 py-2 transition-all duration-200',
                 'hover:bg-gray-50 dark:hover:bg-gray-800',
-                'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900',
-                active && 'bg-blue-50 dark:bg-blue-900/20'
+                'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900',
+                active && 'bg-primary-50 dark:bg-primary-900/20'
               )}
               aria-label={`Navigate to ${item.label}`}
             >
@@ -64,7 +64,7 @@ export function BottomNavigation({ className }: BottomNavigationProps) {
                 className={cn(
                   'mb-1 h-6 w-6 transition-colors duration-200',
                   active
-                    ? 'text-blue-600 dark:text-blue-400'
+                    ? 'text-primary-600 dark:text-primary-400'
                     : 'text-gray-500 dark:text-gray-400'
                 )}
               />
@@ -72,7 +72,7 @@ export function BottomNavigation({ className }: BottomNavigationProps) {
                 className={cn(
                   'text-xs font-medium transition-colors duration-200',
                   active
-                    ? 'text-blue-600 dark:text-blue-400'
+                    ? 'text-primary-600 dark:text-primary-400'
                     : 'text-gray-500 dark:text-gray-400'
                 )}
               >

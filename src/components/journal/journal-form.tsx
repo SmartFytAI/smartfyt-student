@@ -55,7 +55,7 @@ function TimeSlider({
         <Label className='text-sm font-medium'>
           {icon} {label}
         </Label>
-        <span className='text-sm font-semibold text-blue-600 dark:text-blue-400'>
+        <span className='text-sm font-semibold text-secondary-600 dark:text-secondary-400'>
           {formatTime(value)}
         </span>
       </div>
@@ -96,11 +96,11 @@ function StressLevel({ value, onChange }: StressLevelProps) {
   };
 
   const getStressColor = (level: number) => {
-    if (level <= 2) return 'text-green-600 dark:text-green-400';
-    if (level <= 4) return 'text-yellow-600 dark:text-yellow-400';
-    if (level <= 6) return 'text-orange-600 dark:text-orange-400';
-    if (level <= 8) return 'text-red-600 dark:text-red-400';
-    return 'text-red-800 dark:text-red-300';
+    if (level <= 2) return 'text-success-600 dark:text-success-400';
+    if (level <= 4) return 'text-warning-600 dark:text-warning-400';
+    if (level <= 6) return 'text-primary-600 dark:text-primary-400';
+    if (level <= 8) return 'text-danger-600 dark:text-danger-400';
+    return 'text-danger-800 dark:text-danger-300';
   };
 
   const getStressEmoji = (level: number) => {
@@ -359,7 +359,7 @@ export function JournalForm({
         <Card>
           <CardHeader>
             <div className='flex items-center gap-2'>
-              <BookOpen className='h-5 w-5 text-blue-500' />
+              <BookOpen className='h-5 w-5 text-secondary-500' />
               <CardTitle>Daily Reflection</CardTitle>
             </div>
             <CardDescription>
@@ -392,7 +392,7 @@ export function JournalForm({
                     htmlFor='wentWell'
                     className='flex items-center gap-2 text-base font-medium'
                   >
-                    <TrendingUp className='h-4 w-4 text-green-600' />
+                    <TrendingUp className='h-4 w-4 text-success-600' />
                     What went well today?
                   </Label>
                   <Textarea
@@ -428,7 +428,7 @@ export function JournalForm({
                     htmlFor='goals'
                     className='flex items-center gap-2 text-base font-medium'
                   >
-                    <Target className='h-4 w-4 text-blue-600' />
+                    <Target className='h-4 w-4 text-secondary-600' />
                     Goals for tomorrow
                   </Label>
                   <Textarea
@@ -491,8 +491,8 @@ export function JournalForm({
 
               {/* Error Display */}
               {error && (
-                <div className='rounded-lg bg-red-50 p-4 dark:bg-red-900/20'>
-                  <p className='text-sm text-red-600 dark:text-red-400'>
+                <div className='rounded-lg bg-danger-50 p-4 dark:bg-danger-900/20'>
+                  <p className='text-sm text-danger-600 dark:text-danger-400'>
                     {error}
                   </p>
                 </div>

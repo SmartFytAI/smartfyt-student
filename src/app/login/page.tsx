@@ -45,7 +45,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-orange-50 p-4 dark:from-gray-900 dark:to-gray-800'>
+    <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-secondary-50 to-primary-50 p-4 dark:from-gray-900 dark:to-gray-800'>
       {/* Back to Home Button */}
       <Link
         href='/'
@@ -163,7 +163,7 @@ export default function LoginPage() {
                 placeholder='Enter your email'
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className='w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-3 text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-3 text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-secondary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
                 required
               />
             </div>
@@ -184,7 +184,7 @@ export default function LoginPage() {
                 placeholder='Enter your password'
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className='w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-12 text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-12 text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-secondary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
                 required
               />
               <button
@@ -230,7 +230,7 @@ export default function LoginPage() {
               Don&apos;t have an account?{' '}
               <Link
                 href='/login?mode=register'
-                className='font-medium text-blue-600 hover:underline dark:text-blue-400'
+                className='font-medium text-secondary-600 hover:underline dark:text-secondary-400'
               >
                 Sign up
               </Link>
@@ -240,7 +240,7 @@ export default function LoginPage() {
               Already have an account?{' '}
               <Link
                 href='/login?mode=login'
-                className='font-medium text-blue-600 hover:underline dark:text-blue-400'
+                className='font-medium text-secondary-600 hover:underline dark:text-secondary-400'
               >
                 Sign in
               </Link>

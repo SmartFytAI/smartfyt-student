@@ -174,7 +174,7 @@ export function JournalCalendar({
       <Card>
         <CardContent className='flex items-center justify-center py-8'>
           <div className='text-center'>
-            <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600'></div>
+            <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-secondary-600'></div>
             <p className='mt-2 text-sm text-gray-600 dark:text-gray-400'>
               Loading calendar...
             </p>
@@ -188,7 +188,7 @@ export function JournalCalendar({
     return (
       <Card>
         <CardContent className='py-8 text-center'>
-          <div className='mb-2 text-red-600 dark:text-red-400'>
+          <div className='mb-2 text-danger-600 dark:text-danger-400'>
             <Calendar className='mx-auto h-8 w-8' />
           </div>
           <p className='mb-4 text-sm text-gray-600 dark:text-gray-400'>

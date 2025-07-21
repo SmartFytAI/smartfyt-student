@@ -104,7 +104,7 @@ export function UserAvatar({
             className='relative h-10 w-auto rounded-full p-0 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800'
           >
             <div className='flex items-center space-x-2 px-2 py-1'>
-              <Avatar className='h-8 w-8 border-2 border-orange-500'>
+              <Avatar className='h-8 w-8 border-2 border-primary-500'>
                 <AvatarImage src={profile?.profileImage} alt='Profile' />
                 <AvatarFallback className='bg-gradient-to-br from-orange-500 to-orange-600 text-sm font-semibold text-white'>
                   {getUserInitials()}
@@ -138,7 +138,7 @@ export function UserAvatar({
             onClick={() => router.push('/profile')}
             className='cursor-pointer transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800'
           >
-            <User className='mr-2 h-4 w-4 text-orange-500' />
+            <User className='mr-2 h-4 w-4 text-primary-500' />
             <span className='text-neutral-700 dark:text-neutral-300'>
               Profile Settings
             </span>
@@ -154,7 +154,7 @@ export function UserAvatar({
               {wearableStatus.isConnecting ? (
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
               ) : wearableStatus.connected ? (
-                <CheckCircle className='mr-2 h-4 w-4 text-green-600' />
+                <CheckCircle className='mr-2 h-4 w-4 text-success-600' />
               ) : (
                 <WifiOff className='mr-2 h-4 w-4 text-gray-400' />
               )}
@@ -188,14 +188,14 @@ export function UserAvatar({
           >
             {theme === 'dark' ? (
               <>
-                <Sun className='mr-2 h-4 w-4 text-yellow-500' />
+                <Sun className='mr-2 h-4 w-4 text-warning-500' />
                 <span className='text-neutral-700 dark:text-neutral-300'>
                   Light Mode
                 </span>
               </>
             ) : (
               <>
-                <Moon className='mr-2 h-4 w-4 text-blue-500' />
+                <Moon className='mr-2 h-4 w-4 text-secondary-500' />
                 <span className='text-neutral-700 dark:text-neutral-300'>
                   Dark Mode
                 </span>
@@ -206,7 +206,7 @@ export function UserAvatar({
           <DropdownMenuSeparator />
 
           <LogoutLink onClick={handleSignOut}>
-            <DropdownMenuItem className='cursor-pointer text-red-600 transition-colors hover:bg-neutral-100 focus:text-red-600 dark:text-red-400 dark:hover:bg-neutral-800 dark:focus:text-red-400'>
+            <DropdownMenuItem className='cursor-pointer text-danger-600 transition-colors hover:bg-neutral-100 focus:text-danger-600 dark:text-danger-400 dark:hover:bg-neutral-800 dark:focus:text-danger-400'>
               <LogOut className='mr-2 h-4 w-4' />
               <span>Sign Out</span>
             </DropdownMenuItem>

@@ -276,7 +276,7 @@ export function JournalPage({ userId }: JournalPageProps) {
                 <CardHeader>
                   <div className='flex items-center justify-between'>
                     <div className='flex items-center gap-2'>
-                      <BookOpen className='h-5 w-5 text-blue-500' />
+                      <BookOpen className='h-5 w-5 text-secondary-500' />
                       <CardTitle>Journal Overview</CardTitle>
                     </div>
                     <Button
@@ -310,7 +310,7 @@ export function JournalPage({ userId }: JournalPageProps) {
                   {/* Motivational Quote */}
                   <div className='mb-6 rounded-lg bg-gray-50 p-4 dark:bg-gray-800/50'>
                     <div className='flex items-start gap-3'>
-                      <Quote className='mt-0.5 h-5 w-5 flex-shrink-0 text-orange-500 dark:text-orange-400' />
+                      <Quote className='mt-0.5 h-5 w-5 flex-shrink-0 text-primary-500 dark:text-primary-400' />
                       <div>
                         {isLoadingQuote ? (
                           <div className='animate-pulse'>
@@ -418,11 +418,11 @@ function JournalDetail({ journal, onBack }: JournalDetailProps) {
   };
 
   const getStressLevelColor = (stress: number) => {
-    if (stress <= 2) return 'text-green-600 dark:text-green-400';
-    if (stress <= 4) return 'text-yellow-600 dark:text-yellow-400';
-    if (stress <= 6) return 'text-orange-600 dark:text-orange-400';
-    if (stress <= 8) return 'text-red-600 dark:text-red-400';
-    return 'text-red-800 dark:text-red-300';
+    if (stress <= 2) return 'text-success-600 dark:text-success-400';
+    if (stress <= 4) return 'text-warning-600 dark:text-warning-400';
+    if (stress <= 6) return 'text-primary-600 dark:text-primary-400';
+    if (stress <= 8) return 'text-danger-600 dark:text-danger-400';
+    return 'text-danger-800 dark:text-danger-300';
   };
 
   return (
@@ -501,7 +501,7 @@ function JournalDetail({ journal, onBack }: JournalDetailProps) {
               </h3>
               <div className='grid grid-cols-2 gap-4 md:grid-cols-4'>
                 <div className='text-center'>
-                  <div className='text-2xl font-bold text-blue-600 dark:text-blue-400'>
+                  <div className='text-2xl font-bold text-secondary-600 dark:text-secondary-400'>
                     {journal.sleepHours}h
                   </div>
                   <div className='text-sm text-gray-600 dark:text-gray-400'>
@@ -509,7 +509,7 @@ function JournalDetail({ journal, onBack }: JournalDetailProps) {
                   </div>
                 </div>
                 <div className='text-center'>
-                  <div className='text-2xl font-bold text-green-600 dark:text-green-400'>
+                  <div className='text-2xl font-bold text-success-600 dark:text-success-400'>
                     {journal.activeHours}h
                   </div>
                   <div className='text-sm text-gray-600 dark:text-gray-400'>
@@ -517,7 +517,7 @@ function JournalDetail({ journal, onBack }: JournalDetailProps) {
                   </div>
                 </div>
                 <div className='text-center'>
-                  <div className='text-2xl font-bold text-purple-600 dark:text-purple-400'>
+                  <div className='text-2xl font-bold text-primary-600 dark:text-primary-400'>
                     {journal.studyHours}h
                   </div>
                   <div className='text-sm text-gray-600 dark:text-gray-400'>
@@ -525,7 +525,7 @@ function JournalDetail({ journal, onBack }: JournalDetailProps) {
                   </div>
                 </div>
                 <div className='text-center'>
-                  <div className='text-2xl font-bold text-orange-600 dark:text-orange-400'>
+                  <div className='text-2xl font-bold text-warning-600 dark:text-warning-400'>
                     {journal.screenTime}h
                   </div>
                   <div className='text-sm text-gray-600 dark:text-gray-400'>

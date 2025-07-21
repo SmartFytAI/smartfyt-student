@@ -149,7 +149,7 @@ export function DashboardCalendar({
     return (
       <div className='flex items-center justify-center py-4'>
         <div className='text-center'>
-          <div className='mx-auto h-6 w-6 animate-spin rounded-full border-b-2 border-blue-600'></div>
+          <div className='mx-auto h-6 w-6 animate-spin rounded-full border-b-2 border-secondary-600'></div>
           <p className='mt-2 text-xs text-gray-600 dark:text-gray-400'>
             Loading...
           </p>
@@ -161,13 +161,13 @@ export function DashboardCalendar({
   if (error) {
     return (
       <div className='py-4 text-center'>
-        <div className='mb-2 text-red-600 dark:text-red-400'>
+        <div className='mb-2 text-danger-600 dark:text-danger-400'>
           <Calendar className='mx-auto h-6 w-6' />
         </div>
         <p className='mb-2 text-xs text-gray-600 dark:text-gray-400'>{error}</p>
         <button
           onClick={loadJournalDates}
-          className='text-xs text-blue-600 hover:text-blue-700'
+          className='text-xs text-secondary-600 hover:text-secondary-700'
         >
           Try Again
         </button>

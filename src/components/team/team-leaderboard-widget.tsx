@@ -253,7 +253,7 @@ export function TeamLeaderboardWidget({
       {/* Team Header with Navigation */}
       <div className='flex items-center justify-between'>
         <div className='flex items-center space-x-2'>
-          <Trophy className='h-4 w-4 text-orange-500' />
+          <Trophy className='h-4 w-4 text-primary-500' />
           <h4 className='text-sm font-medium dark:text-white'>
             {currentTeam?.name}
           </h4>
@@ -311,7 +311,9 @@ export function TeamLeaderboardWidget({
           ) : error ? (
             // Error state
             <div className='py-4 text-center'>
-              <p className='text-sm text-red-500 dark:text-red-400'>{error}</p>
+              <p className='text-sm text-danger-500 dark:text-danger-400'>
+                {error}
+              </p>
             </div>
           ) : currentLeaderboard.length === 0 ? (
             // Empty state
@@ -327,7 +329,7 @@ export function TeamLeaderboardWidget({
                 key={entry.userId}
                 className={`flex items-center space-x-3 rounded-lg p-2 transition-colors ${
                   entry.userId === userId
-                    ? 'border border-orange-200 bg-orange-50 dark:border-orange-700 dark:bg-orange-900/20'
+                    ? 'border border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-900/20'
                     : 'bg-gray-50 dark:bg-gray-800'
                 }`}
               >
@@ -355,7 +357,7 @@ export function TeamLeaderboardWidget({
                 </div>
 
                 <div className='text-right'>
-                  <p className='text-sm font-bold text-orange-600 dark:text-orange-400'>
+                  <p className='text-sm font-bold text-primary-600 dark:text-primary-400'>
                     {entry.engagementScore}
                   </p>
                   <p className='text-xs text-gray-500 dark:text-gray-400'>
@@ -377,7 +379,7 @@ export function TeamLeaderboardWidget({
               onClick={() => goToTeam(teamIndex)}
               className={`h-2 w-2 rounded-full transition-colors ${
                 teamIndex === currentTeamIndex
-                  ? 'bg-orange-500'
+                  ? 'bg-primary-500'
                   : 'bg-gray-300 dark:bg-gray-600'
               }`}
               aria-label={`Go to team ${teamIndex + 1}`}

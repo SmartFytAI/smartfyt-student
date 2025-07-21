@@ -173,21 +173,21 @@ export default function QuestsPage() {
   const getCategoryColor = (categoryName: string) => {
     switch (categoryName.toLowerCase()) {
       case 'strength':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
+        return 'bg-danger-100 text-danger-800 dark:bg-danger-900/20 dark:text-danger-400';
       case 'endurance':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
+        return 'bg-secondary-100 text-secondary-800 dark:bg-secondary-900/20 dark:text-secondary-400';
       case 'grit':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400';
+        return 'bg-primary-100 text-primary-800 dark:bg-primary-900/20 dark:text-primary-400';
       case 'accountability':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+        return 'bg-success-100 text-success-800 dark:bg-success-900/20 dark:text-success-400';
       case 'speed':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+        return 'bg-warning-100 text-warning-800 dark:bg-warning-900/20 dark:text-warning-400';
       case 'agility':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400';
+        return 'bg-primary-100 text-primary-800 dark:bg-primary-900/20 dark:text-primary-400';
       case 'confidence':
-        return 'bg-pink-100 text-pink-800 dark:bg-pink-900/20 dark:text-pink-400';
+        return 'bg-secondary-100 text-secondary-800 dark:bg-secondary-900/20 dark:text-secondary-400';
       case 'leadership':
-        return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400';
+        return 'bg-primary-100 text-primary-800 dark:bg-primary-900/20 dark:text-primary-400';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
     }
@@ -201,7 +201,7 @@ export default function QuestsPage() {
       >
         <div className='flex items-center justify-center py-12'>
           <div className='text-center'>
-            <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-purple-600'></div>
+            <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-primary-600'></div>
             <p className='mt-4 text-gray-600 dark:text-gray-400'>
               Loading quests...
             </p>
@@ -242,7 +242,7 @@ export default function QuestsPage() {
             <CardHeader>
               <div className='flex items-center justify-between'>
                 <div className='flex items-center gap-2'>
-                  <Star className='h-5 w-5 text-yellow-500' />
+                  <Star className='h-5 w-5 text-warning-500' />
                   <CardTitle>Quest Overview</CardTitle>
                 </div>
                 <Button
@@ -271,7 +271,7 @@ export default function QuestsPage() {
                       <CardTitle className='text-sm font-medium'>
                         Total Score
                       </CardTitle>
-                      <Trophy className='h-4 w-4 text-yellow-500' />
+                      <Trophy className='h-4 w-4 text-warning-500' />
                     </CardHeader>
                     <CardContent>
                       <div className='text-2xl font-bold'>{totalScore}</div>
@@ -286,7 +286,7 @@ export default function QuestsPage() {
                       <CardTitle className='text-sm font-medium'>
                         Active Quests
                       </CardTitle>
-                      <Target className='h-4 w-4 text-blue-500' />
+                      <Target className='h-4 w-4 text-secondary-500' />
                     </CardHeader>
                     <CardContent>
                       <div className='text-2xl font-bold'>
@@ -303,7 +303,7 @@ export default function QuestsPage() {
                       <CardTitle className='text-sm font-medium'>
                         Completed
                       </CardTitle>
-                      <CheckCircle className='h-4 w-4 text-green-500' />
+                      <CheckCircle className='h-4 w-4 text-success-500' />
                     </CardHeader>
                     <CardContent>
                       <div className='text-2xl font-bold'>
@@ -320,7 +320,7 @@ export default function QuestsPage() {
                       <CardTitle className='text-sm font-medium'>
                         Completion Rate
                       </CardTitle>
-                      <TrendingUp className='h-4 w-4 text-purple-500' />
+                      <TrendingUp className='h-4 w-4 text-primary-500' />
                     </CardHeader>
                     <CardContent>
                       <div className='text-2xl font-bold'>
@@ -431,7 +431,7 @@ export default function QuestsPage() {
                       <CardHeader>
                         <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
                           <div className='flex items-start gap-3'>
-                            <div className='flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/20'>
+                            <div className='flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/20'>
                               <span className='text-lg'>
                                 {getCategoryIcon(quest.categoryName)}
                               </span>
@@ -465,7 +465,7 @@ export default function QuestsPage() {
                             <CheckCircle
                               className={`h-4 w-4 transition-colors ${
                                 expandedQuestId === quest.id
-                                  ? 'text-green-600'
+                                  ? 'text-success-600'
                                   : 'text-gray-400'
                               }`}
                             />
@@ -516,7 +516,7 @@ export default function QuestsPage() {
                                     handleCompleteQuest(quest.id);
                                   }}
                                   disabled={isCompleting}
-                                  className='bg-green-600 hover:bg-green-700'
+                                  className='bg-success-600 hover:bg-success-700'
                                   size='sm'
                                 >
                                   {isCompleting
@@ -554,13 +554,13 @@ export default function QuestsPage() {
                   {completedQuests.map(quest => (
                     <Card
                       key={quest.id}
-                      className='border-green-200 bg-green-50/50 dark:border-green-800 dark:bg-green-900/10'
+                      className='border-success-200 bg-success-50/50 dark:border-success-800 dark:bg-success-900/10'
                     >
                       <CardHeader>
                         <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
                           <div className='flex items-start gap-3'>
-                            <div className='flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20'>
-                              <CheckCircle className='h-5 w-5 text-green-600' />
+                            <div className='flex h-10 w-10 items-center justify-center rounded-full bg-success-100 dark:bg-success-900/20'>
+                              <CheckCircle className='h-5 w-5 text-success-600' />
                             </div>
                             <div className='min-w-0 flex-1'>
                               <CardTitle className='text-lg'>
@@ -578,7 +578,7 @@ export default function QuestsPage() {
                             </div>
                           </div>
                           <div className='text-right'>
-                            <Badge className='bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'>
+                            <Badge className='bg-success-100 text-success-800 dark:bg-success-900/20 dark:text-success-400'>
                               +{quest.pointValue} pts
                             </Badge>
                             <p className='mt-1 text-xs text-muted-foreground'>

@@ -10,33 +10,33 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Enhanced primary colors - inspired by fitness apps
+        // Primary colors - Orange (from journal calendar)
         primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-          950: '#082f49',
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c', // Journal calendar orange-400
+          500: '#f97316',
+          600: '#ea580c', // Journal calendar orange-600
+          700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12',
+          950: '#431407',
         },
-        // Vibrant accent colors for energy and motivation
-        accent: {
-          50: '#fdf4ff',
-          100: '#fae8ff',
-          200: '#f5d0fe',
-          300: '#f0abfc',
-          400: '#e879f9',
-          500: '#d946ef',
-          600: '#c026d3',
-          700: '#a21caf',
-          800: '#86198f',
-          900: '#701a75',
-          950: '#4a044e',
+        // Secondary colors - Blue (from journal calendar)
+        secondary: {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb', // Journal calendar blue-600
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
+          950: '#172554',
         },
         // Success colors for achievements and progress
         success: {
@@ -80,19 +80,19 @@ const config: Config = {
           900: '#7f1d1d',
           950: '#450a0a',
         },
-        // Neutral colors with better contrast
+        // Neutral colors - Gray (from journal calendar)
         neutral: {
-          50: '#fafafa',
-          100: '#f5f5f5',
-          200: '#e5e5e5',
-          300: '#d4d4d4',
-          400: '#a3a3a3',
-          500: '#737373',
-          600: '#525252',
-          700: '#404040',
-          800: '#262626',
-          900: '#171717',
-          950: '#0a0a0a',
+          50: '#f9fafb',
+          100: '#f3f4f6',
+          200: '#e5e7eb',
+          300: '#d1d5db',
+          400: '#9ca3af',
+          500: '#6b7280',
+          600: '#4b5563', // Journal calendar gray-600
+          700: '#374151', // Journal calendar gray-700
+          800: '#1f2937', // Journal calendar gray-800
+          900: '#111827', // Journal calendar gray-900
+          950: '#030712',
         },
         // Athletic-specific colors
         athletic: {
@@ -118,9 +118,12 @@ const config: Config = {
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
+        // UI Secondary colors (for components)
+        ui: {
+          secondary: {
+            DEFAULT: 'hsl(var(--secondary))',
+            foreground: 'hsl(var(--secondary-foreground))',
+          },
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',

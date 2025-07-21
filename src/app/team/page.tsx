@@ -3,7 +3,7 @@
 import { Users, Target, Activity, TrendingUp } from 'lucide-react';
 
 import { PageLayout } from '@/components/layout/page-layout';
-import { TeamLeaderboard } from '@/components/team/TeamLeaderboard';
+import { TeamLeaderboard } from '@/components/team/team-leaderboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTeams } from '@/hooks/use-api';
 import { useAuth } from '@/hooks/use-auth';
@@ -50,13 +50,13 @@ export default function TeamPage() {
         {error && (
           <Card>
             <CardHeader>
-              <CardTitle className='flex items-center space-x-2 text-red-600'>
+              <CardTitle className='flex items-center space-x-2 text-danger-600'>
                 <span>Error Loading Teams</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className='py-4 text-center'>
-                <p className='mb-2 text-red-500'>{error}</p>
+                <p className='mb-2 text-danger-500'>{error}</p>
                 <p className='text-sm text-gray-500'>
                   Please try refreshing the page or contact support if the
                   problem persists.
@@ -71,7 +71,7 @@ export default function TeamPage() {
           <Card>
             <CardHeader>
               <CardTitle className='flex items-center space-x-2'>
-                <Users className='h-5 w-5 text-blue-500' />
+                <Users className='h-5 w-5 text-secondary-500' />
                 <span>No Teams Found</span>
               </CardTitle>
             </CardHeader>
@@ -103,7 +103,7 @@ export default function TeamPage() {
             </CardHeader>
             <CardContent>
               <div className='flex items-center space-x-2'>
-                <Users className='h-5 w-5 text-blue-500' />
+                <Users className='h-5 w-5 text-secondary-500' />
                 <span className='text-2xl font-bold'>
                   {isLoading ? '...' : teams.length}
                 </span>
@@ -119,7 +119,7 @@ export default function TeamPage() {
             </CardHeader>
             <CardContent>
               <div className='flex items-center space-x-2'>
-                <Target className='h-5 w-5 text-green-500' />
+                <Target className='h-5 w-5 text-success-500' />
                 <span className='text-2xl font-bold'>
                   {isLoading ? '...' : '12'}
                 </span>
@@ -135,7 +135,7 @@ export default function TeamPage() {
             </CardHeader>
             <CardContent>
               <div className='flex items-center space-x-2'>
-                <Activity className='h-5 w-5 text-purple-500' />
+                <Activity className='h-5 w-5 text-primary-500' />
                 <span className='text-2xl font-bold'>
                   {isLoading ? '...' : '45.2K'}
                 </span>
@@ -151,7 +151,7 @@ export default function TeamPage() {
             </CardHeader>
             <CardContent>
               <div className='flex items-center space-x-2'>
-                <TrendingUp className='h-5 w-5 text-orange-500' />
+                <TrendingUp className='h-5 w-5 text-primary-500' />
                 <span className='text-2xl font-bold'>
                   {isLoading ? '...' : '#3'}
                 </span>
@@ -170,7 +170,7 @@ export default function TeamPage() {
           <CardContent>
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
               <div className='rounded-lg border border-gray-200 bg-white p-4 shadow-sm'>
-                <div className='mb-2 text-purple-600'>
+                <div className='mb-2 text-primary-600'>
                   <Target className='h-6 w-6' />
                 </div>
                 <h4 className='mb-1 font-medium text-gray-900'>
@@ -182,7 +182,7 @@ export default function TeamPage() {
               </div>
 
               <div className='rounded-lg border border-gray-200 bg-white p-4 shadow-sm'>
-                <div className='mb-2 text-blue-600'>
+                <div className='mb-2 text-secondary-600'>
                   <Users className='h-6 w-6' />
                 </div>
                 <h4 className='mb-1 font-medium text-gray-900'>Team Members</h4>
@@ -192,7 +192,7 @@ export default function TeamPage() {
               </div>
 
               <div className='rounded-lg border border-gray-200 bg-white p-4 shadow-sm'>
-                <div className='mb-2 text-green-600'>
+                <div className='mb-2 text-success-600'>
                   <Activity className='h-6 w-6' />
                 </div>
                 <h4 className='mb-1 font-medium text-gray-900'>Team Stats</h4>

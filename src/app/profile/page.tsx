@@ -192,7 +192,7 @@ export default function ProfilePage() {
       <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
         <div className='flex min-h-screen items-center justify-center'>
           <div className='text-center'>
-            <p className='text-red-600 dark:text-red-400'>
+            <p className='text-danger-600 dark:text-danger-400'>
               Error loading profile: {error}
             </p>
             <Button onClick={() => router.back()} className='mt-4'>
@@ -259,7 +259,7 @@ export default function ProfilePage() {
             {/* Basic Information - Mobile optimized */}
             <div className='space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800'>
               <div className='mb-4 flex items-center gap-2'>
-                <User className='h-5 w-5 text-orange-500' />
+                <User className='h-5 w-5 text-primary-500' />
                 <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
                   Basic Information
                 </h3>
@@ -760,7 +760,7 @@ export default function ProfilePage() {
             <div className='sticky bottom-4 mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800'>
               <Button
                 type='submit'
-                className='h-12 w-full bg-orange-500 text-lg font-semibold text-white shadow-md hover:bg-orange-600'
+                className='h-12 w-full bg-primary-500 text-lg font-semibold text-white shadow-md hover:bg-primary-600'
                 disabled={isLoading}
               >
                 <Save className='mr-2 h-5 w-5' />

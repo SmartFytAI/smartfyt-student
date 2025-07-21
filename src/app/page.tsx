@@ -66,7 +66,7 @@ export default function HomePage() {
     return (
       <div className='flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900'>
         <div className='text-center'>
-          <div className='mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600'></div>
+          <div className='mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-secondary-600'></div>
           <p className='mt-4 text-gray-600 dark:text-gray-400'>Loading...</p>
         </div>
       </div>
@@ -117,7 +117,7 @@ export default function HomePage() {
                   <Button
                     variant='outline'
                     size='sm'
-                    className='w-full border-2 border-orange-500 bg-transparent text-orange-500 hover:bg-orange-500 hover:text-white sm:w-auto'
+                    className='w-full border-2 border-primary-500 bg-transparent text-primary-500 hover:bg-primary-500 hover:text-white sm:w-auto'
                   >
                     Sign In
                   </Button>
@@ -133,7 +133,7 @@ export default function HomePage() {
                 >
                   <Button
                     size='sm'
-                    className='bg-orange-500 text-white hover:bg-orange-600'
+                    className='bg-primary-500 text-white hover:bg-primary-600'
                   >
                     Get Started
                   </Button>
@@ -148,7 +148,7 @@ export default function HomePage() {
           <div className='fixed bottom-4 right-4 z-50'>
             <button
               onClick={handleInstallClick}
-              className='bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors flex items-center gap-2'
+              className='bg-secondary-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-secondary-700 transition-colors flex items-center gap-2'
             >
               <span>📱</span>
               <span>Add to Home Screen</span>
@@ -199,7 +199,7 @@ export default function HomePage() {
                 >
                   <Button
                     size='lg'
-                    className='w-full bg-orange-500 px-8 py-4 text-lg font-semibold text-white hover:bg-orange-600 sm:w-auto'
+                    className='w-full bg-primary-500 px-8 py-4 text-lg font-semibold text-white hover:bg-primary-600 sm:w-auto'
                     onClick={() => {
                       logger.debug('🚀 Hero Get Started button clicked');
                     }}
@@ -215,7 +215,7 @@ export default function HomePage() {
                 >
                   <Button
                     size='lg'
-                    className='w-full border-2 border-orange-500 bg-transparent px-8 py-4 text-lg font-semibold text-orange-500 hover:bg-orange-500 hover:text-white sm:w-auto'
+                    className='w-full border-2 border-primary-500 bg-transparent px-8 py-4 text-lg font-semibold text-primary-500 hover:bg-primary-500 hover:text-white sm:w-auto'
                     onClick={() => {
                       logger.debug('🔑 Hero Sign In button clicked');
                     }}

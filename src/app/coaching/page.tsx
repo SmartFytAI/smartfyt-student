@@ -32,7 +32,7 @@ export default function CoachingPage() {
 
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
             <div className='rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800'>
-              <div className='mb-2 text-blue-600 dark:text-blue-400'>
+              <div className='mb-2 text-secondary-600 dark:text-secondary-400'>
                 <svg
                   className='h-8 w-8'
                   fill='none'
@@ -56,7 +56,7 @@ export default function CoachingPage() {
             </div>
 
             <div className='rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800'>
-              <div className='mb-2 text-green-600 dark:text-green-400'>
+              <div className='mb-2 text-success-600 dark:text-success-400'>
                 <svg
                   className='h-8 w-8'
                   fill='none'
@@ -80,7 +80,7 @@ export default function CoachingPage() {
             </div>
 
             <div className='rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800'>
-              <div className='mb-2 text-purple-600 dark:text-purple-400'>
+              <div className='mb-2 text-primary-600 dark:text-primary-400'>
                 <svg
                   className='h-8 w-8'
                   fill='none'

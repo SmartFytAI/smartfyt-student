@@ -30,13 +30,13 @@ const getIconStyles = (variant: IconVariant, size: IconSize) => {
   };
 
   const variantStyles = {
-    health: 'bg-gradient-to-br from-blue-400 to-blue-600',
-    journal: 'bg-gradient-to-br from-green-400 to-green-600',
-    quest: 'bg-gradient-to-br from-purple-400 to-purple-600',
-    performance: 'bg-gradient-to-br from-yellow-400 to-orange-500',
-    goal: 'bg-gradient-to-br from-red-400 to-pink-500',
-    team: 'bg-gradient-to-br from-indigo-400 to-purple-500',
-    tech: 'bg-gradient-to-br from-gray-400 to-gray-600',
+    health: 'bg-gradient-to-br from-secondary-400 to-secondary-600',
+    journal: 'bg-gradient-to-br from-success-400 to-success-600',
+    quest: 'bg-gradient-to-br from-primary-400 to-primary-600',
+    performance: 'bg-gradient-to-br from-warning-400 to-primary-500',
+    goal: 'bg-gradient-to-br from-danger-400 to-primary-500',
+    team: 'bg-gradient-to-br from-primary-400 to-secondary-500',
+    tech: 'bg-gradient-to-br from-neutral-400 to-neutral-600',
     auth: 'bg-gradient-to-br from-primary-400 to-primary-600',
   };
 
