@@ -1,83 +1,49 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { CoachFeedbackWidget } from '@/components/dashboard/coach-feedback-widget';
-import { DashboardCalendar } from '@/components/journal/dashboard-calendar';
+import { GoalsWidget } from '@/components/dashboard/goals-widget';
+import { HealthMetricsWidget } from '@/components/dashboard/health-metrics-widget';
+import { JournalProgressWidget } from '@/components/dashboard/journal-progress-widget';
 import { PageLayout } from '@/components/layout/page-layout';
 import { PWAInstaller } from '@/components/pwa-installer';
 import { QuestsWidget } from '@/components/quest/quests-widget';
 import { TeamLeaderboardWidget } from '@/components/team/team-leaderboard-widget';
 import { useAuth } from '@/hooks/use-auth';
+import { useUserTeams } from '@/hooks/use-team-api';
 // import { useJournalStatus } from '@/hooks/use-journal-status';
 import { logger } from '@/lib/logger';
-import type { Team } from '@/types';
 
 export default function DashboardPage() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const [retryCount, setRetryCount] = useState(0);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [teams, setTeams] = useState<Team[]>([]);
-  const [teamsLoading, setTeamsLoading] = useState(false);
-
   // Get journal status for the user (unused but kept for future reference)
   // const journalStatus = useJournalStatus(user?.id || '');
 
-  // Fetch user teams when authenticated
+  // Use our new service layer for teams
+  const {
+    data: teamsResponse,
+    isLoading: teamsLoading,
+    error: teamsError,
+  } = useUserTeams(user?.id || null);
+
+  const teams = React.useMemo(() => teamsResponse?.data || [], [teamsResponse?.data]);
+
+  // Debug logging for teams
   useEffect(() => {
-    if (user?.id && isAuthenticated) {
-      const fetchUserTeams = async () => {
-        try {
-          setTeamsLoading(true);
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.id}/teams`,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('kinde_token')}`,
-              },
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error('Failed to fetch teams');
-          }
-
-          const data = await response.json();
-          setTeams(data || []);
-          logger.info('User teams fetched for dashboard', {
-            teamCount: data?.length || 0,
-          });
-        } catch (error) {
-          logger.error('Failed to fetch user teams for dashboard', { error });
-          // For demo purposes, show mock data
-          setTeams([
-            {
-              id: 'team-1',
-              name: 'Varsity Football',
-              sportID: 'football',
-              schoolID: 'school-1',
-              sport: { id: 'football', name: 'Football' },
-              school: { id: 'school-1', name: 'Lincoln High School' },
-            },
-            {
-              id: 'team-2',
-              name: 'JV Basketball',
-              sportID: 'basketball',
-              schoolID: 'school-1',
-              sport: { id: 'basketball', name: 'Basketball' },
-              school: { id: 'school-1', name: 'Lincoln High School' },
-            },
-          ]);
-        } finally {
-          setTeamsLoading(false);
-        }
-      };
-
-      fetchUserTeams();
-    }
-  }, [user?.id, isAuthenticated]);
+    logger.debug('🏈 Dashboard teams debug:', {
+      userId: user?.id,
+      teamsLoading,
+      teamsError,
+      teamsResponse,
+      teamsCount: teams.length,
+      teams,
+    });
+  }, [user?.id, teamsLoading, teamsError, teamsResponse, teams]);
 
   useEffect(() => {
     logger.debug('🏠 Dashboard auth effect:', {
@@ -156,7 +122,7 @@ export default function DashboardPage() {
             onViewAll={() => router.push('/quests')}
           />
 
-          {/* Journal Calendar */}
+          {/* Journal Progress */}
           <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
             <div className='mb-4 flex items-center justify-between'>
               <h3 className='text-lg font-semibold dark:text-white'>
@@ -164,16 +130,16 @@ export default function DashboardPage() {
               </h3>
               <button
                 onClick={() => router.push('/journal')}
-                className='text-sm text-secondary-600 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-300'
+                className='text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
               >
                 View All →
               </button>
             </div>
-            <div className='space-y-4'>
-              <DashboardCalendar
+            <div className='space-y-3'>
+              <JournalProgressWidget
                 userId={user.id}
-                onDayClick={(date: Date) => {
-                  logger.debug('📅 Dashboard calendar day clicked:', { date });
+                onViewAll={() => {
+                  logger.debug('📅 Journal progress view all clicked');
                   router.push('/journal');
                 }}
               />
@@ -191,28 +157,28 @@ export default function DashboardPage() {
 
           {/* Health Metrics */}
           <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-            <h3 className='mb-4 text-lg font-semibold dark:text-white'>
-              Health Metrics
-            </h3>
-            <div className='space-y-4'>
-              <div className='flex items-center justify-between'>
-                <span className='dark:text-gray-300'>Sleep</span>
-                <span className='font-semibold text-success-600 dark:text-success-400'>
-                  8h
-                </span>
-              </div>
-              <div className='flex items-center justify-between'>
-                <span className='dark:text-gray-300'>Steps</span>
-                <span className='font-semibold text-secondary-600 dark:text-secondary-400'>
-                  6,420
-                </span>
-              </div>
-              <div className='flex items-center justify-between'>
-                <span className='dark:text-gray-300'>Hydration</span>
-                <span className='font-semibold text-primary-600 dark:text-primary-400'>
-                  64oz
-                </span>
-              </div>
+            <div className='mb-4 flex items-center justify-between'>
+              <h3 className='text-lg font-semibold dark:text-white'>
+                Health Metrics
+              </h3>
+              <button
+                onClick={() => {
+                  logger.debug('Health metrics view all clicked');
+                  // TODO: Navigate to health page when implemented
+                }}
+                className='text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
+              >
+                View All →
+              </button>
+            </div>
+            <div className='space-y-3'>
+              <HealthMetricsWidget
+                userId={user.id}
+                onViewAll={() => {
+                  logger.debug('Health metrics view all clicked');
+                  // TODO: Navigate to health page when implemented
+                }}
+              />
             </div>
           </div>
 
@@ -230,51 +196,34 @@ export default function DashboardPage() {
               </button>
             </div>
             <div className='space-y-3'>
-              {teamsLoading ? (
-                <div className='py-6 text-center'>
-                  <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-primary-600'></div>
-                  <p className='mt-2 text-sm text-gray-500 dark:text-gray-400'>
-                    Loading teams...
-                  </p>
-                </div>
-              ) : teams.length === 0 ? (
-                <div className='py-6 text-center'>
-                  <div className='mb-2 text-4xl'>🏆</div>
-                  <p className='text-sm font-medium dark:text-gray-300'>
-                    No Teams Yet
-                  </p>
-                  <p className='text-xs text-gray-500 dark:text-gray-400'>
-                    Join a team to see the leaderboard
-                  </p>
-                </div>
-              ) : (
-                <TeamLeaderboardWidget userId={user?.id || ''} teams={teams} />
-              )}
+              <TeamLeaderboardWidget userId={user?.id || ''} teams={teams} />
             </div>
           </div>
 
           {/* Goals */}
           <div className='rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
-            <h3 className='mb-4 text-lg font-semibold dark:text-white'>
-              Your Goals
-            </h3>
+            <div className='mb-4 flex items-center justify-between'>
+              <h3 className='text-lg font-semibold dark:text-white'>
+                Your Goals
+              </h3>
+              <button
+                onClick={() => {
+                  logger.debug('Goals view all clicked');
+                  // TODO: Navigate to goals page when implemented
+                }}
+                className='text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
+              >
+                View All →
+              </button>
+            </div>
             <div className='space-y-3'>
-              <div className='rounded-md bg-secondary-50 p-3 dark:bg-secondary-900/20'>
-                <p className='text-sm font-medium text-secondary-900 dark:text-secondary-100'>
-                  Improve 40-yard dash
-                </p>
-                <p className='text-xs text-secondary-700 dark:text-secondary-300'>
-                  Target: 4.8s
-                </p>
-              </div>
-              <div className='rounded-md bg-success-50 p-3 dark:bg-success-900/20'>
-                <p className='text-sm font-medium text-success-900 dark:text-success-100'>
-                  Maintain 3.5 GPA
-                </p>
-                <p className='text-xs text-success-700 dark:text-success-300'>
-                  Current: 3.6
-                </p>
-              </div>
+              <GoalsWidget
+                userId={user.id}
+                onViewAll={() => {
+                  logger.debug('Goals view all clicked');
+                  // TODO: Navigate to goals page when implemented
+                }}
+              />
             </div>
           </div>
         </div>

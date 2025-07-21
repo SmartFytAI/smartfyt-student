@@ -1,10 +1,12 @@
-import type { Metadata, Viewport } from 'next';
+import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
-import './globals.css';
 import { AuthProvider } from '@/components/auth/auth-provider';
 import { ThemeProvider } from '@/components/theme/theme-provider';
+import { GlobalLoadingIndicator } from '@/components/ui/global-loading-indicator';
 import { ReactQueryProvider } from '@/lib/react-query';
+
+import './globals.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -18,41 +20,45 @@ const geistMono = Geist_Mono({
   display: 'swap',
 });
 
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  viewportFit: 'cover',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#000000' },
-  ],
-};
-
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-  ),
   title: {
     default: 'SmartFyt Student Athlete',
     template: '%s | SmartFyt Student Athlete',
   },
   description:
-    'SmartFyt Student Athlete - Performance tracking and wellness dashboard for student-athletes - now on mobile!',
+    'Track your athletic performance, health metrics, and achieve your goals on mobile.',
   keywords: [
-    'student-athlete',
-    'performance',
-    'wellness',
-    'tracking',
-    'health',
+    'student athlete',
+    'performance tracking',
+    'health metrics',
     'mobile app',
     'fitness',
     'sports',
   ],
   authors: [{ name: 'SmartFyt Team' }],
-  creator: 'SmartFyt Team',
+  creator: 'SmartFyt',
   publisher: 'SmartFyt',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+
+  // Viewport
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
+
+  // Format detection
   formatDetection: {
     email: false,
     address: false,
@@ -144,6 +150,7 @@ export default function RootLayout({
         <AuthProvider>
           <ReactQueryProvider>
             <ThemeProvider>
+              <GlobalLoadingIndicator />
               <div className='safe-area-inset min-h-screen'>{children}</div>
             </ThemeProvider>
           </ReactQueryProvider>

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
+import { CardErrorBoundary } from '@/components/error/error-boundary';
 import { WidgetCard } from '@/components/ui/widget-card';
 import { logger } from '@/lib/logger';
 import { getCurrentQuests, type Quest } from '@/lib/services/quest-service';
@@ -11,7 +12,7 @@ interface QuestsWidgetProps {
   onViewAll: () => void;
 }
 
-export function QuestsWidget({ userId, onViewAll }: QuestsWidgetProps) {
+function QuestsWidgetContent({ userId, onViewAll }: QuestsWidgetProps) {
   const [quests, setQuests] = useState<Quest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -148,5 +149,13 @@ export function QuestsWidget({ userId, onViewAll }: QuestsWidgetProps) {
     >
       {renderContent()}
     </WidgetCard>
+  );
+}
+
+export function QuestsWidget({ userId, onViewAll }: QuestsWidgetProps) {
+  return (
+    <CardErrorBoundary>
+      <QuestsWidgetContent userId={userId} onViewAll={onViewAll} />
+    </CardErrorBoundary>
   );
 }

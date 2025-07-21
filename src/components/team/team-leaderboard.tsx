@@ -1,14 +1,14 @@
 'use client';
 
 import { Heart, Minus, Trophy, TrendingDown, TrendingUp } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { apiClient } from '@/lib/api-client';
+import { useTeamLeaderboard, useSchoolLeaderboard } from '@/hooks/use-team-api';
 import { logger } from '@/lib/logger';
 import { cn } from '@/lib/utils';
 import type { LeaderboardEntry, Team } from '@/types';
@@ -21,11 +21,6 @@ interface TeamLeaderboardProps {
 export function TeamLeaderboard({ userId, teams }: TeamLeaderboardProps) {
   const [activeTab, setActiveTab] = useState('team');
   const [selectedTeamId, setSelectedTeamId] = useState<string>('');
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>(
-    []
-  );
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   // Set first team as default if available
   useEffect(() => {
@@ -34,64 +29,44 @@ export function TeamLeaderboard({ userId, teams }: TeamLeaderboardProps) {
     }
   }, [teams, selectedTeamId]);
 
-  const fetchLeaderboardData = useCallback(async () => {
-    if (!selectedTeamId) return;
+  // Use our service layer hooks
+  const {
+    data: teamLeaderboardResponse,
+    isLoading: teamLoading,
+    error: teamError,
+  } = useTeamLeaderboard(activeTab === 'team' ? selectedTeamId : null);
 
-    setIsLoading(true);
-    setError(null);
+  const {
+    data: schoolLeaderboardResponse,
+    isLoading: schoolLoading,
+    error: schoolError,
+  } = useSchoolLeaderboard(activeTab === 'school' ? userId : null);
 
-    try {
-      let response;
+  // Get the appropriate data based on active tab
+  const leaderboardResponse =
+    activeTab === 'team' ? teamLeaderboardResponse : schoolLeaderboardResponse;
+  const isLoading = activeTab === 'team' ? teamLoading : schoolLoading;
+  const error = activeTab === 'team' ? teamError : schoolError;
 
-      if (activeTab === 'team') {
-        response = await apiClient.getTeamLeaderboard(selectedTeamId);
-      } else {
-        response = await apiClient.getSchoolLeaderboard(userId);
-      }
+  // Transform leaderboard data to our format
+  const leaderboardData: LeaderboardEntry[] = React.useMemo(() => {
+    if (!leaderboardResponse?.data?.entries) return [];
 
-      if (response.error) {
-        throw new Error(response.error);
-      }
-
-      const data = response.data || [];
-
-      // Transform API response to LeaderboardEntry format
-      const leaderboardEntries: LeaderboardEntry[] = data.map(
-        (entry: any, index: number) => ({
-          userId: entry.id,
-          firstName: entry.firstName,
-          lastName: entry.lastName,
-          profileImage: entry.profileImage,
-          engagementScore: entry.performanceScore || 0,
-          weeklySteps: 0, // Will be populated from activity data
-          questsCompleted: 0, // Will be populated from quest data
-          journalsCount: 0, // Will be populated from journal data
-          rank: index + 1,
-          trend: entry.trend || 'none',
-          claps: 0,
-          isCurrentUser: entry.id === userId,
-        })
-      );
-
-      setLeaderboardData(leaderboardEntries);
-      logger.info('Leaderboard data fetched successfully', {
-        teamId: selectedTeamId,
-        entryCount: leaderboardEntries.length,
-      });
-    } catch (error) {
-      logger.error('Failed to fetch leaderboard data', { error });
-      setError('Failed to load leaderboard data');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [selectedTeamId, activeTab, userId]);
-
-  // Fetch leaderboard data when team changes
-  useEffect(() => {
-    if (selectedTeamId) {
-      fetchLeaderboardData();
-    }
-  }, [selectedTeamId, activeTab, fetchLeaderboardData]);
+    return leaderboardResponse.data.entries.map((entry, index) => ({
+      userId: entry.userId,
+      firstName: entry.firstName,
+      lastName: entry.lastName,
+      profileImage: entry.profileImage || null,
+      engagementScore: entry.engagementScore,
+      weeklySteps: entry.weeklySteps,
+      questsCompleted: entry.questsCompleted,
+      journalsCount: entry.journalsCount,
+      rank: index + 1,
+      trend: entry.trend,
+      claps: entry.claps,
+      isCurrentUser: entry.isCurrentUser,
+    }));
+  }, [leaderboardResponse?.data?.entries]);
 
   const handleClap = async (entry: LeaderboardEntry) => {
     try {
@@ -280,15 +255,9 @@ export function TeamLeaderboard({ userId, teams }: TeamLeaderboardProps) {
               </div>
             ) : error ? (
               <div className='py-8 text-center'>
-                <p className='text-danger-500'>{error}</p>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={fetchLeaderboardData}
-                  className='mt-2'
-                >
-                  Try Again
-                </Button>
+                <p className='text-danger-500'>
+                  {error.message || 'Failed to load leaderboard data'}
+                </p>
               </div>
             ) : leaderboardData.length === 0 ? (
               <div className='py-8 text-center'>
@@ -325,15 +294,9 @@ export function TeamLeaderboard({ userId, teams }: TeamLeaderboardProps) {
               </div>
             ) : error ? (
               <div className='py-8 text-center'>
-                <p className='text-danger-500'>{error}</p>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={fetchLeaderboardData}
-                  className='mt-2'
-                >
-                  Try Again
-                </Button>
+                <p className='text-danger-500'>
+                  {error.message || 'Failed to load leaderboard data'}
+                </p>
               </div>
             ) : leaderboardData.length === 0 ? (
               <div className='py-8 text-center'>

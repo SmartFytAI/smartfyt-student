@@ -5,8 +5,8 @@ import { Users, Target, Activity, TrendingUp } from 'lucide-react';
 import { PageLayout } from '@/components/layout/page-layout';
 import { TeamLeaderboard } from '@/components/team/team-leaderboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useTeams } from '@/hooks/use-api';
 import { useAuth } from '@/hooks/use-auth';
+import { useUserTeams } from '@/hooks/use-team-api';
 import { logger } from '@/lib/logger';
 
 export default function TeamPage() {
@@ -15,7 +15,7 @@ export default function TeamPage() {
     data: teamsResponse,
     isLoading: teamsLoading,
     error: teamsError,
-  } = useTeams(user?.id || null);
+  } = useUserTeams(user?.id || null);
   const teams = teamsResponse?.data || [];
   const isLoading = authLoading || teamsLoading;
   const error = teamsError ? 'Failed to load your teams' : null;
@@ -24,7 +24,7 @@ export default function TeamPage() {
   if (teams.length > 0) {
     logger.info('Teams loaded successfully', {
       teamCount: teams.length,
-      teams: teams.map(t => ({ id: t.id, name: t.name })),
+      teams: teams.map((t: any) => ({ id: t.id, name: t.name })),
     });
   } else if (!isLoading && !error) {
     logger.info('No teams found for user', {

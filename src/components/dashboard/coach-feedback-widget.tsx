@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { CardErrorBoundary } from '@/components/error/error-boundary';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { WidgetCard } from '@/components/ui/widget-card';
@@ -19,7 +20,7 @@ interface CoachFeedbackWidgetProps {
   onViewAll?: () => void;
 }
 
-export function CoachFeedbackWidget({
+function CoachFeedbackWidgetContent({
   userId,
   onViewAll,
 }: CoachFeedbackWidgetProps) {
@@ -167,7 +168,7 @@ export function CoachFeedbackWidget({
     <WidgetCard
       title='Coach Feedback'
       onViewAll={onViewAll}
-      colorScheme='secondary'
+      colorScheme='primary'
       showHeader={true}
     >
       <div className='mb-3 flex items-center justify-between'>
@@ -179,5 +180,16 @@ export function CoachFeedbackWidget({
       </div>
       {renderContent()}
     </WidgetCard>
+  );
+}
+
+export function CoachFeedbackWidget({
+  userId,
+  onViewAll,
+}: CoachFeedbackWidgetProps) {
+  return (
+    <CardErrorBoundary>
+      <CoachFeedbackWidgetContent userId={userId} onViewAll={onViewAll} />
+    </CardErrorBoundary>
   );
 }

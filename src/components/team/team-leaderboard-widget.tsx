@@ -1,12 +1,12 @@
 'use client';
 
 import { ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 
+import { CardErrorBoundary } from '@/components/error/error-boundary';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { apiClient } from '@/lib/api-client';
-import { logger } from '@/lib/logger';
+import { useTeamLeaderboard } from '@/hooks/use-team-api';
 import type { Team } from '@/types';
 
 interface TeamLeaderboardWidgetProps {
@@ -25,175 +25,50 @@ interface LeaderboardEntry {
   badge?: string;
 }
 
-export function TeamLeaderboardWidget({
+function TeamLeaderboardWidgetContent({
   userId,
   teams,
 }: TeamLeaderboardWidgetProps) {
   const [currentTeamIndex, setCurrentTeamIndex] = useState(0);
-  const [leaderboardData, setLeaderboardData] = useState<
-    Record<string, LeaderboardEntry[]>
-  >({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Fetch real leaderboard data for a team
-  const fetchTeamLeaderboard = async (
-    teamId: string
-  ): Promise<LeaderboardEntry[]> => {
-    try {
-      logger.debug('Fetching team leaderboard', { teamId });
-      const response = await apiClient.getTeamLeaderboard(teamId);
-
-      if (response.error) {
-        throw new Error(response.error);
-      }
-
-      // Transform API response to our format
-      const leaderboardEntries: LeaderboardEntry[] = (response.data || []).map(
-        (entry: Record<string, unknown>, index: number) => ({
-          userId: String(entry.id || ''),
-          firstName: String(entry.firstName || ''),
-          lastName: String(entry.lastName || ''),
-          profileImage: entry.profileImage
-            ? String(entry.profileImage)
-            : undefined,
-          weeklySteps: Number(entry.weeklySteps) || 0,
-          engagementScore: Number(entry.performanceScore) || 0,
-          rank: index + 1,
-          badge:
-            index === 0
-              ? '🥇'
-              : index === 1
-                ? '🥈'
-                : index === 2
-                  ? '🥉'
-                  : undefined,
-        })
-      );
-
-      logger.debug('Team leaderboard fetched successfully', {
-        teamId,
-        entryCount: leaderboardEntries.length,
-      });
-
-      return leaderboardEntries;
-    } catch (error) {
-      logger.error('Failed to fetch team leaderboard', { teamId, error });
-      throw error;
-    }
-  };
-
-  // Generate mock leaderboard data based on actual teams
-  const generateMockLeaderboardData = useCallback(
-    (teams: Team[]): Record<string, LeaderboardEntry[]> => {
-      const data: Record<string, LeaderboardEntry[]> = {};
-
-      teams.forEach((team, teamIndex) => {
-        const teamMembers = [
-          {
-            userId: 'user-1',
-            firstName: 'Alex',
-            lastName: 'Johnson',
-            weeklySteps: 12500 + teamIndex * 500,
-            engagementScore: 850 + teamIndex * 20,
-            rank: 1,
-            badge: '🥇',
-          },
-          {
-            userId: 'user-2',
-            firstName: 'Sarah',
-            lastName: 'Williams',
-            weeklySteps: 11800 + teamIndex * 400,
-            engagementScore: 820 + teamIndex * 15,
-            rank: 2,
-            badge: '🥈',
-          },
-          {
-            userId: 'user-3',
-            firstName: 'Mike',
-            lastName: 'Davis',
-            weeklySteps: 11200 + teamIndex * 300,
-            engagementScore: 790 + teamIndex * 10,
-            rank: 3,
-            badge: '🥉',
-          },
-          {
-            userId: userId,
-            firstName: 'You',
-            lastName: '',
-            weeklySteps: 9800 + teamIndex * 200,
-            engagementScore: 720 + teamIndex * 5,
-            rank: 4,
-          },
-          {
-            userId: 'user-4',
-            firstName: 'Jordan',
-            lastName: 'Smith',
-            weeklySteps: 10500 + teamIndex * 250,
-            engagementScore: 750 + teamIndex * 8,
-            rank: 5,
-          },
-        ];
-
-        data[team.id] = teamMembers;
-      });
-
-      return data;
-    },
-    [userId]
-  );
-
-  // Load leaderboard data when teams change
+  // Set first team as default if available
   useEffect(() => {
-    const loadLeaderboardData = async () => {
-      if (teams.length === 0) return;
+    if (teams.length > 0 && currentTeamIndex >= teams.length) {
+      setCurrentTeamIndex(0);
+    }
+  }, [teams, currentTeamIndex]);
 
-      setIsLoading(true);
-      setError(null);
+  // Use our service layer for team leaderboard
+  const {
+    data: leaderboardResponse,
+    isLoading,
+    error,
+  } = useTeamLeaderboard(teams[currentTeamIndex]?.id || null);
 
-      try {
-        const newLeaderboardData: Record<string, LeaderboardEntry[]> = {};
+  // Transform leaderboard data to our format
+  const leaderboardEntries: LeaderboardEntry[] = React.useMemo(() => {
+    if (!leaderboardResponse?.data?.entries) return [];
 
-        // Load data for all teams
-        for (const team of teams) {
-          try {
-            const teamData = await fetchTeamLeaderboard(team.id);
-            newLeaderboardData[team.id] = teamData;
-          } catch (error) {
-            logger.warn(
-              'Failed to load leaderboard for team, using mock data',
-              {
-                teamId: team.id,
-                teamName: team.name,
-                error,
-              }
-            );
-            // Fallback to mock data if API fails
-            newLeaderboardData[team.id] =
-              generateMockLeaderboardData([team])[team.id] || [];
-          }
-        }
-
-        setLeaderboardData(newLeaderboardData);
-        logger.info('Leaderboard data loaded for all teams', {
-          teamCount: teams.length,
-          teams: teams.map(t => ({ id: t.id, name: t.name })),
-        });
-      } catch (error) {
-        logger.error('Failed to load leaderboard data', { error });
-        setError('Failed to load leaderboard data');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadLeaderboardData();
-  }, [teams, generateMockLeaderboardData]);
+    return leaderboardResponse.data.entries.map((entry, index) => ({
+      userId: entry.userId,
+      firstName: entry.firstName,
+      lastName: entry.lastName,
+      profileImage: entry.profileImage || undefined,
+      weeklySteps: entry.weeklySteps,
+      engagementScore: entry.engagementScore,
+      rank: index + 1,
+      badge:
+        index === 0
+          ? '🥇'
+          : index === 1
+            ? '🥈'
+            : index === 2
+              ? '🥉'
+              : undefined,
+    }));
+  }, [leaderboardResponse?.data?.entries]);
 
   const currentTeam = teams[currentTeamIndex];
-  const currentLeaderboard = leaderboardData[currentTeam?.id] || [];
 
   const nextTeam = () => {
     setCurrentTeamIndex(prev => (prev + 1) % teams.length);
@@ -253,103 +128,96 @@ export function TeamLeaderboardWidget({
       {/* Team Header with Navigation */}
       <div className='flex items-center justify-between'>
         <div className='flex items-center space-x-2'>
-          <Trophy className='h-4 w-4 text-primary-500' />
-          <h4 className='text-sm font-medium dark:text-white'>
-            {currentTeam?.name}
-          </h4>
+          <Trophy className='h-5 w-5 text-yellow-500' />
+          <h3 className='font-semibold dark:text-white'>
+            {currentTeam?.name || 'Team Leaderboard'}
+          </h3>
         </div>
 
         {teams.length > 1 && (
-          <div className='flex items-center space-x-1'>
+          <div className='flex items-center'>
             <Button
               variant='ghost'
               size='sm'
               onClick={prevTeam}
-              className='h-6 w-6 p-0'
+              className='h-8 w-8 p-0'
             >
-              <ChevronLeft className='h-3 w-3' />
+              <ChevronLeft className='h-4 w-4' />
             </Button>
             <Button
               variant='ghost'
               size='sm'
               onClick={nextTeam}
-              className='h-6 w-6 p-0'
+              className='h-8 w-8 p-0'
             >
-              <ChevronRight className='h-3 w-3' />
+              <ChevronRight className='h-4 w-4' />
             </Button>
           </div>
         )}
       </div>
 
-      {/* Swipeable Leaderboard with Fixed Height */}
+      {/* Leaderboard Content */}
       <div
-        ref={containerRef}
-        className='relative overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700'
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
+        className='space-y-3'
       >
-        <div className='max-h-64 space-y-2 overflow-y-auto p-3'>
-          {isLoading ? (
-            // Loading state
-            <div className='space-y-2'>
-              {[...Array(5)].map((_, skeletonIndex) => (
-                <div
-                  key={skeletonIndex}
-                  className='flex animate-pulse items-center space-x-3 rounded-lg bg-gray-50 p-2 dark:bg-gray-800'
-                >
-                  <div className='h-6 w-6 rounded bg-gray-200 dark:bg-gray-700'></div>
-                  <div className='h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700'></div>
-                  <div className='flex-1 space-y-1'>
-                    <div className='h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-700'></div>
-                    <div className='h-3 w-1/2 rounded bg-gray-200 dark:bg-gray-700'></div>
-                  </div>
-                  <div className='h-4 w-12 rounded bg-gray-200 dark:bg-gray-700'></div>
-                </div>
-              ))}
-            </div>
-          ) : error ? (
-            // Error state
-            <div className='py-4 text-center'>
-              <p className='text-sm text-danger-500 dark:text-danger-400'>
-                {error}
-              </p>
-            </div>
-          ) : currentLeaderboard.length === 0 ? (
-            // Empty state
-            <div className='py-4 text-center'>
-              <p className='text-sm text-gray-500 dark:text-gray-400'>
-                No leaderboard data available
-              </p>
-            </div>
-          ) : (
-            // Leaderboard entries
-            currentLeaderboard.map(entry => (
+        {isLoading ? (
+          <div className='py-6 text-center'>
+            <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-primary-600'></div>
+            <p className='mt-2 text-sm text-gray-500 dark:text-gray-400'>
+              Loading leaderboard...
+            </p>
+          </div>
+        ) : error ? (
+          <div className='py-6 text-center'>
+            <div className='mb-2 text-4xl'>⚠️</div>
+            <p className='text-sm font-medium text-red-600 dark:text-red-400'>
+              Failed to load leaderboard
+            </p>
+            <p className='text-xs text-gray-500 dark:text-gray-400'>
+              Please try again later
+            </p>
+          </div>
+        ) : leaderboardEntries.length === 0 ? (
+          <div className='py-6 text-center'>
+            <div className='mb-2 text-4xl'>📊</div>
+            <p className='text-sm font-medium dark:text-gray-300'>
+              No leaderboard data
+            </p>
+            <p className='text-xs text-gray-500 dark:text-gray-400'>
+              Check back later for updates
+            </p>
+          </div>
+        ) : (
+          <div className='space-y-2'>
+            {leaderboardEntries.slice(0, 5).map(entry => (
               <div
                 key={entry.userId}
-                className={`flex items-center space-x-3 rounded-lg p-2 transition-colors ${
-                  entry.userId === userId
-                    ? 'border border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-900/20'
-                    : 'bg-gray-50 dark:bg-gray-800'
-                }`}
+                className='flex items-center space-x-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-800'
               >
-                <div className='flex w-6 items-center justify-center'>
-                  <span className='text-sm font-bold text-gray-500'>
+                <div className='flex items-center space-x-2'>
+                  <span className='text-lg font-bold text-gray-500'>
                     {entry.badge || entry.rank}
                   </span>
+                  <Avatar className='h-8 w-8'>
+                    <AvatarImage src={entry.profileImage} />
+                    <AvatarFallback>
+                      {entry.firstName[0]}
+                      {entry.lastName[0]}
+                    </AvatarFallback>
+                  </Avatar>
                 </div>
 
-                <Avatar className='h-8 w-8'>
-                  <AvatarImage src={entry.profileImage} />
-                  <AvatarFallback className='text-xs'>
-                    {entry.firstName[0]}
-                    {entry.lastName[0]}
-                  </AvatarFallback>
-                </Avatar>
-
                 <div className='min-w-0 flex-1'>
-                  <p className='truncate text-sm font-medium dark:text-gray-200'>
+                  <p className='truncate text-sm font-medium dark:text-white'>
                     {entry.firstName} {entry.lastName}
+                    {entry.userId === userId && (
+                      <span className='ml-2 text-xs text-primary-600 dark:text-primary-400'>
+                        (You)
+                      </span>
+                    )}
                   </p>
                   <p className='text-xs text-gray-500 dark:text-gray-400'>
                     {entry.weeklySteps.toLocaleString()} steps
@@ -357,45 +225,47 @@ export function TeamLeaderboardWidget({
                 </div>
 
                 <div className='text-right'>
-                  <p className='text-sm font-bold text-primary-600 dark:text-primary-400'>
+                  <p className='text-sm font-semibold text-primary-600 dark:text-primary-400'>
                     {entry.engagementScore}
                   </p>
                   <p className='text-xs text-gray-500 dark:text-gray-400'>
-                    pts
+                    points
                   </p>
                 </div>
               </div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Dots Navigation */}
+      {/* Team Navigation Dots - Bottom */}
       {teams.length > 1 && (
-        <div className='flex justify-center space-x-2'>
-          {teams.map((_, teamIndex) => (
+        <div className='flex justify-center space-x-2 pt-2'>
+          {teams.map((team, index) => (
             <button
-              key={teamIndex}
-              onClick={() => goToTeam(teamIndex)}
+              key={team.id}
+              onClick={() => goToTeam(index)}
               className={`h-2 w-2 rounded-full transition-colors ${
-                teamIndex === currentTeamIndex
-                  ? 'bg-primary-500'
+                index === currentTeamIndex
+                  ? 'bg-primary-600'
                   : 'bg-gray-300 dark:bg-gray-600'
               }`}
-              aria-label={`Go to team ${teamIndex + 1}`}
+              aria-label={`Go to ${team.name}`}
             />
           ))}
         </div>
       )}
-
-      {/* Team Label */}
-      {teams.length > 1 && (
-        <div className='text-center'>
-          <p className='text-xs text-gray-500 dark:text-gray-400'>
-            {currentTeamIndex + 1} of {teams.length} teams
-          </p>
-        </div>
-      )}
     </div>
+  );
+}
+
+export function TeamLeaderboardWidget({
+  userId,
+  teams,
+}: TeamLeaderboardWidgetProps) {
+  return (
+    <CardErrorBoundary>
+      <TeamLeaderboardWidgetContent userId={userId} teams={teams} />
+    </CardErrorBoundary>
   );
 }
