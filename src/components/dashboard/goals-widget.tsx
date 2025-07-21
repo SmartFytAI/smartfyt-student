@@ -17,7 +17,10 @@ interface GoalsWidgetProps {
   onViewAll?: () => void;
 }
 
-function GoalsWidgetContent({ userId: _userId, onViewAll: _onViewAll }: GoalsWidgetProps) {
+function GoalsWidgetContent({
+  userId: _userId,
+  onViewAll: _onViewAll,
+}: GoalsWidgetProps) {
   // TODO: Replace with actual goals API call
   // For now, using mock data as placeholder
   const goals: Goal[] = [

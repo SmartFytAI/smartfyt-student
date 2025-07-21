@@ -56,8 +56,16 @@ function UserAvatarContent({
   const { setTheme, theme } = useTheme();
 
   // Loading states for user avatar operations
-  const { isLoading: isLogoutLoading, startLoading: startLogoutLoading, stopLoading: stopLogoutLoading } = useComponentLoading(LoadingIds.AUTH_LOGOUT);
-  const { isLoading: isWearableConnecting, startLoading: startWearableLoading, stopLoading: stopWearableLoading } = useComponentLoading(LoadingIds.HEALTH_SYNC);
+  const {
+    isLoading: isLogoutLoading,
+    startLoading: startLogoutLoading,
+    stopLoading: stopLogoutLoading,
+  } = useComponentLoading(LoadingIds.AUTH_LOGOUT);
+  const {
+    isLoading: isWearableConnecting,
+    startLoading: startWearableLoading,
+    stopLoading: stopWearableLoading,
+  } = useComponentLoading(LoadingIds.HEALTH_SYNC);
 
   const handleSignOut = async () => {
     try {
@@ -168,7 +176,9 @@ function UserAvatarContent({
               </Avatar>
               <span className='hidden text-sm font-medium text-neutral-700 dark:text-neutral-300 sm:block'>
                 {isProfileLoading ? (
-                  <span className='text-gray-400 dark:text-gray-500'>Loading...</span>
+                  <span className='text-gray-400 dark:text-gray-500'>
+                    Loading...
+                  </span>
                 ) : (
                   getUserDisplayName()
                 )}
@@ -294,7 +304,7 @@ export function UserAvatar({
     <CardErrorBoundary
       fallback={
         <div className='flex items-center space-x-2 px-2 py-1'>
-          <div className='h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center'>
+          <div className='flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700'>
             <Loader2 className='h-4 w-4 animate-spin text-gray-400' />
           </div>
           <span className='hidden text-sm font-medium text-gray-400 dark:text-gray-500 sm:block'>

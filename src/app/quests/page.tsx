@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
+import { AuthGuard } from '@/components/auth';
 import { PageLayout } from '@/components/layout/page-layout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -193,428 +194,430 @@ export default function QuestsPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <PageLayout
-        title='Quests'
-        subtitle='Complete challenges to earn points and level up'
-      >
-        <div className='flex items-center justify-center py-12'>
-          <div className='text-center'>
-            <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-primary-600'></div>
-            <p className='mt-4 text-gray-600 dark:text-gray-400'>
-              Loading quests...
-            </p>
-          </div>
-        </div>
-      </PageLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <PageLayout
-        title='Quests'
-        subtitle='Complete challenges to earn points and level up'
-      >
-        <div className='flex items-center justify-center py-12'>
-          <div className='text-center'>
-            <div className='mb-4 text-4xl'>⚠️</div>
-            <p className='text-gray-600 dark:text-gray-400'>{error}</p>
-            <Button onClick={fetchQuestData} className='mt-4'>
-              Retry
-            </Button>
-          </div>
-        </div>
-      </PageLayout>
-    );
-  }
-
   return (
-    <PageLayout
-      title='Quests'
-      subtitle='Complete challenges to earn points and level up'
-    >
-      <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
-        <div className='space-y-6'>
-          {/* Quest Overview Section */}
-          <Card>
-            <CardHeader>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-2'>
-                  <Star className='h-5 w-5 text-warning-500' />
-                  <CardTitle>Quest Overview</CardTitle>
-                </div>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => setIsOverviewExpanded(!isOverviewExpanded)}
-                  className='h-8 w-8 p-0'
-                >
-                  {isOverviewExpanded ? (
-                    <ChevronUp className='h-4 w-4' />
-                  ) : (
-                    <ChevronDown className='h-4 w-4' />
-                  )}
-                </Button>
-              </div>
-              <CardDescription>
-                Your quest statistics and progress across all categories
-              </CardDescription>
-            </CardHeader>
-            {isOverviewExpanded && (
-              <CardContent className='space-y-6'>
-                {/* Quest Overview Cards */}
-                <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-                  <Card>
-                    <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                      <CardTitle className='text-sm font-medium'>
-                        Total Score
-                      </CardTitle>
-                      <Trophy className='h-4 w-4 text-warning-500' />
-                    </CardHeader>
-                    <CardContent>
-                      <div className='text-2xl font-bold'>{totalScore}</div>
-                      <p className='text-xs text-muted-foreground'>
-                        Points earned
-                      </p>
-                    </CardContent>
-                  </Card>
+    <AuthGuard>
+      <PageLayout
+        title='Quests'
+        subtitle='Complete challenges to earn points and level up'
+      >
+        {/* Loading State */}
+        {isLoading && (
+          <div className='flex items-center justify-center py-12'>
+            <div className='text-center'>
+              <div className='mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-primary-600'></div>
+              <p className='mt-4 text-gray-600 dark:text-gray-400'>
+                Loading quests...
+              </p>
+            </div>
+          </div>
+        )}
 
-                  <Card>
-                    <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                      <CardTitle className='text-sm font-medium'>
-                        Active Quests
-                      </CardTitle>
-                      <Target className='h-4 w-4 text-secondary-500' />
-                    </CardHeader>
-                    <CardContent>
-                      <div className='text-2xl font-bold'>
-                        {currentQuests.length}
-                      </div>
-                      <p className='text-xs text-muted-foreground'>
-                        Available to complete
-                      </p>
-                    </CardContent>
-                  </Card>
+        {/* Error State */}
+        {error && (
+          <div className='flex items-center justify-center py-12'>
+            <div className='text-center'>
+              <div className='mb-4 text-4xl'>⚠️</div>
+              <p className='text-gray-600 dark:text-gray-400'>{error}</p>
+              <Button onClick={fetchQuestData} className='mt-4'>
+                Retry
+              </Button>
+            </div>
+          </div>
+        )}
 
-                  <Card>
-                    <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                      <CardTitle className='text-sm font-medium'>
-                        Completed
-                      </CardTitle>
-                      <CheckCircle className='h-4 w-4 text-success-500' />
-                    </CardHeader>
-                    <CardContent>
-                      <div className='text-2xl font-bold'>
-                        {completedQuests.length}
-                      </div>
-                      <p className='text-xs text-muted-foreground'>
-                        Quests finished
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                      <CardTitle className='text-sm font-medium'>
-                        Completion Rate
-                      </CardTitle>
-                      <TrendingUp className='h-4 w-4 text-primary-500' />
-                    </CardHeader>
-                    <CardContent>
-                      <div className='text-2xl font-bold'>
-                        {questCompletion.percentage}%
-                      </div>
-                      <p className='text-xs text-muted-foreground'>
-                        Success rate
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Quest Progress */}
-                <div className='space-y-4'>
+        {/* Main Content */}
+        {!isLoading && !error && (
+          <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
+            <div className='space-y-6'>
+              {/* Quest Overview Section */}
+              <Card>
+                <CardHeader>
                   <div className='flex items-center justify-between'>
-                    <span className='text-sm font-medium'>
-                      Overall Progress
-                    </span>
-                    <span className='text-sm text-muted-foreground'>
-                      {questCompletion.completedQuests} /{' '}
-                      {questCompletion.totalQuests} quests
-                    </span>
+                    <div className='flex items-center gap-2'>
+                      <Star className='h-5 w-5 text-warning-500' />
+                      <CardTitle>Quest Overview</CardTitle>
+                    </div>
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      onClick={() => setIsOverviewExpanded(!isOverviewExpanded)}
+                      className='h-8 w-8 p-0'
+                    >
+                      {isOverviewExpanded ? (
+                        <ChevronUp className='h-4 w-4' />
+                      ) : (
+                        <ChevronDown className='h-4 w-4' />
+                      )}
+                    </Button>
                   </div>
-                  <Progress
-                    value={questCompletion.percentage}
-                    className='h-2'
-                  />
+                  <CardDescription>
+                    Your quest statistics and progress across all categories
+                  </CardDescription>
+                </CardHeader>
+                {isOverviewExpanded && (
+                  <CardContent className='space-y-6'>
+                    {/* Quest Overview Cards */}
+                    <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+                      <Card>
+                        <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                          <CardTitle className='text-sm font-medium'>
+                            Total Score
+                          </CardTitle>
+                          <Trophy className='h-4 w-4 text-warning-500' />
+                        </CardHeader>
+                        <CardContent>
+                          <div className='text-2xl font-bold'>{totalScore}</div>
+                          <p className='text-xs text-muted-foreground'>
+                            Points earned
+                          </p>
+                        </CardContent>
+                      </Card>
 
-                  <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3'>
-                    {userStats.map(stat => (
-                      <div
-                        key={stat.categoryId}
-                        className='rounded-lg border p-3'
-                      >
-                        <div className='mb-2 flex items-center justify-between'>
-                          <span className='text-sm font-medium'>
-                            {stat.categoryName}
-                          </span>
-                          <Badge variant='secondary'>Level {stat.level}</Badge>
-                        </div>
-                        <div className='flex items-center justify-between'>
-                          <span className='text-xs text-muted-foreground'>
-                            {stat.points} points
-                          </span>
-                          <Progress
-                            value={((stat.points % 100) / 100) * 100}
-                            className='h-1 w-16'
-                          />
-                        </div>
+                      <Card>
+                        <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                          <CardTitle className='text-sm font-medium'>
+                            Active Quests
+                          </CardTitle>
+                          <Target className='h-4 w-4 text-secondary-500' />
+                        </CardHeader>
+                        <CardContent>
+                          <div className='text-2xl font-bold'>
+                            {currentQuests.length}
+                          </div>
+                          <p className='text-xs text-muted-foreground'>
+                            Available to complete
+                          </p>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                          <CardTitle className='text-sm font-medium'>
+                            Completed
+                          </CardTitle>
+                          <CheckCircle className='h-4 w-4 text-success-500' />
+                        </CardHeader>
+                        <CardContent>
+                          <div className='text-2xl font-bold'>
+                            {completedQuests.length}
+                          </div>
+                          <p className='text-xs text-muted-foreground'>
+                            Quests finished
+                          </p>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                          <CardTitle className='text-sm font-medium'>
+                            Completion Rate
+                          </CardTitle>
+                          <TrendingUp className='h-4 w-4 text-primary-500' />
+                        </CardHeader>
+                        <CardContent>
+                          <div className='text-2xl font-bold'>
+                            {questCompletion.percentage}%
+                          </div>
+                          <p className='text-xs text-muted-foreground'>
+                            Success rate
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Quest Progress */}
+                    <div className='space-y-4'>
+                      <div className='flex items-center justify-between'>
+                        <span className='text-sm font-medium'>
+                          Overall Progress
+                        </span>
+                        <span className='text-sm text-muted-foreground'>
+                          {questCompletion.completedQuests} /{' '}
+                          {questCompletion.totalQuests} quests
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            )}
-          </Card>
+                      <Progress
+                        value={questCompletion.percentage}
+                        className='h-2'
+                      />
 
-          {/* Quest Tabs */}
-          <Tabs defaultValue='current' className='space-y-4'>
-            <TabsList className='grid w-full grid-cols-3'>
-              <TabsTrigger value='current'>Current Quests</TabsTrigger>
-              <TabsTrigger value='completed'>Completed</TabsTrigger>
-              <TabsTrigger value='leaderboard'>Leaderboard</TabsTrigger>
-            </TabsList>
+                      <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3'>
+                        {userStats.map(stat => (
+                          <div
+                            key={stat.categoryId}
+                            className='rounded-lg border p-3'
+                          >
+                            <div className='mb-2 flex items-center justify-between'>
+                              <span className='text-sm font-medium'>
+                                {stat.categoryName}
+                              </span>
+                              <Badge variant='secondary'>
+                                Level {stat.level}
+                              </Badge>
+                            </div>
+                            <div className='flex items-center justify-between'>
+                              <span className='text-xs text-muted-foreground'>
+                                {stat.points} points
+                              </span>
+                              <Progress
+                                value={((stat.points % 100) / 100) * 100}
+                                className='h-1 w-16'
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
 
-            <TabsContent value='current' className='space-y-4'>
-              <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
-                <h3 className='text-lg font-semibold'>Active Quests</h3>
-                <Button onClick={handleAssignNewQuests} disabled={isLoading}>
-                  <Plus className='mr-2 h-4 w-4' />
-                  Get New Quests
-                </Button>
-              </div>
+              {/* Quest Tabs */}
+              <Tabs defaultValue='current' className='space-y-4'>
+                <TabsList className='grid w-full grid-cols-3'>
+                  <TabsTrigger value='current'>Current Quests</TabsTrigger>
+                  <TabsTrigger value='completed'>Completed</TabsTrigger>
+                  <TabsTrigger value='leaderboard'>Leaderboard</TabsTrigger>
+                </TabsList>
 
-              {currentQuests.length === 0 ? (
-                <Card>
-                  <CardContent className='flex flex-col items-center justify-center py-8'>
-                    <Target className='mb-4 h-12 w-12 text-gray-400' />
-                    <h4 className='mb-2 text-lg font-semibold'>
-                      No Active Quests
-                    </h4>
-                    <p className='mb-4 text-center text-muted-foreground'>
-                      You don&apos;t have any active quests. Get new quests to
-                      start earning points!
-                    </p>
-                    <Button onClick={handleAssignNewQuests}>
+                <TabsContent value='current' className='space-y-4'>
+                  <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+                    <h3 className='text-lg font-semibold'>Active Quests</h3>
+                    <Button
+                      onClick={handleAssignNewQuests}
+                      disabled={isLoading}
+                    >
                       <Plus className='mr-2 h-4 w-4' />
                       Get New Quests
                     </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-1'>
-                  {currentQuests.map(quest => (
-                    <Card
-                      key={quest.id}
-                      className={`cursor-pointer transition-all hover:shadow-md ${
-                        expandedQuestId === quest.id
-                          ? 'ring-2 ring-green-200 dark:ring-green-800'
-                          : ''
-                      }`}
-                      onClick={() =>
-                        setExpandedQuestId(
-                          expandedQuestId === quest.id ? null : quest.id
-                        )
-                      }
-                    >
-                      <CardHeader>
-                        <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
-                          <div className='flex items-start gap-3'>
-                            <div className='flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/20'>
-                              <span className='text-lg'>
-                                {getCategoryIcon(quest.categoryName)}
-                              </span>
-                            </div>
-                            <div className='min-w-0 flex-1'>
-                              <CardTitle className='text-lg'>
-                                {quest.title}
-                              </CardTitle>
-                              <CardDescription className='mt-1'>
-                                {quest.description}
-                              </CardDescription>
-                            </div>
-                          </div>
-                          <Badge
-                            className={getCategoryColor(quest.categoryName)}
-                          >
-                            {quest.pointValue} pts
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
-                          <Badge variant='outline'>{quest.categoryName}</Badge>
-                          <div className='flex items-center gap-2'>
-                            <span className='text-sm text-muted-foreground'>
-                              Click to{' '}
-                              {expandedQuestId === quest.id
-                                ? 'collapse'
-                                : 'complete'}
-                            </span>
-                            <CheckCircle
-                              className={`h-4 w-4 transition-colors ${
-                                expandedQuestId === quest.id
-                                  ? 'text-success-600'
-                                  : 'text-gray-400'
-                              }`}
-                            />
-                          </div>
-                        </div>
+                  </div>
 
-                        {/* Expandable completion section */}
-                        {expandedQuestId === quest.id && (
-                          <div className='mt-6 space-y-4 rounded-lg border bg-gray-50/50 p-4 dark:bg-gray-800/50'>
-                            <div className='space-y-3'>
-                              <div>
-                                <Label
-                                  htmlFor={`notes-${quest.id}`}
-                                  className='text-sm font-medium'
-                                >
-                                  Completion Notes (Optional)
-                                </Label>
-                                <Textarea
-                                  id={`notes-${quest.id}`}
-                                  placeholder='Share your experience completing this quest...'
-                                  value={completionNotes}
-                                  onChange={e =>
-                                    setCompletionNotes(e.target.value)
-                                  }
-                                  maxLength={280}
-                                  className='mt-2 select-text'
-                                />
-                                <p className='mt-1 text-xs text-muted-foreground'>
-                                  {completionNotes.length}/280 characters
-                                </p>
-                              </div>
-
-                              <div className='flex flex-col gap-2 sm:flex-row sm:justify-end'>
-                                <Button
-                                  variant='outline'
-                                  onClick={e => {
-                                    e.stopPropagation();
-                                    setExpandedQuestId(null);
-                                    setCompletionNotes('');
-                                  }}
-                                  size='sm'
-                                >
-                                  Cancel
-                                </Button>
-                                <Button
-                                  onClick={e => {
-                                    e.stopPropagation();
-                                    handleCompleteQuest(quest.id);
-                                  }}
-                                  disabled={isCompleting}
-                                  className='bg-success-600 hover:bg-success-700'
-                                  size='sm'
-                                >
-                                  {isCompleting
-                                    ? 'Completing...'
-                                    : 'Complete Quest'}
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                  {currentQuests.length === 0 ? (
+                    <Card>
+                      <CardContent className='flex flex-col items-center justify-center py-8'>
+                        <Target className='mb-4 h-12 w-12 text-gray-400' />
+                        <h4 className='mb-2 text-lg font-semibold'>
+                          No Active Quests
+                        </h4>
+                        <p className='mb-4 text-center text-muted-foreground'>
+                          You don&apos;t have any active quests. Get new quests
+                          to start earning points!
+                        </p>
+                        <Button onClick={handleAssignNewQuests}>
+                          <Plus className='mr-2 h-4 w-4' />
+                          Get New Quests
+                        </Button>
                       </CardContent>
                     </Card>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value='completed' className='space-y-4'>
-              <h3 className='text-lg font-semibold'>Completed Quests</h3>
-
-              {completedQuests.length === 0 ? (
-                <Card>
-                  <CardContent className='flex flex-col items-center justify-center py-8'>
-                    <CheckCircle className='mb-4 h-12 w-12 text-gray-400' />
-                    <h4 className='mb-2 text-lg font-semibold'>
-                      No Completed Quests
-                    </h4>
-                    <p className='text-center text-muted-foreground'>
-                      Complete your first quest to see it here!
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-1'>
-                  {completedQuests.map(quest => (
-                    <Card
-                      key={quest.id}
-                      className='border-success-200 bg-success-50/50 dark:border-success-800 dark:bg-success-900/10'
-                    >
-                      <CardHeader>
-                        <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
-                          <div className='flex items-start gap-3'>
-                            <div className='flex h-10 w-10 items-center justify-center rounded-full bg-success-100 dark:bg-success-900/20'>
-                              <CheckCircle className='h-5 w-5 text-success-600' />
+                  ) : (
+                    <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-1'>
+                      {currentQuests.map(quest => (
+                        <Card
+                          key={quest.id}
+                          className={`cursor-pointer transition-all hover:shadow-md ${
+                            expandedQuestId === quest.id
+                              ? 'ring-2 ring-green-200 dark:ring-green-800'
+                              : ''
+                          }`}
+                          onClick={() =>
+                            setExpandedQuestId(
+                              expandedQuestId === quest.id ? null : quest.id
+                            )
+                          }
+                        >
+                          <CardHeader>
+                            <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
+                              <div className='flex items-start gap-3'>
+                                <div className='flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/20'>
+                                  <span className='text-lg'>
+                                    {getCategoryIcon(quest.categoryName)}
+                                  </span>
+                                </div>
+                                <div className='min-w-0 flex-1'>
+                                  <CardTitle className='text-lg'>
+                                    {quest.title}
+                                  </CardTitle>
+                                  <CardDescription className='mt-1'>
+                                    {quest.description}
+                                  </CardDescription>
+                                </div>
+                              </div>
+                              <Badge
+                                className={getCategoryColor(quest.categoryName)}
+                              >
+                                {quest.pointValue} pts
+                              </Badge>
                             </div>
-                            <div className='min-w-0 flex-1'>
-                              <CardTitle className='text-lg'>
-                                {quest.title}
-                              </CardTitle>
-                              <CardDescription className='mt-1'>
-                                {quest.description}
-                              </CardDescription>
-                              {quest.notes && (
-                                <p className='mt-2 text-sm text-gray-600 dark:text-gray-400'>
-                                  <span className='font-medium'>Notes:</span>{' '}
-                                  {quest.notes}
-                                </p>
-                              )}
+                          </CardHeader>
+                          <CardContent>
+                            <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+                              <Badge variant='outline'>
+                                {quest.categoryName}
+                              </Badge>
+                              <div className='flex items-center gap-2'>
+                                <span className='text-sm text-muted-foreground'>
+                                  Click to{' '}
+                                  {expandedQuestId === quest.id
+                                    ? 'collapse'
+                                    : 'complete'}
+                                </span>
+                                <CheckCircle
+                                  className={`h-4 w-4 transition-colors ${
+                                    expandedQuestId === quest.id
+                                      ? 'text-success-600'
+                                      : 'text-gray-400'
+                                  }`}
+                                />
+                              </div>
                             </div>
-                          </div>
-                          <div className='text-right'>
-                            <Badge className='bg-success-100 text-success-800 dark:bg-success-900/20 dark:text-success-400'>
-                              +{quest.pointValue} pts
-                            </Badge>
-                            <p className='mt-1 text-xs text-muted-foreground'>
-                              {quest.completedAt
-                                ? new Date(
-                                    quest.completedAt
-                                  ).toLocaleDateString()
-                                : 'Completed'}
-                            </p>
-                          </div>
-                        </div>
-                      </CardHeader>
+
+                            {/* Expandable completion section */}
+                            {expandedQuestId === quest.id && (
+                              <div className='mt-6 space-y-4 rounded-lg border bg-gray-50/50 p-4 dark:bg-gray-800/50'>
+                                <div className='space-y-3'>
+                                  <div>
+                                    <Label
+                                      htmlFor={`notes-${quest.id}`}
+                                      className='text-sm font-medium'
+                                    >
+                                      Completion Notes (Optional)
+                                    </Label>
+                                    <Textarea
+                                      id={`notes-${quest.id}`}
+                                      placeholder='Share your experience completing this quest...'
+                                      value={completionNotes}
+                                      onChange={e =>
+                                        setCompletionNotes(e.target.value)
+                                      }
+                                      maxLength={280}
+                                      className='mt-2 select-text'
+                                    />
+                                    <p className='mt-1 text-xs text-muted-foreground'>
+                                      {completionNotes.length}/280 characters
+                                    </p>
+                                  </div>
+
+                                  <div className='flex flex-col gap-2 sm:flex-row sm:justify-end'>
+                                    <Button
+                                      variant='outline'
+                                      onClick={e => {
+                                        e.stopPropagation();
+                                        setExpandedQuestId(null);
+                                        setCompletionNotes('');
+                                      }}
+                                      size='sm'
+                                    >
+                                      Cancel
+                                    </Button>
+                                    <Button
+                                      onClick={e => {
+                                        e.stopPropagation();
+                                        handleCompleteQuest(quest.id);
+                                      }}
+                                      disabled={isCompleting}
+                                      className='bg-success-600 hover:bg-success-700'
+                                      size='sm'
+                                    >
+                                      {isCompleting
+                                        ? 'Completing...'
+                                        : 'Complete Quest'}
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value='completed' className='space-y-4'>
+                  <h3 className='text-lg font-semibold'>Completed Quests</h3>
+
+                  {completedQuests.length === 0 ? (
+                    <Card>
+                      <CardContent className='flex flex-col items-center justify-center py-8'>
+                        <CheckCircle className='mb-4 h-12 w-12 text-gray-400' />
+                        <h4 className='mb-2 text-lg font-semibold'>
+                          No Completed Quests
+                        </h4>
+                        <p className='text-center text-muted-foreground'>
+                          Complete your first quest to see it here!
+                        </p>
+                      </CardContent>
                     </Card>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
+                  ) : (
+                    <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-1'>
+                      {completedQuests.map(quest => (
+                        <Card
+                          key={quest.id}
+                          className='border-success-200 bg-success-50/50 dark:border-success-800 dark:bg-success-900/10'
+                        >
+                          <CardHeader>
+                            <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
+                              <div className='flex items-start gap-3'>
+                                <div className='flex h-10 w-10 items-center justify-center rounded-full bg-success-100 dark:bg-success-900/20'>
+                                  <CheckCircle className='h-5 w-5 text-success-600' />
+                                </div>
+                                <div className='min-w-0 flex-1'>
+                                  <CardTitle className='text-lg'>
+                                    {quest.title}
+                                  </CardTitle>
+                                  <CardDescription className='mt-1'>
+                                    {quest.description}
+                                  </CardDescription>
+                                  {quest.notes && (
+                                    <p className='mt-2 text-sm text-gray-600 dark:text-gray-400'>
+                                      <span className='font-medium'>
+                                        Notes:
+                                      </span>{' '}
+                                      {quest.notes}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              <div className='text-right'>
+                                <Badge className='bg-success-100 text-success-800 dark:bg-success-900/20 dark:text-success-400'>
+                                  +{quest.pointValue} pts
+                                </Badge>
+                                <p className='mt-1 text-xs text-muted-foreground'>
+                                  {quest.completedAt
+                                    ? new Date(
+                                        quest.completedAt
+                                      ).toLocaleDateString()
+                                    : 'Completed'}
+                                </p>
+                              </div>
+                            </div>
+                          </CardHeader>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </TabsContent>
 
-            <TabsContent value='leaderboard' className='space-y-4'>
-              <h3 className='text-lg font-semibold'>Quest Leaderboard</h3>
-              <Card>
-                <CardContent className='flex flex-col items-center justify-center py-8'>
-                  <Users className='mb-4 h-12 w-12 text-gray-400' />
-                  <h4 className='mb-2 text-lg font-semibold'>
-                    Leaderboard Coming Soon
-                  </h4>
-                  <p className='text-center text-muted-foreground'>
-                    Compete with your teammates and see who&apos;s earning the
-                    most quest points!
-                  </p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
-    </PageLayout>
+                <TabsContent value='leaderboard' className='space-y-4'>
+                  <h3 className='text-lg font-semibold'>Quest Leaderboard</h3>
+                  <Card>
+                    <CardContent className='flex flex-col items-center justify-center py-8'>
+                      <Users className='mb-4 h-12 w-12 text-gray-400' />
+                      <h4 className='mb-2 text-lg font-semibold'>
+                        Leaderboard Coming Soon
+                      </h4>
+                      <p className='text-center text-muted-foreground'>
+                        Compete with your teammates and see who&apos;s earning
+                        the most quest points!
+                      </p>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </div>
+        )}
+      </PageLayout>
+    </AuthGuard>
   );
 }

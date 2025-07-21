@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
+import { AuthGuard } from '@/components/auth';
 import { PageLayout } from '@/components/layout/page-layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -205,245 +206,511 @@ export default function ProfilePage() {
   }
 
   return (
-    <PageLayout
-      title='Profile Settings'
-      subtitle='Manage your account and preferences'
-    >
-      {/* Mobile-first content */}
-      <div className='mx-auto max-w-2xl px-4 py-6'>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-            {/* Profile Image Section - Mobile optimized */}
-            <div className='flex flex-col items-center space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800'>
-              <div className='relative'>
-                <Avatar className='h-20 w-20 border-4 border-white shadow-lg'>
-                  <AvatarImage src={profileImage || undefined} alt='Profile' />
-                  <AvatarFallback className='bg-gradient-to-br from-orange-500 to-orange-600 text-2xl font-bold text-white'>
-                    {getUserInitials()}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              <div className='w-full text-center'>
-                <h2 className='text-lg font-semibold text-gray-900 dark:text-white'>
-                  {profile?.firstName} {profile?.lastName}
-                </h2>
-                <p className='mb-4 text-sm text-gray-600 dark:text-gray-400'>
-                  Update your profile information
-                </p>
+    <AuthGuard>
+      <PageLayout
+        title='Profile Settings'
+        subtitle='Manage your account and preferences'
+      >
+        {/* Mobile-first content */}
+        <div className='mx-auto max-w-2xl px-4 py-6'>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+              {/* Profile Image Section - Mobile optimized */}
+              <div className='flex flex-col items-center space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800'>
+                <div className='relative'>
+                  <Avatar className='h-20 w-20 border-4 border-white shadow-lg'>
+                    <AvatarImage
+                      src={profileImage || undefined}
+                      alt='Profile'
+                    />
+                    <AvatarFallback className='bg-gradient-to-br from-orange-500 to-orange-600 text-2xl font-bold text-white'>
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+                <div className='w-full text-center'>
+                  <h2 className='text-lg font-semibold text-gray-900 dark:text-white'>
+                    {profile?.firstName} {profile?.lastName}
+                  </h2>
+                  <p className='mb-4 text-sm text-gray-600 dark:text-gray-400'>
+                    Update your profile information
+                  </p>
 
-                {/* Profile Image URL Input */}
-                <FormField
-                  control={form.control}
-                  name='profileImageUrl'
-                  render={({ field }) => (
-                    <FormItem className='w-full'>
-                      <FormLabel>Profile Image URL</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder='Enter image URL (e.g., https://example.com/image.jpg)'
-                          {...field}
-                          onChange={e => {
-                            field.onChange(e);
-                            setProfileImage(e.target.value);
-                          }}
-                        />
-                      </FormControl>
-                      <FormDescription />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  {/* Profile Image URL Input */}
+                  <FormField
+                    control={form.control}
+                    name='profileImageUrl'
+                    render={({ field }) => (
+                      <FormItem className='w-full'>
+                        <FormLabel>Profile Image URL</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder='Enter image URL (e.g., https://example.com/image.jpg)'
+                            {...field}
+                            onChange={e => {
+                              field.onChange(e);
+                              setProfileImage(e.target.value);
+                            }}
+                          />
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Basic Information - Mobile optimized */}
-            <div className='space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800'>
-              <div className='mb-4 flex items-center gap-2'>
-                <User className='h-5 w-5 text-primary-500' />
+              {/* Basic Information - Mobile optimized */}
+              <div className='space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800'>
+                <div className='mb-4 flex items-center gap-2'>
+                  <User className='h-5 w-5 text-primary-500' />
+                  <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
+                    Basic Information
+                  </h3>
+                </div>
+
+                <div className='grid grid-cols-1 gap-4'>
+                  <FormField
+                    control={form.control}
+                    name='firstName'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder='Enter your first name'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='lastName'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder='Enter your last name'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='email'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='email'
+                            placeholder='Enter your email'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='phone'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number (Optional)</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder='Enter your phone number'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='age'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Age (Optional)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='number'
+                            placeholder='Enter your age'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* School & Sports - Mobile optimized */}
+              <div className='space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800'>
                 <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
-                  Basic Information
+                  School & Sports
                 </h3>
-              </div>
 
-              <div className='grid grid-cols-1 gap-4'>
-                <FormField
-                  control={form.control}
-                  name='firstName'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>First Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder='Enter your first name' {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className='grid grid-cols-1 gap-4'>
+                  <FormField
+                    control={form.control}
+                    name='school'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>School</FormLabel>
+                        <Select
+                          key={`school-${schools.length}-${field.value}`}
+                          onValueChange={field.onChange}
+                          value={field.value ?? ''}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='Select your school'>
+                                {field.value &&
+                                  schools.find(s => s.id === field.value)?.name}
+                              </SelectValue>
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {schools.map(school => (
+                              <SelectItem key={school.id} value={school.id}>
+                                {school.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name='lastName'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Last Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder='Enter your last name' {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name='grade'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Grade</FormLabel>
+                        <Select
+                          key={`grade-${field.value}`}
+                          onValueChange={field.onChange}
+                          value={field.value ?? ''}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='Select your grade' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value='9'>9th Grade</SelectItem>
+                            <SelectItem value='10'>10th Grade</SelectItem>
+                            <SelectItem value='11'>11th Grade</SelectItem>
+                            <SelectItem value='12'>12th Grade</SelectItem>
+                            <SelectItem value='college'>College</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name='email'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          type='email'
-                          placeholder='Enter your email'
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name='sport'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Primary Sport</FormLabel>
+                        <Select
+                          key={`sport-${sports.length}-${field.value}`}
+                          onValueChange={field.onChange}
+                          value={field.value ?? ''}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='Select your sport'>
+                                {field.value &&
+                                  sports.find(s => s.id === field.value)?.name}
+                              </SelectValue>
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {sports.map(sport => (
+                              <SelectItem key={sport.id} value={sport.id}>
+                                {sport.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name='phone'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number (Optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder='Enter your phone number'
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='age'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Age (Optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type='number'
-                          placeholder='Enter your age'
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* School & Sports - Mobile optimized */}
-            <div className='space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800'>
-              <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
-                School & Sports
-              </h3>
-
-              <div className='grid grid-cols-1 gap-4'>
-                <FormField
-                  control={form.control}
-                  name='school'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>School</FormLabel>
-                      <Select
-                        key={`school-${schools.length}-${field.value}`}
-                        onValueChange={field.onChange}
-                        value={field.value ?? ''}
-                      >
+                  <FormField
+                    control={form.control}
+                    name='position'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Position</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder='Select your school'>
-                              {field.value &&
-                                schools.find(s => s.id === field.value)?.name}
-                            </SelectValue>
-                          </SelectTrigger>
+                          <Input
+                            placeholder='e.g., Quarterback, Point Guard'
+                            {...field}
+                          />
                         </FormControl>
-                        <SelectContent>
-                          {schools.map(school => (
-                            <SelectItem key={school.id} value={school.id}>
-                              {school.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
 
-                <FormField
-                  control={form.control}
-                  name='grade'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Grade</FormLabel>
-                      <Select
-                        key={`grade-${field.value}`}
-                        onValueChange={field.onChange}
-                        value={field.value ?? ''}
-                      >
+              {/* Lifestyle Information - Mobile optimized */}
+              <div className='space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800'>
+                <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
+                  Daily Habits
+                </h3>
+
+                <div className='space-y-4'>
+                  <FormField
+                    control={form.control}
+                    name='sleepHours'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Sleep Hours: {field.value}h</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder='Select your grade' />
-                          </SelectTrigger>
+                          <input
+                            type='range'
+                            min='3'
+                            max='12'
+                            step='0.5'
+                            value={field.value}
+                            onChange={e =>
+                              field.onChange(parseFloat(e.target.value))
+                            }
+                            className='h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700'
+                          />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value='9'>9th Grade</SelectItem>
-                          <SelectItem value='10'>10th Grade</SelectItem>
-                          <SelectItem value='11'>11th Grade</SelectItem>
-                          <SelectItem value='12'>12th Grade</SelectItem>
-                          <SelectItem value='college'>College</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormDescription>
+                          How many hours do you typically sleep per night?
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name='sport'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Primary Sport</FormLabel>
-                      <Select
-                        key={`sport-${sports.length}-${field.value}`}
-                        onValueChange={field.onChange}
-                        value={field.value ?? ''}
-                      >
+                  <FormField
+                    control={form.control}
+                    name='studyHours'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Study Hours: {field.value}h</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder='Select your sport'>
-                              {field.value &&
-                                sports.find(s => s.id === field.value)?.name}
-                            </SelectValue>
-                          </SelectTrigger>
+                          <input
+                            type='range'
+                            min='0'
+                            max='10'
+                            step='0.5'
+                            value={field.value}
+                            onChange={e =>
+                              field.onChange(parseFloat(e.target.value))
+                            }
+                            className='h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700'
+                          />
                         </FormControl>
-                        <SelectContent>
-                          {sports.map(sport => (
-                            <SelectItem key={sport.id} value={sport.id}>
-                              {sport.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        <FormDescription>
+                          How many hours do you typically study per day?
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='activeHours'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Active Hours: {field.value}h</FormLabel>
+                        <FormControl>
+                          <input
+                            type='range'
+                            min='0'
+                            max='8'
+                            step='0.5'
+                            value={field.value}
+                            onChange={e =>
+                              field.onChange(parseFloat(e.target.value))
+                            }
+                            className='h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700'
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          How many hours are you typically active/exercising per
+                          day?
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='stressLevel'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Stress Level: {field.value}/10</FormLabel>
+                        <FormControl>
+                          <input
+                            type='range'
+                            min='1'
+                            max='10'
+                            step='1'
+                            value={field.value}
+                            onChange={e =>
+                              field.onChange(parseInt(e.target.value))
+                            }
+                            className='h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700'
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          How would you rate your typical stress level?
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='screenTime'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Screen Time: {field.value}h</FormLabel>
+                        <FormControl>
+                          <input
+                            type='range'
+                            min='0'
+                            max='16'
+                            step='0.5'
+                            value={field.value}
+                            onChange={e =>
+                              field.onChange(parseFloat(e.target.value))
+                            }
+                            className='h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700'
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          How many hours do you typically spend on screens per
+                          day?
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='wearable'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Wearable Device (Optional)</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder='e.g., Apple Watch, Fitbit, Garmin'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          What wearable device do you use to track your health?
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Coach Information - Mobile optimized */}
+              <div className='space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800'>
+                <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
+                  Coach Information (Optional)
+                </h3>
+
+                <div className='grid grid-cols-1 gap-4'>
+                  <FormField
+                    control={form.control}
+                    name='coachName'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Coach Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter your coach's name"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='coachEmail'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Coach Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='email'
+                            placeholder="Enter your coach's email"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Goals - Mobile optimized */}
+              <div className='space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800'>
+                <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
+                  Your Goals
+                </h3>
+
+                <FormField
+                  control={form.control}
+                  name='athleticGoal'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Athletic Goal</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder='Describe your athletic goals for this season...'
+                          className='min-h-[100px] select-text resize-none'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        What do you want to achieve in your sport this season?
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -451,325 +718,70 @@ export default function ProfilePage() {
 
                 <FormField
                   control={form.control}
-                  name='position'
+                  name='academicGoal'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Position</FormLabel>
+                      <FormLabel>Academic Goal</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder='e.g., Quarterback, Point Guard'
+                        <Textarea
+                          placeholder='Describe your academic goals...'
+                          className='min-h-[100px] select-text resize-none'
                           {...field}
                         />
                       </FormControl>
+                      <FormDescription>
+                        What do you want to achieve academically this year?
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-            </div>
 
-            {/* Lifestyle Information - Mobile optimized */}
-            <div className='space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800'>
-              <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
-                Daily Habits
-              </h3>
-
-              <div className='space-y-4'>
-                <FormField
-                  control={form.control}
-                  name='sleepHours'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Sleep Hours: {field.value}h</FormLabel>
-                      <FormControl>
-                        <input
-                          type='range'
-                          min='3'
-                          max='12'
-                          step='0.5'
-                          value={field.value}
-                          onChange={e =>
-                            field.onChange(parseFloat(e.target.value))
-                          }
-                          className='h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700'
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        How many hours do you typically sleep per night?
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              {/* Bio - Mobile optimized */}
+              <div className='space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800'>
+                <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
+                  About You
+                </h3>
 
                 <FormField
                   control={form.control}
-                  name='studyHours'
+                  name='bio'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Study Hours: {field.value}h</FormLabel>
+                      <FormLabel>Bio (Optional)</FormLabel>
                       <FormControl>
-                        <input
-                          type='range'
-                          min='0'
-                          max='10'
-                          step='0.5'
-                          value={field.value}
-                          onChange={e =>
-                            field.onChange(parseFloat(e.target.value))
-                          }
-                          className='h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700'
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        How many hours do you typically study per day?
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='activeHours'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Active Hours: {field.value}h</FormLabel>
-                      <FormControl>
-                        <input
-                          type='range'
-                          min='0'
-                          max='8'
-                          step='0.5'
-                          value={field.value}
-                          onChange={e =>
-                            field.onChange(parseFloat(e.target.value))
-                          }
-                          className='h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700'
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        How many hours are you typically active/exercising per
-                        day?
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='stressLevel'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Stress Level: {field.value}/10</FormLabel>
-                      <FormControl>
-                        <input
-                          type='range'
-                          min='1'
-                          max='10'
-                          step='1'
-                          value={field.value}
-                          onChange={e =>
-                            field.onChange(parseInt(e.target.value))
-                          }
-                          className='h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700'
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        How would you rate your typical stress level?
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='screenTime'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Screen Time: {field.value}h</FormLabel>
-                      <FormControl>
-                        <input
-                          type='range'
-                          min='0'
-                          max='16'
-                          step='0.5'
-                          value={field.value}
-                          onChange={e =>
-                            field.onChange(parseFloat(e.target.value))
-                          }
-                          className='h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700'
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        How many hours do you typically spend on screens per
-                        day?
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='wearable'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Wearable Device (Optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder='e.g., Apple Watch, Fitbit, Garmin'
+                        <Textarea
+                          placeholder='Tell us a bit about yourself...'
+                          className='min-h-[100px] select-text resize-none'
                           {...field}
                         />
                       </FormControl>
                       <FormDescription>
-                        What wearable device do you use to track your health?
+                        Share something about yourself, your interests, or what
+                        motivates you.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-            </div>
 
-            {/* Coach Information - Mobile optimized */}
-            <div className='space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800'>
-              <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
-                Coach Information (Optional)
-              </h3>
-
-              <div className='grid grid-cols-1 gap-4'>
-                <FormField
-                  control={form.control}
-                  name='coachName'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Coach Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter your coach's name"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='coachEmail'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Coach Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          type='email'
-                          placeholder="Enter your coach's email"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              {/* Save Button - Mobile optimized */}
+              <div className='sticky bottom-4 mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800'>
+                <Button
+                  type='submit'
+                  className='h-12 w-full bg-primary-500 text-lg font-semibold text-white shadow-md hover:bg-primary-600'
+                  disabled={isLoading}
+                >
+                  <Save className='mr-2 h-5 w-5' />
+                  {isLoading ? 'Saving...' : 'Save Changes'}
+                </Button>
               </div>
-            </div>
-
-            {/* Goals - Mobile optimized */}
-            <div className='space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800'>
-              <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
-                Your Goals
-              </h3>
-
-              <FormField
-                control={form.control}
-                name='athleticGoal'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Athletic Goal</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder='Describe your athletic goals for this season...'
-                        className='min-h-[100px] select-text resize-none'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      What do you want to achieve in your sport this season?
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='academicGoal'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Academic Goal</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder='Describe your academic goals...'
-                        className='min-h-[100px] select-text resize-none'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      What do you want to achieve academically this year?
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Bio - Mobile optimized */}
-            <div className='space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800'>
-              <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
-                About You
-              </h3>
-
-              <FormField
-                control={form.control}
-                name='bio'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bio (Optional)</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder='Tell us a bit about yourself...'
-                        className='min-h-[100px] select-text resize-none'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Share something about yourself, your interests, or what
-                      motivates you.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Save Button - Mobile optimized */}
-            <div className='sticky bottom-4 mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800'>
-              <Button
-                type='submit'
-                className='h-12 w-full bg-primary-500 text-lg font-semibold text-white shadow-md hover:bg-primary-600'
-                disabled={isLoading}
-              >
-                <Save className='mr-2 h-5 w-5' />
-                {isLoading ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </div>
-    </PageLayout>
+            </form>
+          </Form>
+        </div>
+      </PageLayout>
+    </AuthGuard>
   );
 }
