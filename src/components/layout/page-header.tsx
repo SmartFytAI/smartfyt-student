@@ -22,9 +22,11 @@ export function PageHeader({ title, subtitle }: PageHeaderProps) {
     isConnecting: false,
   };
 
-  const handleConnectWearable = () => {
+  const handleConnectWearable = async () => {
     logger.debug('🔗 Connect wearable clicked');
     // TODO: Implement wearable connection
+    // Simulate async operation for now
+    await new Promise(resolve => setTimeout(resolve, 1000));
   };
 
   const handleLogout = async () => {
