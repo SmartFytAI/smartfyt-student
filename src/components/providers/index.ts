@@ -1,1 +1,1 @@
-export { PostHogProvider } from './posthog-provider'; 
+export { PostHogProvider } from './posthog-provider';

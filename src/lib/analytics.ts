@@ -16,7 +16,10 @@ export interface AnalyticsEvent {
 export function trackEvent(event: string, properties?: Record<string, any>) {
   try {
     // Only track in production or when PostHog is enabled
-    if (process.env.NODE_ENV === 'production' || process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+    if (
+      process.env.NODE_ENV === 'production' ||
+      process.env.NEXT_PUBLIC_POSTHOG_KEY
+    ) {
       posthog.capture(event, {
         ...properties,
         timestamp: new Date().toISOString(),
@@ -31,7 +34,10 @@ export function trackEvent(event: string, properties?: Record<string, any>) {
 /**
  * Track page navigation
  */
-export function trackPageView(pageName: string, properties?: Record<string, any>) {
+export function trackPageView(
+  pageName: string,
+  properties?: Record<string, any>
+) {
   trackEvent('page_view', {
     page_name: pageName,
     ...properties,
@@ -41,7 +47,11 @@ export function trackPageView(pageName: string, properties?: Record<string, any>
 /**
  * Track feature usage
  */
-export function trackFeatureUsage(feature: string, action?: string, properties?: Record<string, any>) {
+export function trackFeatureUsage(
+  feature: string,
+  action?: string,
+  properties?: Record<string, any>
+) {
   trackEvent('feature_used', {
     feature,
     action: action || 'click',
@@ -52,7 +62,11 @@ export function trackFeatureUsage(feature: string, action?: string, properties?:
 /**
  * Track widget interactions
  */
-export function trackWidgetInteraction(widget: string, action: string, properties?: Record<string, any>) {
+export function trackWidgetInteraction(
+  widget: string,
+  action: string,
+  properties?: Record<string, any>
+) {
   trackEvent('widget_interaction', {
     widget,
     action,
@@ -63,7 +77,11 @@ export function trackWidgetInteraction(widget: string, action: string, propertie
 /**
  * Track quest interactions
  */
-export function trackQuestInteraction(action: string, questId?: string, properties?: Record<string, any>) {
+export function trackQuestInteraction(
+  action: string,
+  questId?: string,
+  properties?: Record<string, any>
+) {
   trackEvent('quest_interaction', {
     action,
     quest_id: questId,
@@ -74,7 +92,10 @@ export function trackQuestInteraction(action: string, questId?: string, properti
 /**
  * Track journal interactions
  */
-export function trackJournalInteraction(action: string, properties?: Record<string, any>) {
+export function trackJournalInteraction(
+  action: string,
+  properties?: Record<string, any>
+) {
   trackEvent('journal_interaction', {
     action,
     ...properties,
@@ -84,7 +105,11 @@ export function trackJournalInteraction(action: string, properties?: Record<stri
 /**
  * Track team interactions
  */
-export function trackTeamInteraction(action: string, teamId?: string, properties?: Record<string, any>) {
+export function trackTeamInteraction(
+  action: string,
+  teamId?: string,
+  properties?: Record<string, any>
+) {
   trackEvent('team_interaction', {
     action,
     team_id: teamId,
@@ -95,7 +120,11 @@ export function trackTeamInteraction(action: string, teamId?: string, properties
 /**
  * Track health data interactions
  */
-export function trackHealthInteraction(action: string, dataType?: string, properties?: Record<string, any>) {
+export function trackHealthInteraction(
+  action: string,
+  dataType?: string,
+  properties?: Record<string, any>
+) {
   trackEvent('health_interaction', {
     action,
     data_type: dataType,
@@ -106,7 +135,10 @@ export function trackHealthInteraction(action: string, dataType?: string, proper
 /**
  * Track coach feedback interactions
  */
-export function trackCoachFeedbackInteraction(action: string, properties?: Record<string, any>) {
+export function trackCoachFeedbackInteraction(
+  action: string,
+  properties?: Record<string, any>
+) {
   trackEvent('coach_feedback_interaction', {
     action,
     ...properties,
@@ -116,7 +148,10 @@ export function trackCoachFeedbackInteraction(action: string, properties?: Recor
 /**
  * Track authentication events
  */
-export function trackAuthEvent(action: string, properties?: Record<string, any>) {
+export function trackAuthEvent(
+  action: string,
+  properties?: Record<string, any>
+) {
   trackEvent('auth_event', {
     action,
     ...properties,
@@ -126,10 +161,14 @@ export function trackAuthEvent(action: string, properties?: Record<string, any>)
 /**
  * Track error events
  */
-export function trackError(error: string, context?: string, properties?: Record<string, any>) {
+export function trackError(
+  error: string,
+  context?: string,
+  properties?: Record<string, any>
+) {
   trackEvent('error', {
     error,
     context,
     ...properties,
   });
-} 
+}

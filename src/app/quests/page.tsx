@@ -1,7 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-
 import {
   Trophy,
   Target,
@@ -13,6 +11,7 @@ import {
   ChevronUp,
   ChevronDown,
 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 import { AuthGuard } from '@/components/auth';
 import { PageLayout } from '@/components/layout/page-layout';
@@ -41,7 +40,6 @@ import {
   useCompleteQuest,
   useAssignNewQuests,
 } from '@/lib/services/quest-service';
-
 
 export default function QuestsPage() {
   const { user } = useAuth();
@@ -584,7 +582,10 @@ export default function QuestsPage() {
                                     <Button
                                       onClick={e => {
                                         e.stopPropagation();
-                                        handleCompleteQuest(quest.id, completionNotes);
+                                        handleCompleteQuest(
+                                          quest.id,
+                                          completionNotes
+                                        );
                                       }}
                                       disabled={completeQuestMutation.isPending}
                                       className='bg-success-600 hover:bg-success-700'

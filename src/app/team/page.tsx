@@ -124,12 +124,10 @@ export default function TeamPage() {
                     No Teams Found
                   </h3>
                   <div className='mt-2 text-sm text-gray-500'>
+                    <p>You&apos;re not currently part of any teams.</p>
                     <p>
-                      You&apos;re not currently part of any teams.
-                    </p>
-                    <p>
-                      Teams will appear here once you&apos;re added by your coach
-                      or administrator.
+                      Teams will appear here once you&apos;re added by your
+                      coach or administrator.
                     </p>
                   </div>
                   <div className='mt-4 text-xs text-gray-400'>
@@ -159,9 +157,7 @@ export default function TeamPage() {
                   />
                 </svg>
               </div>
-              <h4 className='mb-1 font-medium text-gray-900'>
-                Total Teams
-              </h4>
+              <h4 className='mb-1 font-medium text-gray-900'>Total Teams</h4>
               <p className='text-2xl font-bold'>
                 {isLoading ? '...' : teams.length}
               </p>
@@ -183,12 +179,8 @@ export default function TeamPage() {
                   />
                 </svg>
               </div>
-              <h4 className='mb-1 font-medium text-gray-900'>
-                Active Quests
-              </h4>
-              <p className='text-2xl font-bold'>
-                {isLoading ? '...' : '12'}
-              </p>
+              <h4 className='mb-1 font-medium text-gray-900'>Active Quests</h4>
+              <p className='text-2xl font-bold'>{isLoading ? '...' : '12'}</p>
             </div>
 
             <div className='rounded-lg border border-gray-200 bg-white p-4 shadow-sm'>
@@ -207,9 +199,7 @@ export default function TeamPage() {
                   />
                 </svg>
               </div>
-              <h4 className='mb-1 font-medium text-gray-900'>
-                Weekly Steps
-              </h4>
+              <h4 className='mb-1 font-medium text-gray-900'>Weekly Steps</h4>
               <p className='text-2xl font-bold'>
                 {isLoading ? '...' : '45.2K'}
               </p>
@@ -231,12 +221,8 @@ export default function TeamPage() {
                   />
                 </svg>
               </div>
-              <h4 className='mb-1 font-medium text-gray-900'>
-                Team Rank
-              </h4>
-              <p className='text-2xl font-bold'>
-                {isLoading ? '...' : '#3'}
-              </p>
+              <h4 className='mb-1 font-medium text-gray-900'>Team Rank</h4>
+              <p className='text-2xl font-bold'>{isLoading ? '...' : '#3'}</p>
             </div>
           </div>
 
@@ -286,9 +272,7 @@ export default function TeamPage() {
                     />
                   </svg>
                 </div>
-                <h4 className='mb-1 font-medium text-gray-900'>
-                  Team Members
-                </h4>
+                <h4 className='mb-1 font-medium text-gray-900'>Team Members</h4>
                 <p className='text-sm text-gray-500'>
                   View team roster and member profiles
                 </p>
@@ -310,9 +294,7 @@ export default function TeamPage() {
                     />
                   </svg>
                 </div>
-                <h4 className='mb-1 font-medium text-gray-900'>
-                  Team Stats
-                </h4>
+                <h4 className='mb-1 font-medium text-gray-900'>Team Stats</h4>
                 <p className='text-sm text-gray-500'>
                   Collective performance metrics and insights
                 </p>
