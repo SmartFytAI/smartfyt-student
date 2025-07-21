@@ -5,9 +5,9 @@ import React, { useEffect } from 'react';
 
 import { AuthGuard } from '@/components/auth';
 import { CoachFeedbackWidget } from '@/components/dashboard/coach-feedback-widget';
-import { GoalsWidget } from '@/components/dashboard/goals-widget';
 import { HealthMetricsWidget } from '@/components/dashboard/health-metrics-widget';
 import { JournalProgressWidget } from '@/components/dashboard/journal-progress-widget';
+import { TeamChallengesWidget } from '@/components/dashboard/team-challenges-widget';
 import { PageLayout } from '@/components/layout/page-layout';
 import { PWAInstaller } from '@/components/pwa-installer';
 import { QuestsWidget } from '@/components/quest/quests-widget';
@@ -132,14 +132,7 @@ export default function DashboardPage() {
             </div>
 
             <div className='h-[400px]'>
-              <GoalsWidget
-                userId={user?.id || ''}
-                onViewAll={() => {
-                  handleWidgetInteraction('goals', 'view_all');
-                  logger.debug('Goals view all clicked');
-                  // TODO: Navigate to goals page when implemented
-                }}
-              />
+              <TeamChallengesWidget userId={user?.id || ''} />
             </div>
           </div>
         </div>

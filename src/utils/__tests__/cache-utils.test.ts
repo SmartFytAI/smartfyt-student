@@ -157,7 +157,12 @@ describe('Cache Utils', () => {
 
   describe('handleLogoutCacheClear', () => {
     it('should clear caches and service workers on logout', async () => {
-      const cacheNames = ['css-cache', 'api-cache', 'auth-cache', 'other-cache'];
+      const cacheNames = [
+        'css-cache',
+        'api-cache',
+        'auth-cache',
+        'other-cache',
+      ];
       mockCaches.keys.mockResolvedValue(cacheNames);
       mockCaches.delete.mockResolvedValue(true);
 

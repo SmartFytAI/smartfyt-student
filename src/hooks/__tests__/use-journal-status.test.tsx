@@ -202,7 +202,7 @@ describe('useJournalStatus', () => {
     expect(result.current.hasJournalToday).toBe(false);
     expect(result.current.latestJournal).toBe(null);
     expect(result.current.error).toBe(null);
-    
+
     // Verify no API calls were made
     expect(mockJournalService.hasJournalToday).not.toHaveBeenCalled();
     expect(mockJournalService.getLatestJournal).not.toHaveBeenCalled();

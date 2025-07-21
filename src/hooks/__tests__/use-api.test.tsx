@@ -15,7 +15,7 @@ vi.mock('@/lib/api-client', () => ({
 // Mock the error handler
 vi.mock('@/lib/error-handler', () => ({
   ErrorHandler: {
-    handleApiError: vi.fn((error) => error),
+    handleApiError: vi.fn(error => error),
     logError: vi.fn(),
   },
 }));
@@ -59,7 +59,11 @@ describe('API Hooks', () => {
 
   describe('useHealthCheck', () => {
     it('fetches health check data successfully', async () => {
-      const mockHealthData = { status: 'healthy', timestamp: '2024-01-01', version: '1.0.0' };
+      const mockHealthData = {
+        status: 'healthy',
+        timestamp: '2024-01-01',
+        version: '1.0.0',
+      };
       const mockResponse = { data: mockHealthData, status: 200 };
       const { apiClient } = await import('@/lib/api-client');
       vi.mocked(apiClient.healthCheck).mockResolvedValue(mockResponse);

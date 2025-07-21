@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { HeaderNotificationBell } from '@/components/notifications/header-notification-bell';
 import { UserAvatar } from '@/components/user-avatar';
 import { useAuth } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
@@ -72,6 +73,7 @@ export function PageHeader({ title, subtitle }: PageHeaderProps) {
 
           {/* User Controls */}
           <div className='flex items-center gap-3'>
+            <HeaderNotificationBell size='md' />
             <UserAvatar
               userId={user?.id || ''}
               wearableStatus={wearableStatus}

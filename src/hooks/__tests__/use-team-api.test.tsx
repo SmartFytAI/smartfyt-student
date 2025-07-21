@@ -286,7 +286,11 @@ describe('useTeamApi', () => {
 
       mockTeamService.getCombinedLeaderboard.mockResolvedValue({
         team: {
-          data: { teamId: 'team-1', teamName: 'Varsity Football', entries: mockLeaderboard },
+          data: {
+            teamId: 'team-1',
+            teamName: 'Varsity Football',
+            entries: mockLeaderboard,
+          },
           error: null,
           isLoading: false,
         },
@@ -309,8 +313,13 @@ describe('useTeamApi', () => {
       });
 
       expect(result.current.data?.team.data?.entries).toEqual(mockLeaderboard);
-      expect(result.current.data?.school.data?.entries).toEqual(mockLeaderboard);
-      expect(mockTeamService.getCombinedLeaderboard).toHaveBeenCalledWith(userId, teamId);
+      expect(result.current.data?.school.data?.entries).toEqual(
+        mockLeaderboard
+      );
+      expect(mockTeamService.getCombinedLeaderboard).toHaveBeenCalledWith(
+        userId,
+        teamId
+      );
     });
 
     it('should work without teamId', async () => {
@@ -352,8 +361,13 @@ describe('useTeamApi', () => {
         expect(result.current.isSuccess).toBe(true);
       });
 
-      expect(result.current.data?.school.data?.entries).toEqual(mockLeaderboard);
-      expect(mockTeamService.getCombinedLeaderboard).toHaveBeenCalledWith(userId, undefined);
+      expect(result.current.data?.school.data?.entries).toEqual(
+        mockLeaderboard
+      );
+      expect(mockTeamService.getCombinedLeaderboard).toHaveBeenCalledWith(
+        userId,
+        undefined
+      );
     });
   });
 
@@ -365,8 +379,12 @@ describe('useTeamApi', () => {
 
       expect(typeof result.current.invalidateUserTeams).toBe('function');
       expect(typeof result.current.invalidateTeamLeaderboard).toBe('function');
-      expect(typeof result.current.invalidateSchoolLeaderboard).toBe('function');
-      expect(typeof result.current.invalidateCombinedLeaderboard).toBe('function');
+      expect(typeof result.current.invalidateSchoolLeaderboard).toBe(
+        'function'
+      );
+      expect(typeof result.current.invalidateCombinedLeaderboard).toBe(
+        'function'
+      );
       expect(typeof result.current.invalidateAllTeamQueries).toBe('function');
     });
   });

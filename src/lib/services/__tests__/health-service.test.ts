@@ -24,12 +24,12 @@ describe('HealthService', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     vi.resetModules();
-    
+
     // Import modules after reset
     const apiClientModule = await import('@/lib/api-client');
     const loggerModule = await import('@/lib/logger');
     const healthServiceModule = await import('@/lib/services/health-service');
-    
+
     mockApiClient = vi.mocked(apiClientModule.apiClient);
     mockLogger = vi.mocked(loggerModule.logger);
     HealthService = healthServiceModule.HealthService;
