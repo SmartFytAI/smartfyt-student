@@ -25,7 +25,17 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserTeams } from '@/hooks/use-team-api';
 import {
@@ -44,6 +54,40 @@ export default function TeamChallengesPage() {
   const { user } = useAuth();
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
   const [isOverviewExpanded, setIsOverviewExpanded] = useState(true);
+
+  // Inline form states
+  const [showQuestForm, setShowQuestForm] = useState(false);
+  const [showChallengeForm, setShowChallengeForm] = useState(false);
+  const [showRecognitionForm, setShowRecognitionForm] = useState(false);
+
+  // Form data states
+  const [questFormData, setQuestFormData] = useState({
+    title: '',
+    description: '',
+    category: 'strength',
+    difficulty: 'medium' as 'easy' | 'medium' | 'hard',
+    duration: 'weekly' as 'daily' | 'weekly' | 'monthly',
+    pointValue: 50,
+  });
+
+  const [challengeFormData, setChallengeFormData] = useState({
+    title: '',
+    description: '',
+    type: 'step_competition' as
+      | 'step_competition'
+      | 'workout'
+      | 'habit'
+      | 'skill'
+      | 'team_building',
+    duration: 7,
+    targetValue: 10000,
+  });
+
+  const [recognitionFormData, setRecognitionFormData] = useState({
+    recipientId: '',
+    type: 'clap' as 'clap' | 'fire' | 'heart' | 'flex' | 'zap' | 'trophy',
+    message: '',
+  });
 
   // Get user's teams
   const {
@@ -89,6 +133,14 @@ export default function TeamChallengesPage() {
     error: _recognitionLimitsError,
   } = useUserRecognitionLimits(user?.id || null, new Date());
 
+  // Get team members for recognition (mock data for now)
+  const teamMembers = [
+    { id: '1', firstName: 'Alex', lastName: 'Johnson' },
+    { id: '2', firstName: 'Sam', lastName: 'Williams' },
+    { id: '3', firstName: 'Jordan', lastName: 'Davis' },
+    { id: '4', firstName: 'Taylor', lastName: 'Brown' },
+  ].filter(member => member.id !== user?.id); // Exclude current user
+
   // Mutations
   const createQuestMutation = useCreateTeamQuest();
   const createChallengeMutation = useCreateTeamChallenge();
@@ -120,6 +172,126 @@ export default function TeamChallengesPage() {
   const teamChallenges = teamChallengesResponse?.data || [];
   const teamRecognitions = teamRecognitionsResponse?.data || [];
   const recognitionLimits = recognitionLimitsResponse?.data;
+
+  // Form submission handlers
+  const handleCreateQuest = async () => {
+    if (!selectedTeamId || !user?.id) return;
+
+    try {
+      await createQuestMutation.mutateAsync({
+        teamId: selectedTeamId,
+        title: questFormData.title,
+        description: questFormData.description,
+        category: questFormData.category,
+        difficulty: questFormData.difficulty as 'easy' | 'medium' | 'hard',
+        pointValue: questFormData.pointValue,
+        duration: questFormData.duration as 'daily' | 'weekly' | 'monthly',
+        startDate: new Date().toISOString(),
+        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        userIds: [], // Will be populated by backend
+      });
+
+      // Reset form
+      setQuestFormData({
+        title: '',
+        description: '',
+        category: 'strength',
+        difficulty: 'medium' as 'easy' | 'medium' | 'hard',
+        duration: 'weekly' as 'daily' | 'weekly' | 'monthly',
+        pointValue: 50,
+      });
+      setShowQuestForm(false);
+
+      logger.info('Quest created successfully', { questData: questFormData });
+    } catch (error) {
+      logger.error('Failed to create quest', {
+        error,
+        questData: questFormData,
+      });
+    }
+  };
+
+  const handleCreateChallenge = async () => {
+    if (!selectedTeamId || !user?.id) return;
+
+    try {
+      await createChallengeMutation.mutateAsync({
+        teamId: selectedTeamId,
+        title: challengeFormData.title,
+        description: challengeFormData.description,
+        type: challengeFormData.type as
+          | 'step_competition'
+          | 'workout'
+          | 'habit'
+          | 'skill'
+          | 'team_building',
+        duration: challengeFormData.duration,
+        userIds: [], // Will be populated by backend
+      });
+
+      // Reset form
+      setChallengeFormData({
+        title: '',
+        description: '',
+        type: 'step_competition' as
+          | 'step_competition'
+          | 'workout'
+          | 'habit'
+          | 'skill'
+          | 'team_building',
+        duration: 7,
+        targetValue: 10000,
+      });
+      setShowChallengeForm(false);
+
+      logger.info('Challenge created successfully', {
+        challengeData: challengeFormData,
+      });
+    } catch (error) {
+      logger.error('Failed to create challenge', {
+        error,
+        challengeData: challengeFormData,
+      });
+    }
+  };
+
+  const handleGiveRecognition = async () => {
+    if (!selectedTeamId || !user?.id || !recognitionFormData.recipientId)
+      return;
+
+    try {
+      await giveRecognitionMutation.mutateAsync({
+        teamId: selectedTeamId,
+        fromUserId: user.id,
+        toUserId: recognitionFormData.recipientId,
+        type: recognitionFormData.type as
+          | 'clap'
+          | 'fire'
+          | 'heart'
+          | 'flex'
+          | 'zap'
+          | 'trophy',
+        message: recognitionFormData.message,
+      });
+
+      // Reset form
+      setRecognitionFormData({
+        recipientId: '',
+        type: 'clap',
+        message: '',
+      });
+      setShowRecognitionForm(false);
+
+      logger.info('Recognition given successfully', {
+        recognitionData: recognitionFormData,
+      });
+    } catch (error) {
+      logger.error('Failed to give recognition', {
+        error,
+        recognitionData: recognitionFormData,
+      });
+    }
+  };
 
   // Calculate stats
   const totalQuests = teamQuests.length;
@@ -446,18 +618,209 @@ export default function TeamChallengesPage() {
                     <div className='flex items-center justify-between'>
                       <h3 className='text-lg font-semibold'>Team Quests</h3>
                       <Button
-                        onClick={() => {
-                          // TODO: Open quest creation modal
-                          logger.info('Create quest button clicked');
-                        }}
+                        onClick={() => setShowQuestForm(!showQuestForm)}
                         disabled={createQuestMutation.isPending}
                       >
                         <Plus className='mr-2 h-4 w-4' />
                         {createQuestMutation.isPending
                           ? 'Creating...'
-                          : 'Create Quest'}
+                          : showQuestForm
+                            ? 'Cancel'
+                            : 'Create Quest'}
                       </Button>
                     </div>
+
+                    {/* Quest Creation Form */}
+                    {showQuestForm && (
+                      <Card className='border-2 border-primary-200 bg-primary-50/50 dark:border-primary-800 dark:bg-primary-900/20'>
+                        <CardHeader>
+                          <CardTitle className='text-lg'>
+                            Create New Team Quest
+                          </CardTitle>
+                          <CardDescription>
+                            Create a quest for your team to complete together
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className='space-y-4'>
+                          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                            <div className='space-y-2'>
+                              <Label htmlFor='quest-title'>Quest Title</Label>
+                              <Input
+                                id='quest-title'
+                                value={questFormData.title}
+                                onChange={e =>
+                                  setQuestFormData(prev => ({
+                                    ...prev,
+                                    title: e.target.value,
+                                  }))
+                                }
+                                placeholder='Enter quest title'
+                                className='w-full'
+                              />
+                            </div>
+                            <div className='space-y-2'>
+                              <Label htmlFor='quest-category'>Category</Label>
+                              <Select
+                                value={questFormData.category}
+                                onValueChange={value =>
+                                  setQuestFormData(prev => ({
+                                    ...prev,
+                                    category: value,
+                                  }))
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value='strength'>
+                                    Strength
+                                  </SelectItem>
+                                  <SelectItem value='endurance'>
+                                    Endurance
+                                  </SelectItem>
+                                  <SelectItem value='grit'>Grit</SelectItem>
+                                  <SelectItem value='accountability'>
+                                    Accountability
+                                  </SelectItem>
+                                  <SelectItem value='speed'>Speed</SelectItem>
+                                  <SelectItem value='agility'>
+                                    Agility
+                                  </SelectItem>
+                                  <SelectItem value='confidence'>
+                                    Confidence
+                                  </SelectItem>
+                                  <SelectItem value='leadership'>
+                                    Leadership
+                                  </SelectItem>
+                                  <SelectItem value='health'>Health</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          <div className='space-y-2'>
+                            <Label htmlFor='quest-description'>
+                              Description
+                            </Label>
+                            <Textarea
+                              id='quest-description'
+                              value={questFormData.description}
+                              onChange={e =>
+                                setQuestFormData(prev => ({
+                                  ...prev,
+                                  description: e.target.value,
+                                }))
+                              }
+                              placeholder='Describe what the quest involves'
+                              className='min-h-[100px] w-full'
+                            />
+                          </div>
+
+                          <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+                            <div className='space-y-2'>
+                              <Label htmlFor='quest-difficulty'>
+                                Difficulty
+                              </Label>
+                              <Select
+                                value={questFormData.difficulty}
+                                onValueChange={value =>
+                                  setQuestFormData(prev => ({
+                                    ...prev,
+                                    difficulty: value as
+                                      | 'easy'
+                                      | 'medium'
+                                      | 'hard',
+                                  }))
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value='easy'>Easy</SelectItem>
+                                  <SelectItem value='medium'>Medium</SelectItem>
+                                  <SelectItem value='hard'>Hard</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className='space-y-2'>
+                              <Label htmlFor='quest-duration'>Duration</Label>
+                              <Select
+                                value={questFormData.duration}
+                                onValueChange={value =>
+                                  setQuestFormData(prev => ({
+                                    ...prev,
+                                    duration: value as
+                                      | 'daily'
+                                      | 'weekly'
+                                      | 'monthly',
+                                  }))
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value='daily'>Daily</SelectItem>
+                                  <SelectItem value='weekly'>Weekly</SelectItem>
+                                  <SelectItem value='monthly'>
+                                    Monthly
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className='space-y-2'>
+                              <Label htmlFor='quest-points'>Point Value</Label>
+                              <Input
+                                id='quest-points'
+                                type='number'
+                                value={questFormData.pointValue}
+                                onChange={e =>
+                                  setQuestFormData(prev => ({
+                                    ...prev,
+                                    pointValue: parseInt(e.target.value) || 0,
+                                  }))
+                                }
+                                placeholder='50'
+                                className='w-full'
+                              />
+                            </div>
+                          </div>
+
+                          <div className='flex gap-2 pt-2'>
+                            <Button
+                              onClick={handleCreateQuest}
+                              disabled={
+                                !questFormData.title ||
+                                !questFormData.description ||
+                                createQuestMutation.isPending
+                              }
+                              className='flex-1'
+                            >
+                              {createQuestMutation.isPending ? (
+                                <>
+                                  <div className='mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent' />
+                                  Creating...
+                                </>
+                              ) : (
+                                <>
+                                  <Plus className='mr-2 h-4 w-4' />
+                                  Create Quest
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              variant='outline'
+                              onClick={() => setShowQuestForm(false)}
+                              disabled={createQuestMutation.isPending}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
 
                     {teamQuests.length === 0 ? (
                       <Card>
@@ -544,18 +907,183 @@ export default function TeamChallengesPage() {
                     <div className='flex items-center justify-between'>
                       <h3 className='text-lg font-semibold'>Team Challenges</h3>
                       <Button
-                        onClick={() => {
-                          // TODO: Open challenge creation modal
-                          logger.info('Create challenge button clicked');
-                        }}
+                        onClick={() => setShowChallengeForm(!showChallengeForm)}
                         disabled={createChallengeMutation.isPending}
                       >
                         <Plus className='mr-2 h-4 w-4' />
                         {createChallengeMutation.isPending
                           ? 'Creating...'
-                          : 'Create Challenge'}
+                          : showChallengeForm
+                            ? 'Cancel'
+                            : 'Create Challenge'}
                       </Button>
                     </div>
+
+                    {/* Challenge Creation Form */}
+                    {showChallengeForm && (
+                      <Card className='border-2 border-secondary-200 bg-secondary-50/50 dark:border-secondary-800 dark:bg-secondary-900/20'>
+                        <CardHeader>
+                          <CardTitle className='text-lg'>
+                            Create New Team Challenge
+                          </CardTitle>
+                          <CardDescription>
+                            Challenge your teammates to a competition
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className='space-y-4'>
+                          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                            <div className='space-y-2'>
+                              <Label htmlFor='challenge-title'>
+                                Challenge Title
+                              </Label>
+                              <Input
+                                id='challenge-title'
+                                value={challengeFormData.title}
+                                onChange={e =>
+                                  setChallengeFormData(prev => ({
+                                    ...prev,
+                                    title: e.target.value,
+                                  }))
+                                }
+                                placeholder='Enter challenge title'
+                                className='w-full'
+                              />
+                            </div>
+                            <div className='space-y-2'>
+                              <Label htmlFor='challenge-type'>
+                                Challenge Type
+                              </Label>
+                              <Select
+                                value={challengeFormData.type}
+                                onValueChange={value =>
+                                  setChallengeFormData(prev => ({
+                                    ...prev,
+                                    type: value as
+                                      | 'step_competition'
+                                      | 'workout'
+                                      | 'habit'
+                                      | 'skill'
+                                      | 'team_building',
+                                  }))
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value='step_competition'>
+                                    Step Competition
+                                  </SelectItem>
+                                  <SelectItem value='workout'>
+                                    Workout Challenge
+                                  </SelectItem>
+                                  <SelectItem value='habit'>
+                                    Habit Building
+                                  </SelectItem>
+                                  <SelectItem value='skill'>
+                                    Skill Development
+                                  </SelectItem>
+                                  <SelectItem value='team_building'>
+                                    Team Building
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          <div className='space-y-2'>
+                            <Label htmlFor='challenge-description'>
+                              Description
+                            </Label>
+                            <Textarea
+                              id='challenge-description'
+                              value={challengeFormData.description}
+                              onChange={e =>
+                                setChallengeFormData(prev => ({
+                                  ...prev,
+                                  description: e.target.value,
+                                }))
+                              }
+                              placeholder='Describe the challenge rules and goals'
+                              className='min-h-[100px] w-full'
+                            />
+                          </div>
+
+                          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                            <div className='space-y-2'>
+                              <Label htmlFor='challenge-duration'>
+                                Duration (days)
+                              </Label>
+                              <Input
+                                id='challenge-duration'
+                                type='number'
+                                value={challengeFormData.duration}
+                                onChange={e =>
+                                  setChallengeFormData(prev => ({
+                                    ...prev,
+                                    duration: parseInt(e.target.value) || 1,
+                                  }))
+                                }
+                                placeholder='7'
+                                className='w-full'
+                                min='1'
+                                max='30'
+                              />
+                            </div>
+                            <div className='space-y-2'>
+                              <Label htmlFor='challenge-target'>
+                                Target Value
+                              </Label>
+                              <Input
+                                id='challenge-target'
+                                type='number'
+                                value={challengeFormData.targetValue}
+                                onChange={e =>
+                                  setChallengeFormData(prev => ({
+                                    ...prev,
+                                    targetValue: parseInt(e.target.value) || 0,
+                                  }))
+                                }
+                                placeholder='10000'
+                                className='w-full'
+                                min='1'
+                              />
+                            </div>
+                          </div>
+
+                          <div className='flex gap-2 pt-2'>
+                            <Button
+                              onClick={handleCreateChallenge}
+                              disabled={
+                                !challengeFormData.title ||
+                                !challengeFormData.description ||
+                                createChallengeMutation.isPending
+                              }
+                              className='flex-1'
+                            >
+                              {createChallengeMutation.isPending ? (
+                                <>
+                                  <div className='mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent' />
+                                  Creating...
+                                </>
+                              ) : (
+                                <>
+                                  <Plus className='mr-2 h-4 w-4' />
+                                  Create Challenge
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              variant='outline'
+                              onClick={() => setShowChallengeForm(false)}
+                              disabled={createChallengeMutation.isPending}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
 
                     {teamChallenges.length === 0 ? (
                       <Card>
@@ -635,18 +1163,154 @@ export default function TeamChallengesPage() {
                         Team Recognition
                       </h3>
                       <Button
-                        onClick={() => {
-                          // TODO: Open recognition modal
-                          logger.info('Give recognition button clicked');
-                        }}
+                        onClick={() =>
+                          setShowRecognitionForm(!showRecognitionForm)
+                        }
                         disabled={giveRecognitionMutation.isPending}
                       >
                         <Heart className='mr-2 h-4 w-4' />
                         {giveRecognitionMutation.isPending
                           ? 'Sending...'
-                          : 'Give Recognition'}
+                          : showRecognitionForm
+                            ? 'Cancel'
+                            : 'Give Recognition'}
                       </Button>
                     </div>
+
+                    {/* Recognition Form */}
+                    {showRecognitionForm && (
+                      <Card className='border-2 border-warning-200 bg-warning-50/50 dark:border-warning-800 dark:bg-warning-900/20'>
+                        <CardHeader>
+                          <CardTitle className='text-lg'>
+                            Give Recognition
+                          </CardTitle>
+                          <CardDescription>
+                            Recognize a teammate for their achievements
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className='space-y-4'>
+                          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                            <div className='space-y-2'>
+                              <Label htmlFor='recognition-recipient'>
+                                Recipient
+                              </Label>
+                              <Select
+                                value={recognitionFormData.recipientId}
+                                onValueChange={value =>
+                                  setRecognitionFormData(prev => ({
+                                    ...prev,
+                                    recipientId: value,
+                                  }))
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder='Select a teammate' />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {teamMembers.map(member => (
+                                    <SelectItem
+                                      key={member.id}
+                                      value={member.id}
+                                    >
+                                      {member.firstName} {member.lastName}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className='space-y-2'>
+                              <Label htmlFor='recognition-type'>
+                                Recognition Type
+                              </Label>
+                              <Select
+                                value={recognitionFormData.type}
+                                onValueChange={value =>
+                                  setRecognitionFormData(prev => ({
+                                    ...prev,
+                                    type: value as
+                                      | 'clap'
+                                      | 'fire'
+                                      | 'heart'
+                                      | 'flex'
+                                      | 'zap'
+                                      | 'trophy',
+                                  }))
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value='clap'>👏 Clap</SelectItem>
+                                  <SelectItem value='fire'>🔥 Fire</SelectItem>
+                                  <SelectItem value='heart'>
+                                    ❤️ Heart
+                                  </SelectItem>
+                                  <SelectItem value='flex'>💪 Flex</SelectItem>
+                                  <SelectItem value='zap'>⚡ Zap</SelectItem>
+                                  <SelectItem value='trophy'>
+                                    🏆 Trophy
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          <div className='space-y-2'>
+                            <Label htmlFor='recognition-message'>
+                              Message (optional)
+                            </Label>
+                            <Textarea
+                              id='recognition-message'
+                              value={recognitionFormData.message}
+                              onChange={e =>
+                                setRecognitionFormData(prev => ({
+                                  ...prev,
+                                  message: e.target.value,
+                                }))
+                              }
+                              placeholder='Add a personal message...'
+                              className='min-h-[80px] w-full'
+                              maxLength={200}
+                            />
+                            <p className='text-xs text-muted-foreground'>
+                              {recognitionFormData.message.length}/200
+                              characters
+                            </p>
+                          </div>
+
+                          <div className='flex gap-2 pt-2'>
+                            <Button
+                              onClick={handleGiveRecognition}
+                              disabled={
+                                !recognitionFormData.recipientId ||
+                                giveRecognitionMutation.isPending
+                              }
+                              className='flex-1'
+                            >
+                              {giveRecognitionMutation.isPending ? (
+                                <>
+                                  <div className='mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent' />
+                                  Sending...
+                                </>
+                              ) : (
+                                <>
+                                  <Heart className='mr-2 h-4 w-4' />
+                                  Give Recognition
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              variant='outline'
+                              onClick={() => setShowRecognitionForm(false)}
+                              disabled={giveRecognitionMutation.isPending}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
 
                     {teamRecognitions.length === 0 ? (
                       <Card>
@@ -782,7 +1446,7 @@ export default function TeamChallengesPage() {
                   {/* Create Tab */}
                   <TabsContent value='create' className='space-y-4'>
                     <h3 className='text-lg font-semibold'>Create New</h3>
-                    <div className='grid gap-4 md:grid-cols-2'>
+                    <div className='grid gap-4 md:grid-cols-3'>
                       <Card className='cursor-pointer transition-shadow hover:shadow-md'>
                         <CardContent className='p-6'>
                           <div className='text-center'>
@@ -795,16 +1459,11 @@ export default function TeamChallengesPage() {
                               together
                             </p>
                             <Button
-                              onClick={() => {
-                                // TODO: Open quest creation modal
-                                logger.info(
-                                  'Create quest from create tab clicked'
-                                );
-                              }}
+                              onClick={() => setShowQuestForm(!showQuestForm)}
                               className='w-full'
                             >
                               <Plus className='mr-2 h-4 w-4' />
-                              Create Quest
+                              {showQuestForm ? 'Cancel' : 'Create Quest'}
                             </Button>
                           </div>
                         </CardContent>
@@ -821,21 +1480,544 @@ export default function TeamChallengesPage() {
                               Challenge your teammates to a competition
                             </p>
                             <Button
-                              onClick={() => {
-                                // TODO: Open challenge creation modal
-                                logger.info(
-                                  'Create challenge from create tab clicked'
-                                );
-                              }}
+                              onClick={() =>
+                                setShowChallengeForm(!showChallengeForm)
+                              }
                               className='w-full'
                             >
                               <Plus className='mr-2 h-4 w-4' />
-                              Create Challenge
+                              {showChallengeForm
+                                ? 'Cancel'
+                                : 'Create Challenge'}
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card className='cursor-pointer transition-shadow hover:shadow-md'>
+                        <CardContent className='p-6'>
+                          <div className='text-center'>
+                            <Heart className='mx-auto mb-4 h-12 w-12 text-warning-600' />
+                            <h4 className='mb-2 text-lg font-semibold'>
+                              Give Recognition
+                            </h4>
+                            <p className='mb-4 text-sm text-muted-foreground'>
+                              Recognize a teammate for their achievements
+                            </p>
+                            <Button
+                              onClick={() =>
+                                setShowRecognitionForm(!showRecognitionForm)
+                              }
+                              className='w-full'
+                            >
+                              <Heart className='mr-2 h-4 w-4' />
+                              {showRecognitionForm
+                                ? 'Cancel'
+                                : 'Give Recognition'}
                             </Button>
                           </div>
                         </CardContent>
                       </Card>
                     </div>
+
+                    {/* Inline Forms in Create Tab */}
+                    {showQuestForm && (
+                      <Card className='border-2 border-primary-200 bg-primary-50/50 dark:border-primary-800 dark:bg-primary-900/20'>
+                        <CardHeader>
+                          <CardTitle className='text-lg'>
+                            Create New Team Quest
+                          </CardTitle>
+                          <CardDescription>
+                            Create a quest for your team to complete together
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className='space-y-4'>
+                          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                            <div className='space-y-2'>
+                              <Label htmlFor='quest-title-create'>
+                                Quest Title
+                              </Label>
+                              <Input
+                                id='quest-title-create'
+                                value={questFormData.title}
+                                onChange={e =>
+                                  setQuestFormData(prev => ({
+                                    ...prev,
+                                    title: e.target.value,
+                                  }))
+                                }
+                                placeholder='Enter quest title'
+                                className='w-full'
+                              />
+                            </div>
+                            <div className='space-y-2'>
+                              <Label htmlFor='quest-category-create'>
+                                Category
+                              </Label>
+                              <Select
+                                value={questFormData.category}
+                                onValueChange={value =>
+                                  setQuestFormData(prev => ({
+                                    ...prev,
+                                    category: value,
+                                  }))
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value='strength'>
+                                    Strength
+                                  </SelectItem>
+                                  <SelectItem value='endurance'>
+                                    Endurance
+                                  </SelectItem>
+                                  <SelectItem value='grit'>Grit</SelectItem>
+                                  <SelectItem value='accountability'>
+                                    Accountability
+                                  </SelectItem>
+                                  <SelectItem value='speed'>Speed</SelectItem>
+                                  <SelectItem value='agility'>
+                                    Agility
+                                  </SelectItem>
+                                  <SelectItem value='confidence'>
+                                    Confidence
+                                  </SelectItem>
+                                  <SelectItem value='leadership'>
+                                    Leadership
+                                  </SelectItem>
+                                  <SelectItem value='health'>Health</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          <div className='space-y-2'>
+                            <Label htmlFor='quest-description-create'>
+                              Description
+                            </Label>
+                            <Textarea
+                              id='quest-description-create'
+                              value={questFormData.description}
+                              onChange={e =>
+                                setQuestFormData(prev => ({
+                                  ...prev,
+                                  description: e.target.value,
+                                }))
+                              }
+                              placeholder='Describe what the quest involves'
+                              className='min-h-[100px] w-full'
+                            />
+                          </div>
+
+                          <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+                            <div className='space-y-2'>
+                              <Label htmlFor='quest-difficulty-create'>
+                                Difficulty
+                              </Label>
+                              <Select
+                                value={questFormData.difficulty}
+                                onValueChange={value =>
+                                  setQuestFormData(prev => ({
+                                    ...prev,
+                                    difficulty: value as
+                                      | 'easy'
+                                      | 'medium'
+                                      | 'hard',
+                                  }))
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value='easy'>Easy</SelectItem>
+                                  <SelectItem value='medium'>Medium</SelectItem>
+                                  <SelectItem value='hard'>Hard</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className='space-y-2'>
+                              <Label htmlFor='quest-duration-create'>
+                                Duration
+                              </Label>
+                              <Select
+                                value={questFormData.duration}
+                                onValueChange={value =>
+                                  setQuestFormData(prev => ({
+                                    ...prev,
+                                    duration: value as
+                                      | 'daily'
+                                      | 'weekly'
+                                      | 'monthly',
+                                  }))
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value='daily'>Daily</SelectItem>
+                                  <SelectItem value='weekly'>Weekly</SelectItem>
+                                  <SelectItem value='monthly'>
+                                    Monthly
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className='space-y-2'>
+                              <Label htmlFor='quest-points-create'>
+                                Point Value
+                              </Label>
+                              <Input
+                                id='quest-points-create'
+                                type='number'
+                                value={questFormData.pointValue}
+                                onChange={e =>
+                                  setQuestFormData(prev => ({
+                                    ...prev,
+                                    pointValue: parseInt(e.target.value) || 0,
+                                  }))
+                                }
+                                placeholder='50'
+                                className='w-full'
+                              />
+                            </div>
+                          </div>
+
+                          <div className='flex gap-2 pt-2'>
+                            <Button
+                              onClick={handleCreateQuest}
+                              disabled={
+                                !questFormData.title ||
+                                !questFormData.description ||
+                                createQuestMutation.isPending
+                              }
+                              className='flex-1'
+                            >
+                              {createQuestMutation.isPending ? (
+                                <>
+                                  <div className='mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent' />
+                                  Creating...
+                                </>
+                              ) : (
+                                <>
+                                  <Plus className='mr-2 h-4 w-4' />
+                                  Create Quest
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              variant='outline'
+                              onClick={() => setShowQuestForm(false)}
+                              disabled={createQuestMutation.isPending}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {showChallengeForm && (
+                      <Card className='border-2 border-secondary-200 bg-secondary-50/50 dark:border-secondary-800 dark:bg-secondary-900/20'>
+                        <CardHeader>
+                          <CardTitle className='text-lg'>
+                            Create New Team Challenge
+                          </CardTitle>
+                          <CardDescription>
+                            Challenge your teammates to a competition
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className='space-y-4'>
+                          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                            <div className='space-y-2'>
+                              <Label htmlFor='challenge-title-create'>
+                                Challenge Title
+                              </Label>
+                              <Input
+                                id='challenge-title-create'
+                                value={challengeFormData.title}
+                                onChange={e =>
+                                  setChallengeFormData(prev => ({
+                                    ...prev,
+                                    title: e.target.value,
+                                  }))
+                                }
+                                placeholder='Enter challenge title'
+                                className='w-full'
+                              />
+                            </div>
+                            <div className='space-y-2'>
+                              <Label htmlFor='challenge-type-create'>
+                                Challenge Type
+                              </Label>
+                              <Select
+                                value={challengeFormData.type}
+                                onValueChange={value =>
+                                  setChallengeFormData(prev => ({
+                                    ...prev,
+                                    type: value as
+                                      | 'step_competition'
+                                      | 'workout'
+                                      | 'habit'
+                                      | 'skill'
+                                      | 'team_building',
+                                  }))
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value='step_competition'>
+                                    Step Competition
+                                  </SelectItem>
+                                  <SelectItem value='workout'>
+                                    Workout Challenge
+                                  </SelectItem>
+                                  <SelectItem value='habit'>
+                                    Habit Building
+                                  </SelectItem>
+                                  <SelectItem value='skill'>
+                                    Skill Development
+                                  </SelectItem>
+                                  <SelectItem value='team_building'>
+                                    Team Building
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          <div className='space-y-2'>
+                            <Label htmlFor='challenge-description-create'>
+                              Description
+                            </Label>
+                            <Textarea
+                              id='challenge-description-create'
+                              value={challengeFormData.description}
+                              onChange={e =>
+                                setChallengeFormData(prev => ({
+                                  ...prev,
+                                  description: e.target.value,
+                                }))
+                              }
+                              placeholder='Describe the challenge rules and goals'
+                              className='min-h-[100px] w-full'
+                            />
+                          </div>
+
+                          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                            <div className='space-y-2'>
+                              <Label htmlFor='challenge-duration-create'>
+                                Duration (days)
+                              </Label>
+                              <Input
+                                id='challenge-duration-create'
+                                type='number'
+                                value={challengeFormData.duration}
+                                onChange={e =>
+                                  setChallengeFormData(prev => ({
+                                    ...prev,
+                                    duration: parseInt(e.target.value) || 1,
+                                  }))
+                                }
+                                placeholder='7'
+                                className='w-full'
+                                min='1'
+                                max='30'
+                              />
+                            </div>
+                            <div className='space-y-2'>
+                              <Label htmlFor='challenge-target-create'>
+                                Target Value
+                              </Label>
+                              <Input
+                                id='challenge-target-create'
+                                type='number'
+                                value={challengeFormData.targetValue}
+                                onChange={e =>
+                                  setChallengeFormData(prev => ({
+                                    ...prev,
+                                    targetValue: parseInt(e.target.value) || 0,
+                                  }))
+                                }
+                                placeholder='10000'
+                                className='w-full'
+                                min='1'
+                              />
+                            </div>
+                          </div>
+
+                          <div className='flex gap-2 pt-2'>
+                            <Button
+                              onClick={handleCreateChallenge}
+                              disabled={
+                                !challengeFormData.title ||
+                                !challengeFormData.description ||
+                                createChallengeMutation.isPending
+                              }
+                              className='flex-1'
+                            >
+                              {createChallengeMutation.isPending ? (
+                                <>
+                                  <div className='mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent' />
+                                  Creating...
+                                </>
+                              ) : (
+                                <>
+                                  <Plus className='mr-2 h-4 w-4' />
+                                  Create Challenge
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              variant='outline'
+                              onClick={() => setShowChallengeForm(false)}
+                              disabled={createChallengeMutation.isPending}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {showRecognitionForm && (
+                      <Card className='border-2 border-warning-200 bg-warning-50/50 dark:border-warning-800 dark:bg-warning-900/20'>
+                        <CardHeader>
+                          <CardTitle className='text-lg'>
+                            Give Recognition
+                          </CardTitle>
+                          <CardDescription>
+                            Recognize a teammate for their achievements
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className='space-y-4'>
+                          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                            <div className='space-y-2'>
+                              <Label htmlFor='recognition-recipient-create'>
+                                Recipient
+                              </Label>
+                              <Select
+                                value={recognitionFormData.recipientId}
+                                onValueChange={value =>
+                                  setRecognitionFormData(prev => ({
+                                    ...prev,
+                                    recipientId: value,
+                                  }))
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder='Select a teammate' />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {teamMembers.map(member => (
+                                    <SelectItem
+                                      key={member.id}
+                                      value={member.id}
+                                    >
+                                      {member.firstName} {member.lastName}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className='space-y-2'>
+                              <Label htmlFor='recognition-type-create'>
+                                Recognition Type
+                              </Label>
+                              <Select
+                                value={recognitionFormData.type}
+                                onValueChange={value =>
+                                  setRecognitionFormData(prev => ({
+                                    ...prev,
+                                    type: value as
+                                      | 'clap'
+                                      | 'fire'
+                                      | 'heart'
+                                      | 'flex'
+                                      | 'zap'
+                                      | 'trophy',
+                                  }))
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value='clap'>👏 Clap</SelectItem>
+                                  <SelectItem value='fire'>🔥 Fire</SelectItem>
+                                  <SelectItem value='heart'>
+                                    ❤️ Heart
+                                  </SelectItem>
+                                  <SelectItem value='flex'>💪 Flex</SelectItem>
+                                  <SelectItem value='zap'>⚡ Zap</SelectItem>
+                                  <SelectItem value='trophy'>
+                                    🏆 Trophy
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          <div className='space-y-2'>
+                            <Label htmlFor='recognition-message-create'>
+                              Message (optional)
+                            </Label>
+                            <Textarea
+                              id='recognition-message-create'
+                              value={recognitionFormData.message}
+                              onChange={e =>
+                                setRecognitionFormData(prev => ({
+                                  ...prev,
+                                  message: e.target.value,
+                                }))
+                              }
+                              placeholder='Add a personal message...'
+                              className='min-h-[80px] w-full'
+                              maxLength={200}
+                            />
+                            <p className='text-xs text-muted-foreground'>
+                              {recognitionFormData.message.length}/200
+                              characters
+                            </p>
+                          </div>
+
+                          <div className='flex gap-2 pt-2'>
+                            <Button
+                              onClick={handleGiveRecognition}
+                              disabled={
+                                !recognitionFormData.recipientId ||
+                                giveRecognitionMutation.isPending
+                              }
+                              className='flex-1'
+                            >
+                              {giveRecognitionMutation.isPending ? (
+                                <>
+                                  <div className='mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent' />
+                                  Sending...
+                                </>
+                              ) : (
+                                <>
+                                  <Heart className='mr-2 h-4 w-4' />
+                                  Give Recognition
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              variant='outline'
+                              onClick={() => setShowRecognitionForm(false)}
+                              disabled={giveRecognitionMutation.isPending}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
                   </TabsContent>
                 </Tabs>
               )}

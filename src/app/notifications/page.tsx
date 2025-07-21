@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 import { AuthGuard } from '@/components/auth';
-import { useNotifications } from '@/components/notifications/notification-provider';
 import { PageLayout } from '@/components/layout/page-layout';
+import { useNotifications } from '@/components/notifications/notification-provider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

@@ -1,10 +1,10 @@
 'use client';
 
+import { formatDistanceToNow } from 'date-fns';
 import { CheckCheck, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
-import { formatDistanceToNow } from 'date-fns';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { NotificationService } from '@/lib/services/notification-service';
+
 import { useNotifications } from './notification-provider';
 
 interface NotificationPanelProps {
