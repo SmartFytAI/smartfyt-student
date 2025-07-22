@@ -24,11 +24,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
 
-// Only show this page in development
-if (process.env.NODE_ENV !== 'development') {
-  throw new Error('API Test page is only available in development mode');
-}
-
 interface ApiResponse {
   data?: any;
   error?: string;
@@ -364,6 +359,22 @@ export default function ApiTestPage() {
       if (token) setAuthToken(token);
     }
   }, [user, getToken]);
+
+  // Only show this page in development
+  if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'development') {
+    return (
+      <div className='flex min-h-screen items-center justify-center'>
+        <div className='text-center'>
+          <h1 className='mb-4 text-2xl font-bold text-red-600'>
+            Access Denied
+          </h1>
+          <p className='text-gray-600'>
+            This page is only available in development mode.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const makeApiCall = async () => {
     setIsLoading(true);

@@ -4,6 +4,7 @@ import { Bell } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 
+import { CardErrorBoundary } from '@/components/error/error-boundary';
 import { cn } from '@/lib/utils';
 
 import { useNotifications } from './notification-provider';
@@ -14,6 +15,17 @@ interface HeaderNotificationBellProps {
 }
 
 export function HeaderNotificationBell({
+  className,
+  size = 'md',
+}: HeaderNotificationBellProps) {
+  return (
+    <CardErrorBoundary name='HeaderNotificationBell'>
+      <HeaderNotificationBellContent className={className} size={size} />
+    </CardErrorBoundary>
+  );
+}
+
+function HeaderNotificationBellContent({
   className,
   size = 'md',
 }: HeaderNotificationBellProps) {

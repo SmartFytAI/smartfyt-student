@@ -31,6 +31,28 @@ vi.mock('next/navigation', () => ({
   usePathname: () => '/',
 }));
 
+// Mock components that use notifications
+vi.mock('@/components/layout/persistent-layout', () => ({
+  PersistentLayout: ({ children, title }: any) => (
+    <div data-testid='persistent-layout'>
+      <h1>{title}</h1>
+      {children}
+    </div>
+  ),
+}));
+
+vi.mock('@/components/layout/page-header', () => ({
+  PageHeader: ({ title }: any) => (
+    <header data-testid='page-header'>
+      <h1>{title}</h1>
+    </header>
+  ),
+}));
+
+vi.mock('@/components/navigation/bottom-navigation', () => ({
+  BottomNavigation: () => <nav data-testid='bottom-navigation' />,
+}));
+
 import { logger } from '@/lib/logger';
 import { AuthGuard } from '../auth-guard';
 
@@ -67,11 +89,11 @@ describe('AuthGuard', () => {
 
     render(<AuthGuard {...defaultProps} />);
 
-    // Should show skeleton (no "Loading..." text in skeleton)
-    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    // Should show skeleton with "Loading..." title
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
     expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument();
     // Should show skeleton elements
-    expect(screen.getByRole('main')).toBeInTheDocument();
+    expect(screen.getByTestId('persistent-layout')).toBeInTheDocument();
   });
 
   it('shows fallback loading state when skeleton is disabled', () => {

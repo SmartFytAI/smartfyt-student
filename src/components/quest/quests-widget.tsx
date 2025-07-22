@@ -69,7 +69,7 @@ function QuestsWidgetContent({ userId, onViewAll }: QuestsWidgetProps) {
     const remainingCount = quests.length - 3;
 
     return (
-      <div className='space-y-3'>
+      <div className='max-h-[400px] space-y-3 overflow-y-auto'>
         {displayQuests.map(quest => (
           <div
             key={quest.id}

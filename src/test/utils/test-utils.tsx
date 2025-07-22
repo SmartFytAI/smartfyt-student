@@ -3,6 +3,7 @@ import { render, RenderOptions } from '@testing-library/react';
 import React, { ReactElement } from 'react';
 
 import { AuthProvider } from '@/components/auth/auth-provider';
+import { NotificationProvider } from '@/components/notifications/notification-provider';
 import { ThemeProvider } from '@/components/theme/theme-provider';
 
 // Create a custom render function that includes providers
@@ -39,11 +40,11 @@ function AllTheProviders({
       enableSystem
       disableTransitionOnChange
     >
-      <AuthProvider>
-        <QueryClientProvider client={testQueryClient}>
-          {children}
-        </QueryClientProvider>
-      </AuthProvider>
+      <QueryClientProvider client={testQueryClient}>
+        <AuthProvider>
+          <NotificationProvider>{children}</NotificationProvider>
+        </AuthProvider>
+      </QueryClientProvider>
     </ThemeProvider>
   );
 }

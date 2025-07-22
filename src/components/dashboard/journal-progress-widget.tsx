@@ -25,7 +25,7 @@ function JournalProgressWidgetContent({
   };
 
   return (
-    <div className='space-y-4'>
+    <div className='max-h-[400px] space-y-4 overflow-y-auto'>
       <DashboardCalendar userId={userId} onDayClick={handleDayClick} />
     </div>
   );

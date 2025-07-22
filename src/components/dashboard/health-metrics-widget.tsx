@@ -48,7 +48,7 @@ function HealthMetricsWidgetContent({
     }
 
     return (
-      <div className='space-y-4'>
+      <div className='max-h-[400px] space-y-4 overflow-y-auto'>
         <div className='flex items-center justify-between'>
           <div className='flex items-center space-x-2'>
             <Moon className='h-4 w-4 text-success-600 dark:text-success-400' />

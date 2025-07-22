@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 
+import { PersistentLayout } from '@/components/layout';
 import { useAuth } from '@/hooks/use-auth';
 import { logger } from '@/lib/logger';
 
@@ -16,67 +17,34 @@ interface AuthGuardProps {
   showSkeleton?: boolean;
 }
 
-// Skeleton loader component that mimics page structure
+// Skeleton loader component that uses PersistentLayout
 function PageSkeleton({ subtitle }: { title?: string; subtitle?: string }) {
   return (
-    <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
-      {/* Header Skeleton */}
-      <header className='border-b border-gray-200 bg-white px-4 py-4 shadow-sm dark:border-gray-700 dark:bg-gray-800'>
-        <div className='mx-auto max-w-7xl'>
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center space-x-3'>
-              <div className='h-8 w-8 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700'></div>
-              <div className='space-y-1'>
-                <div className='h-5 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
-                {subtitle && (
-                  <div className='h-4 w-48 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
-                )}
-              </div>
-            </div>
-            <div className='h-8 w-8 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700'></div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Skeleton */}
-      <main className='pb-20'>
-        <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
-          <div className='space-y-6'>
-            {/* Card Skeletons */}
-            {[1, 2, 3].map(i => (
-              <div
-                key={i}
-                className='rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800'
-              >
-                <div className='space-y-4'>
-                  <div className='flex items-center justify-between'>
-                    <div className='h-6 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
-                    <div className='h-6 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
-                  </div>
-                  <div className='space-y-2'>
-                    <div className='h-4 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
-                    <div className='h-4 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
-                    <div className='h-4 w-1/2 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
-                  </div>
+    <PersistentLayout title='Loading...' subtitle={subtitle}>
+      <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
+        <div className='space-y-6'>
+          {/* Card Skeletons */}
+          {[1, 2, 3].map(i => (
+            <div
+              key={i}
+              className='rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800'
+            >
+              <div className='space-y-4'>
+                <div className='flex items-center justify-between'>
+                  <div className='h-6 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                  <div className='h-6 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                </div>
+                <div className='space-y-2'>
+                  <div className='h-4 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                  <div className='h-4 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
+                  <div className='h-4 w-1/2 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </main>
-
-      {/* Bottom Navigation Skeleton */}
-      <nav className='fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white px-4 py-2 dark:border-gray-700 dark:bg-gray-800'>
-        <div className='flex items-center justify-around'>
-          {[1, 2, 3, 4, 5].map(i => (
-            <div key={i} className='flex flex-col items-center space-y-1'>
-              <div className='h-6 w-6 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
-              <div className='h-3 w-8 animate-pulse rounded bg-gray-200 dark:bg-gray-700'></div>
             </div>
           ))}
         </div>
-      </nav>
-    </div>
+      </div>
+    </PersistentLayout>
   );
 }
 

@@ -236,8 +236,8 @@ export class TeamService {
     const [teamResult, schoolResult] = await Promise.all(promises);
 
     return {
-      team: teamResult,
-      school: schoolResult,
+      team: teamResult as TeamServiceResponse<TeamLeaderboardData>,
+      school: schoolResult as TeamServiceResponse<SchoolLeaderboardData>,
     };
   }
 }

@@ -3,6 +3,7 @@
 import { Home, BookOpen, Target, MessageSquare, Trophy } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 
+import { CardErrorBoundary } from '@/components/error/error-boundary';
 import { useNotifications } from '@/components/notifications/notification-provider';
 import { cn } from '@/lib/utils';
 
@@ -31,6 +32,14 @@ interface BottomNavigationProps {
 }
 
 export function BottomNavigation({ className }: BottomNavigationProps) {
+  return (
+    <CardErrorBoundary name='BottomNavigation'>
+      <BottomNavigationContent className={className} />
+    </CardErrorBoundary>
+  );
+}
+
+function BottomNavigationContent({ className }: BottomNavigationProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { notifications } = useNotifications();

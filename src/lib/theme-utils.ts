@@ -146,3 +146,36 @@ export const getTextColors = (
       return 'text-neutral-900 dark:text-white';
   }
 };
+
+/**
+ * Get gradient styles for range inputs and sliders
+ */
+export const getGradientStyles = (
+  type: 'sleep' | 'stress' | 'activity',
+  value: number,
+  max: number
+): React.CSSProperties => {
+  const percentage = (value / max) * 100;
+
+  switch (type) {
+    case 'sleep':
+      // Blue gradient for sleep (0% to 100%)
+      return {
+        background: `linear-gradient(to right, rgb(59 130 246) 0%, rgb(59 130 246) ${percentage}%, rgb(229 231 235) ${percentage}%, rgb(229 231 235) 100%)`,
+      };
+    case 'stress':
+      // Multi-color gradient for stress levels
+      return {
+        background: `linear-gradient(to right, rgb(16 185 129) 0%, rgb(16 185 129) 20%, rgb(245 158 11) 20%, rgb(245 158 11) 40%, rgb(249 115 22) 40%, rgb(249 115 22) 60%, rgb(239 68 68) 60%, rgb(239 68 68) 80%, rgb(220 38 38) 80%, rgb(220 38 38) 100%)`,
+      };
+    case 'activity':
+      // Green gradient for activity
+      return {
+        background: `linear-gradient(to right, rgb(34 197 94) 0%, rgb(34 197 94) ${percentage}%, rgb(229 231 235) ${percentage}%, rgb(229 231 235) 100%)`,
+      };
+    default:
+      return {
+        background: `linear-gradient(to right, rgb(59 130 246) 0%, rgb(59 130 246) ${percentage}%, rgb(229 231 235) ${percentage}%, rgb(229 231 235) 100%)`,
+      };
+  }
+};

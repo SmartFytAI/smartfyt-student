@@ -10,9 +10,14 @@ import { logger } from '@/lib/logger';
 interface PageHeaderProps {
   title?: string;
   subtitle?: string;
+  className?: string;
 }
 
-export function PageHeader({ title, subtitle }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  subtitle,
+  className = '',
+}: PageHeaderProps) {
   const { user } = useAuth();
 
   // Mock wearable status - will be replaced with real data later
@@ -36,7 +41,9 @@ export function PageHeader({ title, subtitle }: PageHeaderProps) {
   };
 
   return (
-    <div className='bg-white shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20'>
+    <div
+      className={`bg-white shadow-sm dark:bg-gray-800 dark:shadow-gray-900/20 ${className}`}
+    >
       <div className='mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8'>
         <div className='flex items-center justify-between'>
           {/* Logo and Title */}

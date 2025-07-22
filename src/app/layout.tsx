@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
 import { AuthProvider } from '@/components/auth/auth-provider';
+import { AppErrorBoundary } from '@/components/error/error-boundary';
 import { NotificationProvider } from '@/components/notifications/notification-provider';
 import { PostHogProvider } from '@/components/providers';
 import { ThemeProvider } from '@/components/theme/theme-provider';
@@ -114,7 +115,7 @@ export const metadata: Metadata = {
       {
         rel: 'mask-icon',
         url: '/safari-pinned-tab.svg',
-        color: '#000000',
+        color: 'rgb(0 0 0)',
       },
     ],
   },
@@ -155,7 +156,11 @@ export default function RootLayout({
               <ThemeProvider>
                 <NotificationProvider>
                   <GlobalLoadingIndicator />
-                  <div className='safe-area-inset min-h-screen'>{children}</div>
+                  <AppErrorBoundary>
+                    <div className='safe-area-inset min-h-screen'>
+                      {children}
+                    </div>
+                  </AppErrorBoundary>
                 </NotificationProvider>
               </ThemeProvider>
             </PostHogProvider>

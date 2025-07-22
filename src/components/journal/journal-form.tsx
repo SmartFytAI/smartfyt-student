@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useState, useCallback, useMemo } from 'react';
 
+import { CardErrorBoundary } from '@/components/error/error-boundary';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -26,6 +27,7 @@ import {
   JournalService,
   CreateJournalData,
 } from '@/lib/services/journal-service';
+import { getGradientStyles } from '@/lib/theme-utils';
 
 // Custom Time Slider Component
 interface TimeSliderProps {
@@ -67,9 +69,7 @@ function TimeSlider({
           value={value}
           onChange={e => onChange(parseInt(e.target.value))}
           className='h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700'
-          style={{
-            background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(value / max) * 100}%, #e5e7eb ${(value / max) * 100}%, #e5e7eb 100%)`,
-          }}
+          style={getGradientStyles('sleep', value, max)}
         />
         <div className='flex justify-between text-xs text-gray-500'>
           <span>0h</span>
@@ -131,9 +131,7 @@ function StressLevel({ value, onChange }: StressLevelProps) {
           value={value}
           onChange={e => onChange(parseInt(e.target.value))}
           className='h-3 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700'
-          style={{
-            background: `linear-gradient(to right, #10b981 0%, #10b981 20%, #f59e0b 20%, #f59e0b 40%, #f97316 40%, #f97316 60%, #ef4444 60%, #ef4444 80%, #dc2626 80%, #dc2626 100%)`,
-          }}
+          style={getGradientStyles('stress', value, 10)}
         />
 
         <div className='flex justify-between text-xs text-gray-500'>
@@ -322,213 +320,219 @@ export function JournalForm({
   };
 
   return (
-    <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
-      <div className='space-y-6'>
-        {/* Header */}
-        <div className='flex items-center gap-3'>
-          <Button variant='ghost' size='sm' onClick={onCancel}>
-            <ArrowLeft className='h-4 w-4' />
-          </Button>
-          <div>
-            <h1 className='text-2xl font-bold text-gray-900 dark:text-white'>
-              Create New Journal Entry
-            </h1>
-            <p className='text-sm text-gray-600 dark:text-gray-400'>
-              {isCheckingDate ? (
-                <span className='flex items-center gap-2'>
-                  <Loader2 className='h-3 w-3 animate-spin' />
-                  Checking for existing entries...
-                </span>
-              ) : (
-                <>
-                  For{' '}
-                  {effectiveDate.toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                  {!selectedDate && ' (Today)'}
-                </>
-              )}
-            </p>
-          </div>
-        </div>
-
-        {/* Form */}
-        <Card>
-          <CardHeader>
-            <div className='flex items-center gap-2'>
-              <BookOpen className='h-5 w-5 text-secondary-500' />
-              <CardTitle>Daily Reflection</CardTitle>
+    <CardErrorBoundary name='JournalForm'>
+      <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
+        <div className='space-y-6'>
+          {/* Header */}
+          <div className='flex items-center gap-3'>
+            <Button variant='ghost' size='sm' onClick={onCancel}>
+              <ArrowLeft className='h-4 w-4' />
+            </Button>
+            <div>
+              <h1 className='text-2xl font-bold text-gray-900 dark:text-white'>
+                Create New Journal Entry
+              </h1>
+              <p className='text-sm text-gray-600 dark:text-gray-400'>
+                {isCheckingDate ? (
+                  <span className='flex items-center gap-2'>
+                    <Loader2 className='h-3 w-3 animate-spin' />
+                    Checking for existing entries...
+                  </span>
+                ) : (
+                  <>
+                    For{' '}
+                    {effectiveDate.toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                    {!selectedDate && ' (Today)'}
+                  </>
+                )}
+              </p>
             </div>
-            <CardDescription>
-              Take a moment to reflect on your day and track your progress
-            </CardDescription>
-          </CardHeader>
+          </div>
 
-          <CardContent>
-            <form onSubmit={handleSubmit} className='space-y-6'>
-              {/* Title */}
-              <div className='space-y-2'>
-                <Label htmlFor='title' className='text-base font-medium'>
-                  What&apos;s on your mind today? *
-                </Label>
-                <Input
-                  id='title'
-                  placeholder='Give your journal entry a title...'
-                  value={formData.title}
-                  onChange={e => handleInputChange('title', e.target.value)}
-                  required
-                  className='text-base'
-                />
+          {/* Form */}
+          <Card>
+            <CardHeader>
+              <div className='flex items-center gap-2'>
+                <BookOpen className='h-5 w-5 text-secondary-500' />
+                <CardTitle>Daily Reflection</CardTitle>
               </div>
+              <CardDescription>
+                Take a moment to reflect on your day and track your progress
+              </CardDescription>
+            </CardHeader>
 
-              {/* Reflection Sections */}
-              <div className='grid gap-6 md:grid-cols-1'>
-                {/* What Went Well */}
+            <CardContent>
+              <form onSubmit={handleSubmit} className='space-y-6'>
+                {/* Title */}
                 <div className='space-y-2'>
-                  <Label
-                    htmlFor='wentWell'
-                    className='flex items-center gap-2 text-base font-medium'
+                  <Label htmlFor='title' className='text-base font-medium'>
+                    What&apos;s on your mind today? *
+                  </Label>
+                  <Input
+                    id='title'
+                    placeholder='Give your journal entry a title...'
+                    value={formData.title}
+                    onChange={e => handleInputChange('title', e.target.value)}
+                    required
+                    className='text-base'
+                  />
+                </div>
+
+                {/* Reflection Sections */}
+                <div className='grid gap-6 md:grid-cols-1'>
+                  {/* What Went Well */}
+                  <div className='space-y-2'>
+                    <Label
+                      htmlFor='wentWell'
+                      className='flex items-center gap-2 text-base font-medium'
+                    >
+                      <TrendingUp className='h-4 w-4 text-success-600' />
+                      What went well today?
+                    </Label>
+                    <Textarea
+                      id='wentWell'
+                      placeholder='Reflect on your successes, achievements, or positive moments...'
+                      value={formData.wentWell}
+                      onChange={e =>
+                        handleInputChange('wentWell', e.target.value)
+                      }
+                      rows={4}
+                      className='select-text text-base'
+                    />
+                  </div>
+
+                  {/* What Didn't Go Well */}
+                  <div className='space-y-2'>
+                    <Label htmlFor='notWell' className='text-base font-medium'>
+                      What didn&apos;t go well today?
+                    </Label>
+                    <Textarea
+                      id='notWell'
+                      placeholder='What challenges did you face? What could you improve?'
+                      value={formData.notWell}
+                      onChange={e =>
+                        handleInputChange('notWell', e.target.value)
+                      }
+                      rows={4}
+                      className='select-text text-base'
+                    />
+                  </div>
+
+                  {/* Goals */}
+                  <div className='space-y-2'>
+                    <Label
+                      htmlFor='goals'
+                      className='flex items-center gap-2 text-base font-medium'
+                    >
+                      <Target className='h-4 w-4 text-primary-600' />
+                      What are your goals for tomorrow?
+                    </Label>
+                    <Textarea
+                      id='goals'
+                      placeholder='What do you want to accomplish tomorrow? Set specific, achievable goals...'
+                      value={formData.goals}
+                      onChange={e => handleInputChange('goals', e.target.value)}
+                      rows={4}
+                      className='select-text text-base'
+                    />
+                  </div>
+                </div>
+
+                {/* Daily Metrics */}
+                <div className='space-y-4'>
+                  <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
+                    Daily Metrics
+                  </h3>
+
+                  <div className='grid gap-6 sm:grid-cols-2'>
+                    {/* Sleep Hours */}
+                    <TimeSlider
+                      value={formData.sleepHours ?? 0}
+                      onChange={value => handleInputChange('sleepHours', value)}
+                      label='Sleep Hours'
+                      icon='💤'
+                    />
+
+                    {/* Active Hours */}
+                    <TimeSlider
+                      value={formData.activeHours ?? 0}
+                      onChange={value =>
+                        handleInputChange('activeHours', value)
+                      }
+                      label='Active Hours'
+                      icon='🏃'
+                    />
+
+                    {/* Study Hours */}
+                    <TimeSlider
+                      value={formData.studyHours ?? 0}
+                      onChange={value => handleInputChange('studyHours', value)}
+                      label='Study Hours'
+                      icon='📚'
+                    />
+
+                    {/* Screen Time */}
+                    <TimeSlider
+                      value={formData.screenTime ?? 0}
+                      onChange={value => handleInputChange('screenTime', value)}
+                      label='Screen Time'
+                      icon='📱'
+                    />
+                  </div>
+
+                  {/* Stress Level */}
+                  <StressLevel
+                    value={formData.stress ?? 0}
+                    onChange={value => handleInputChange('stress', value)}
+                  />
+                </div>
+
+                {/* Error Display */}
+                {error && (
+                  <div className='rounded-lg bg-danger-50 p-4 dark:bg-danger-900/20'>
+                    <p className='text-sm text-danger-600 dark:text-danger-400'>
+                      {error}
+                    </p>
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <div className='flex justify-end gap-3'>
+                  <Button
+                    type='button'
+                    variant='outline'
+                    onClick={onCancel}
+                    disabled={isSubmitting || isCheckingDate}
                   >
-                    <TrendingUp className='h-4 w-4 text-success-600' />
-                    What went well today?
-                  </Label>
-                  <Textarea
-                    id='wentWell'
-                    placeholder='Reflect on your successes, achievements, or positive moments...'
-                    value={formData.wentWell}
-                    onChange={e =>
-                      handleInputChange('wentWell', e.target.value)
-                    }
-                    rows={4}
-                    className='select-text text-base'
-                  />
-                </div>
-
-                {/* What Didn't Go Well */}
-                <div className='space-y-2'>
-                  <Label htmlFor='notWell' className='text-base font-medium'>
-                    What didn&apos;t go well today?
-                  </Label>
-                  <Textarea
-                    id='notWell'
-                    placeholder='What challenges did you face? What could you improve?'
-                    value={formData.notWell}
-                    onChange={e => handleInputChange('notWell', e.target.value)}
-                    rows={4}
-                    className='select-text text-base'
-                  />
-                </div>
-
-                {/* Goals */}
-                <div className='space-y-2'>
-                  <Label
-                    htmlFor='goals'
-                    className='flex items-center gap-2 text-base font-medium'
+                    Cancel
+                  </Button>
+                  <Button
+                    type='submit'
+                    disabled={isSubmitting || isCheckingDate || !!error}
                   >
-                    <Target className='h-4 w-4 text-secondary-600' />
-                    Goals for tomorrow
-                  </Label>
-                  <Textarea
-                    id='goals'
-                    placeholder='What do you want to accomplish tomorrow? Set specific, achievable goals...'
-                    value={formData.goals}
-                    onChange={e => handleInputChange('goals', e.target.value)}
-                    rows={4}
-                    className='select-text text-base'
-                  />
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className='mr-2 h-4 w-4' />
+                        Save Journal Entry
+                      </>
+                    )}
+                  </Button>
                 </div>
-              </div>
-
-              {/* Daily Metrics */}
-              <div className='space-y-4'>
-                <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
-                  Daily Metrics
-                </h3>
-
-                <div className='grid gap-6 sm:grid-cols-2'>
-                  {/* Sleep Hours */}
-                  <TimeSlider
-                    value={formData.sleepHours ?? 0}
-                    onChange={value => handleInputChange('sleepHours', value)}
-                    label='Sleep Hours'
-                    icon='💤'
-                  />
-
-                  {/* Active Hours */}
-                  <TimeSlider
-                    value={formData.activeHours ?? 0}
-                    onChange={value => handleInputChange('activeHours', value)}
-                    label='Active Hours'
-                    icon='🏃'
-                  />
-
-                  {/* Study Hours */}
-                  <TimeSlider
-                    value={formData.studyHours ?? 0}
-                    onChange={value => handleInputChange('studyHours', value)}
-                    label='Study Hours'
-                    icon='📚'
-                  />
-
-                  {/* Screen Time */}
-                  <TimeSlider
-                    value={formData.screenTime ?? 0}
-                    onChange={value => handleInputChange('screenTime', value)}
-                    label='Screen Time'
-                    icon='📱'
-                  />
-                </div>
-
-                {/* Stress Level */}
-                <StressLevel
-                  value={formData.stress ?? 0}
-                  onChange={value => handleInputChange('stress', value)}
-                />
-              </div>
-
-              {/* Error Display */}
-              {error && (
-                <div className='rounded-lg bg-danger-50 p-4 dark:bg-danger-900/20'>
-                  <p className='text-sm text-danger-600 dark:text-danger-400'>
-                    {error}
-                  </p>
-                </div>
-              )}
-
-              {/* Submit Button */}
-              <div className='flex justify-end gap-3'>
-                <Button
-                  type='button'
-                  variant='outline'
-                  onClick={onCancel}
-                  disabled={isSubmitting || isCheckingDate}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type='submit'
-                  disabled={isSubmitting || isCheckingDate || !!error}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className='mr-2 h-4 w-4' />
-                      Save Journal Entry
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </CardErrorBoundary>
   );
 }

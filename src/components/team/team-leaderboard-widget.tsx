@@ -128,7 +128,7 @@ function TeamLeaderboardWidgetContent({
 
   return (
     <div
-      className='relative'
+      className='relative max-h-[400px] overflow-y-auto'
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}

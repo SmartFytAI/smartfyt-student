@@ -4,6 +4,7 @@ import { Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import * as React from 'react';
 
+import { CardErrorBoundary } from '@/components/error/error-boundary';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -13,6 +14,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export function ThemeToggle() {
+  return (
+    <CardErrorBoundary name='ThemeToggle'>
+      <ThemeToggleContent />
+    </CardErrorBoundary>
+  );
+}
+
+function ThemeToggleContent() {
   const { setTheme } = useTheme();
 
   return (

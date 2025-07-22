@@ -95,7 +95,7 @@ function CoachFeedbackWidgetContent({
     }
 
     return (
-      <div className='space-y-3'>
+      <div className='max-h-[400px] space-y-3 overflow-y-auto'>
         {feedback.slice(0, 3).map(item => (
           <div
             key={item.id}

@@ -8,12 +8,12 @@ import { ArrowLeft, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { authLogger } from '@/lib/logger';
 
-export default function LoginPage() {
+function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -126,7 +126,7 @@ export default function LoginPage() {
               <svg className='mr-3 h-5 w-5' viewBox='0 0 24 24'>
                 <path
                   fill='currentColor'
-                  d='M11.5 2.75h-8v8h8v-8zM11.5 13.25h-8v8h8v-8zM22.5 2.75h-8v8h8v-8zM22.5 13.25h-8v8h8v-8z'
+                  d='M11.5 2.75h-8a.75.75 0 0 0-.75.75v8c0 .414.336.75.75.75h8a.75.75 0 0 0 .75-.75v-8a.75.75 0 0 0-.75-.75zm-8 1.5h6.5v6.5h-6.5v-6.5zm8 1.5h8a.75.75 0 0 1 .75.75v8a.75.75 0 0 1-.75.75h-8a.75.75 0 0 1-.75-.75v-8a.75.75 0 0 1 .75-.75zm8 1.5h-6.5v6.5h6.5v-6.5z'
                 />
               </svg>
               Continue with Microsoft
@@ -135,62 +135,59 @@ export default function LoginPage() {
         </div>
 
         {/* Divider */}
-        <div className='relative mb-6'>
-          <div className='absolute inset-0 flex items-center'>
-            <div className='w-full border-t border-gray-300 dark:border-gray-600' />
-          </div>
-          <div className='relative flex justify-center text-sm'>
-            <span className='bg-white px-3 text-gray-500 dark:bg-gray-800 dark:text-gray-400'>
-              Or continue with email
-            </span>
-          </div>
+        <div className='mb-6 flex items-center'>
+          <div className='flex-1 border-t border-gray-300 dark:border-gray-600' />
+          <span className='mx-4 text-sm text-gray-500 dark:text-gray-400'>
+            or
+          </span>
+          <div className='flex-1 border-t border-gray-300 dark:border-gray-600' />
         </div>
 
         {/* Email/Password Form */}
-        <form className='space-y-4'>
+        <div className='space-y-4'>
           <div>
             <label
               htmlFor='email'
-              className='mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300'
+              className='block text-sm font-medium text-gray-700 dark:text-gray-300'
             >
               Email
             </label>
-            <div className='relative'>
-              <Mail className='absolute left-3 top-3 h-5 w-5 text-gray-400' />
+            <div className='relative mt-1'>
               <input
-                id='email'
                 type='email'
-                placeholder='Enter your email'
+                id='email'
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className='w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-3 text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-secondary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pl-10 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-400 dark:focus:ring-primary-400'
+                placeholder='Enter your email'
                 required
               />
+              <Mail className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
             </div>
           </div>
 
           <div>
             <label
               htmlFor='password'
-              className='mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300'
+              className='block text-sm font-medium text-gray-700 dark:text-gray-300'
             >
               Password
             </label>
-            <div className='relative'>
-              <Lock className='absolute left-3 top-3 h-5 w-5 text-gray-400' />
+            <div className='relative mt-1'>
               <input
-                id='password'
                 type={showPassword ? 'text' : 'password'}
-                placeholder='Enter your password'
+                id='password'
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className='w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-12 text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-secondary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pl-10 pr-10 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-400 dark:focus:ring-primary-400'
+                placeholder='Enter your password'
                 required
               />
+              <Lock className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
               <button
                 type='button'
-                className='absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                 onClick={() => setShowPassword(!showPassword)}
+                className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
               >
                 {showPassword ? (
                   <EyeOff className='h-5 w-5' />
@@ -202,52 +199,70 @@ export default function LoginPage() {
           </div>
 
           {/* Login/Register Button */}
-          {mode === 'login' ? (
-            <LoginLink
-              authUrlParams={{
-                scope: 'openid profile email offline_access',
-              }}
-              onClick={handleEmailLogin}
-            >
-              <Button className='h-12 w-full text-lg'>Sign In</Button>
-            </LoginLink>
-          ) : (
+          {mode === 'register' ? (
             <RegisterLink
               authUrlParams={{
+                email,
+                password,
                 scope: 'openid profile email offline_access',
               }}
               onClick={handleEmailLogin}
             >
-              <Button className='h-12 w-full text-lg'>Create Account</Button>
+              <Button className='h-12 w-full bg-primary-600 text-white hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600'>
+                Create Account
+              </Button>
             </RegisterLink>
-          )}
-        </form>
-
-        {/* Footer */}
-        <div className='mt-8 text-center'>
-          {mode === 'login' ? (
-            <p className='text-sm text-gray-600 dark:text-gray-400'>
-              Don&apos;t have an account?{' '}
-              <Link
-                href='/login?mode=register'
-                className='font-medium text-secondary-600 hover:underline dark:text-secondary-400'
-              >
-                Sign up
-              </Link>
-            </p>
           ) : (
-            <p className='text-sm text-gray-600 dark:text-gray-400'>
-              Already have an account?{' '}
-              <Link
-                href='/login?mode=login'
-                className='font-medium text-secondary-600 hover:underline dark:text-secondary-400'
-              >
-                Sign in
-              </Link>
-            </p>
+            <LoginLink
+              authUrlParams={{
+                email,
+                password,
+                scope: 'openid profile email offline_access',
+              }}
+              onClick={handleEmailLogin}
+            >
+              <Button className='h-12 w-full bg-primary-600 text-white hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600'>
+                Sign In
+              </Button>
+            </LoginLink>
           )}
+        </div>
+
+        {/* Footer Links */}
+        <div className='mt-6 text-center'>
+          <p className='text-sm text-gray-600 dark:text-gray-400'>
+            {mode === 'register'
+              ? 'Already have an account?'
+              : "Don't have an account?"}{' '}
+            <Link
+              href={mode === 'register' ? '/login' : '/login?mode=register'}
+              className='font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300'
+            >
+              {mode === 'register' ? 'Sign in' : 'Create account'}
+            </Link>
+          </p>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-secondary-50 to-primary-50 p-4 dark:from-gray-900 dark:to-gray-800'>
+          <div className='w-full max-w-md rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-800'>
+            <div className='animate-pulse'>
+              <div className='mb-4 h-8 rounded bg-gray-200'></div>
+              <div className='mb-2 h-4 rounded bg-gray-200'></div>
+              <div className='h-4 w-3/4 rounded bg-gray-200'></div>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }

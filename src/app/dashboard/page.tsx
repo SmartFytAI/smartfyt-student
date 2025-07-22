@@ -75,8 +75,8 @@ export default function DashboardPage() {
         {/* Dashboard Content */}
         <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
           <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-            {/* Top Row - Fixed height based on journal progress widget */}
-            <div className='h-[500px]'>
+            {/* Top Row - Responsive heights to prevent CLS */}
+            <div className='min-h-[400px] sm:min-h-[450px] lg:min-h-[500px]'>
               <QuestsWidget
                 userId={user?.id || ''}
                 onViewAll={() => {
@@ -86,7 +86,7 @@ export default function DashboardPage() {
               />
             </div>
 
-            <div className='h-[500px]'>
+            <div className='min-h-[400px] sm:min-h-[450px] lg:min-h-[500px]'>
               <JournalProgressWidget
                 userId={user?.id || ''}
                 onViewAll={() => {
@@ -97,7 +97,7 @@ export default function DashboardPage() {
               />
             </div>
 
-            <div className='h-[500px]'>
+            <div className='min-h-[400px] sm:min-h-[450px] lg:min-h-[500px]'>
               <TeamLeaderboardWidget
                 userId={user?.id || ''}
                 teams={teams}
@@ -108,12 +108,12 @@ export default function DashboardPage() {
               />
             </div>
 
-            {/* Bottom Row - Fixed height based on health metrics widget */}
-            <div className='h-[400px]'>
+            {/* Bottom Row - Consistent heights with top row to prevent CLS */}
+            <div className='min-h-[400px] sm:min-h-[450px] lg:min-h-[500px]'>
               <TeamChallengesWidget userId={user?.id || ''} />
             </div>
 
-            <div className='h-[400px]'>
+            <div className='min-h-[400px] sm:min-h-[450px] lg:min-h-[500px]'>
               <CoachFeedbackWidget
                 userId={user?.id || ''}
                 onViewAll={() => {
@@ -124,7 +124,7 @@ export default function DashboardPage() {
               />
             </div>
 
-            <div className='h-[400px]'>
+            <div className='min-h-[400px] sm:min-h-[450px] lg:min-h-[500px]'>
               <HealthMetricsWidget
                 userId={user?.id || ''}
                 onViewAll={() => {

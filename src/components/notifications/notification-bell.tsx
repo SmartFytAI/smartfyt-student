@@ -3,6 +3,7 @@
 import { Bell } from 'lucide-react';
 import React from 'react';
 
+import { CardErrorBoundary } from '@/components/error/error-boundary';
 import { cn } from '@/lib/utils';
 
 import { useNotifications } from './notification-provider';
@@ -15,6 +16,24 @@ interface NotificationBellProps {
 }
 
 export function NotificationBell({
+  className,
+  showCount = true,
+  size = 'md',
+  onClick,
+}: NotificationBellProps) {
+  return (
+    <CardErrorBoundary name='NotificationBell'>
+      <NotificationBellContent
+        className={className}
+        showCount={showCount}
+        size={size}
+        onClick={onClick}
+      />
+    </CardErrorBoundary>
+  );
+}
+
+function NotificationBellContent({
   className,
   showCount = true,
   size = 'md',

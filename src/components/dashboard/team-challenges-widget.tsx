@@ -147,7 +147,7 @@ export function TeamChallengesWidget({
   return (
     <CardErrorBoundary>
       <WidgetCard title='Team Activities'>
-        <div className='space-y-4'>
+        <div className='max-h-[400px] space-y-4 overflow-y-auto'>
           {/* Social Stats Row */}
           <div className='grid grid-cols-2 gap-3'>
             {/* Active Challenges */}
