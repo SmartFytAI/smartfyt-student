@@ -18,10 +18,10 @@ const navigationItems: NavigationItem[] = [
   { id: 'journal', label: 'Journal', icon: BookOpen, route: '/journal' },
   { id: 'quests', label: 'Quests', icon: Target, route: '/quests' },
   {
-    id: 'team-challenges',
-    label: 'Challenges',
+    id: 'team',
+    label: 'Team',
     icon: Trophy,
-    route: '/team-challenges',
+    route: '/team',
   },
   { id: 'coaching', label: 'Coach', icon: MessageSquare, route: '/coaching' },
 ];
@@ -47,12 +47,8 @@ export function BottomNavigation({ className }: BottomNavigationProps) {
   const getSectionNotificationCount = (section: string) => {
     return notifications
       .filter(n => {
-        if (section === 'team-challenges') {
-          return (
-            n.type === 'team_challenge' ||
-            n.type === 'team_recognition' ||
-            n.type === 'team_quest'
-          );
+        if (section === 'team') {
+          return n.type === 'team_challenge' || n.type === 'team_recognition';
         }
         if (section === 'coaching') {
           return n.type === 'coach_feedback';

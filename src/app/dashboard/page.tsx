@@ -110,6 +110,10 @@ export default function DashboardPage() {
 
             {/* Bottom Row - Fixed height based on health metrics widget */}
             <div className='h-[400px]'>
+              <TeamChallengesWidget userId={user?.id || ''} />
+            </div>
+
+            <div className='h-[400px]'>
               <CoachFeedbackWidget
                 userId={user?.id || ''}
                 onViewAll={() => {
@@ -129,10 +133,6 @@ export default function DashboardPage() {
                   // TODO: Navigate to health page when implemented
                 }}
               />
-            </div>
-
-            <div className='h-[400px]'>
-              <TeamChallengesWidget userId={user?.id || ''} />
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Trophy, Target, Users, Plus } from 'lucide-react';
+import { Target, Users, Plus, Heart, Zap } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 
@@ -11,7 +11,6 @@ import { WidgetCard } from '@/components/ui/widget-card';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserTeams } from '@/hooks/use-team-api';
 import {
-  useTeamQuests,
   useTeamChallenges,
   useTeamRecognitions,
 } from '@/hooks/use-team-challenges-api';
@@ -41,12 +40,6 @@ export function TeamChallengesWidget({
   const firstTeam = teams[0];
 
   const {
-    data: teamQuestsResponse,
-    isLoading: teamQuestsLoading,
-    error: teamQuestsError,
-  } = useTeamQuests(firstTeam?.id || null);
-
-  const {
     data: teamChallengesResponse,
     isLoading: teamChallengesLoading,
     error: teamChallengesError,
@@ -59,24 +52,16 @@ export function TeamChallengesWidget({
   } = useTeamRecognitions(firstTeam?.id || null);
 
   const isLoading =
-    teamsLoading ||
-    teamQuestsLoading ||
-    teamChallengesLoading ||
-    teamRecognitionsLoading;
-  const error =
-    teamsError ||
-    teamQuestsError ||
-    teamChallengesError ||
-    teamRecognitionsError;
+    teamsLoading || teamChallengesLoading || teamRecognitionsLoading;
+  const error = teamsError || teamChallengesError || teamRecognitionsError;
 
-  const teamQuests = teamQuestsResponse?.data || [];
   const teamChallenges = teamChallengesResponse?.data || [];
   const teamRecognitions = teamRecognitionsResponse?.data || [];
 
   // Calculate stats
-  const activeQuests = teamQuests.filter(q => q.isActive).length;
   const activeChallenges = teamChallenges.filter(c => c.isActive).length;
-  const recentRecognitions = teamRecognitions.slice(0, 3);
+  const recentRecognitions = teamRecognitions.slice(0, 2);
+  const totalRecognitions = teamRecognitions.length;
 
   const getRecognitionIcon = (type: string) => {
     switch (type) {
@@ -100,76 +85,60 @@ export function TeamChallengesWidget({
   const getRecognitionColor = (type: string) => {
     switch (type) {
       case 'clap':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+        return 'bg-yellow-100 text-yellow-800';
       case 'fire':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400';
+        return 'bg-red-100 text-red-800';
       case 'heart':
-        return 'bg-pink-100 text-pink-800 dark:bg-pink-900/20 dark:text-pink-400';
+        return 'bg-pink-100 text-pink-800';
       case 'flex':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
+        return 'bg-blue-100 text-blue-800';
       case 'zap':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
+        return 'bg-purple-100 text-purple-800';
       case 'trophy':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400';
+        return 'bg-amber-100 text-amber-800';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  if (error) {
-    return (
-      <CardErrorBoundary>
-        <WidgetCard title='Team Challenges' className='h-[400px]'>
-          <div className='flex h-full flex-col items-center justify-center text-center'>
-            <div className='mb-4 text-4xl'>⚠️</div>
-            <p className='mb-4 text-sm text-muted-foreground'>
-              Failed to load team challenges
-            </p>
-            <Button variant='outline' size='sm' asChild>
-              <Link href='/team-challenges'>View All</Link>
-            </Button>
-          </div>
-        </WidgetCard>
-      </CardErrorBoundary>
-    );
-  }
-
   if (isLoading) {
     return (
-      <WidgetCard title='Team Challenges' className='h-[400px]'>
-        <div className='space-y-4'>
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='text-center'>
-              <div className='mx-auto mb-2 h-8 w-8 animate-pulse rounded bg-gray-200 dark:bg-gray-700' />
-              <div className='mx-auto h-4 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700' />
-            </div>
-            <div className='text-center'>
-              <div className='mx-auto mb-2 h-8 w-8 animate-pulse rounded bg-gray-200 dark:bg-gray-700' />
-              <div className='mx-auto h-4 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700' />
-            </div>
-          </div>
-          <div className='space-y-2'>
-            <div className='h-4 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700' />
-            <div className='h-4 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-700' />
-            <div className='h-4 w-1/2 animate-pulse rounded bg-gray-200 dark:bg-gray-700' />
-          </div>
+      <WidgetCard title='Team Activities' className='animate-pulse'>
+        <div className='space-y-3'>
+          <div className='h-4 w-3/4 rounded bg-gray-200'></div>
+          <div className='h-4 w-1/2 rounded bg-gray-200'></div>
+          <div className='h-4 w-2/3 rounded bg-gray-200'></div>
         </div>
       </WidgetCard>
     );
   }
 
-  if (teams.length === 0) {
+  if (error) {
     return (
-      <WidgetCard title='Team Challenges' className='h-[400px]'>
-        <div className='flex h-full flex-col items-center justify-center text-center'>
-          <Users className='mb-4 h-12 w-12 text-gray-400' />
-          <h4 className='mb-2 text-sm font-medium'>No Teams Found</h4>
-          <p className='mb-4 text-xs text-muted-foreground'>
-            Join a team to access challenges and quests
+      <WidgetCard title='Team Activities' className='border-red-200 bg-red-50'>
+        <div className='text-center text-red-600'>
+          <p>Failed to load team activities</p>
+        </div>
+      </WidgetCard>
+    );
+  }
+
+  if (!teams.length) {
+    return (
+      <WidgetCard
+        title='Team Activities'
+        className='border-gray-200 bg-gray-50'
+      >
+        <div className='text-center text-gray-600'>
+          <Users className='mx-auto mb-2 h-8 w-8 text-gray-400' />
+          <p className='text-sm'>
+            Join a team to access challenges and recognition
           </p>
-          <Button variant='outline' size='sm' asChild>
-            <Link href='/team'>View Teams</Link>
-          </Button>
+          <Link href='/team'>
+            <Button variant='outline' size='sm' className='mt-2'>
+              Find a Team
+            </Button>
+          </Link>
         </div>
       </WidgetCard>
     );
@@ -177,66 +146,109 @@ export function TeamChallengesWidget({
 
   return (
     <CardErrorBoundary>
-      <WidgetCard title='Team Challenges' className='h-[400px]'>
+      <WidgetCard title='Team Activities'>
         <div className='space-y-4'>
-          {/* Stats Overview */}
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='text-center'>
-              <div className='mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/20'>
-                <Target className='h-4 w-4 text-primary-600' />
+          {/* Social Stats Row */}
+          <div className='grid grid-cols-2 gap-3'>
+            {/* Active Challenges */}
+            <div className='rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 p-3'>
+              <div className='flex items-center justify-between'>
+                <div className='flex items-center space-x-2'>
+                  <Target className='h-4 w-4 text-blue-600' />
+                  <span className='text-xs font-medium text-blue-800'>
+                    Challenges
+                  </span>
+                </div>
+                <Badge variant='secondary' className='text-xs'>
+                  {activeChallenges}
+                </Badge>
               </div>
-              <div className='text-lg font-bold'>{activeQuests}</div>
-              <div className='text-xs text-muted-foreground'>Active Quests</div>
+              <div className='mt-1 text-xs text-blue-600'>
+                {activeChallenges > 0 ? 'Active now' : 'No active challenges'}
+              </div>
             </div>
-            <div className='text-center'>
-              <div className='mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-secondary-100 dark:bg-secondary-900/20'>
-                <Users className='h-4 w-4 text-secondary-600' />
+
+            {/* Recognition Count */}
+            <div className='rounded-lg bg-gradient-to-br from-pink-50 to-pink-100 p-3'>
+              <div className='flex items-center justify-between'>
+                <div className='flex items-center space-x-2'>
+                  <Heart className='h-4 w-4 text-pink-600' />
+                  <span className='text-xs font-medium text-pink-800'>
+                    Recognition
+                  </span>
+                </div>
+                <Badge variant='secondary' className='text-xs'>
+                  {totalRecognitions}
+                </Badge>
               </div>
-              <div className='text-lg font-bold'>{activeChallenges}</div>
-              <div className='text-xs text-muted-foreground'>Challenges</div>
+              <div className='mt-1 text-xs text-pink-600'>
+                {totalRecognitions > 0 ? 'Given today' : 'No recognition yet'}
+              </div>
             </div>
           </div>
 
-          {/* Recent Recognitions */}
+          {/* Recent Activity */}
           <div>
-            <h4 className='mb-2 text-sm font-medium'>Recent Recognition</h4>
-            {recentRecognitions.length === 0 ? (
-              <p className='text-xs text-muted-foreground'>
-                No recent recognitions
-              </p>
-            ) : (
+            <div className='mb-3 flex items-center space-x-2'>
+              <Zap className='h-4 w-4 text-orange-600' />
+              <span className='text-sm font-medium'>Recent Activity</span>
+            </div>
+
+            {recentRecognitions.length > 0 ? (
               <div className='space-y-2'>
                 {recentRecognitions.map(recognition => (
-                  <div key={recognition.id} className='flex items-center gap-2'>
-                    <span className='text-sm'>
-                      {getRecognitionIcon(recognition.type)}
-                    </span>
-                    <Badge className={getRecognitionColor(recognition.type)}>
-                      {recognition.type}
-                    </Badge>
-                    <span className='flex-1 truncate text-xs text-muted-foreground'>
-                      {recognition.message || 'Great job!'}
-                    </span>
+                  <div
+                    key={recognition.id}
+                    className='flex items-center justify-between rounded-lg bg-gray-50 p-2 transition-colors hover:bg-gray-100'
+                  >
+                    <div className='flex items-center space-x-2'>
+                      <span
+                        className={`rounded-full p-1 ${getRecognitionColor(recognition.type)}`}
+                      >
+                        {getRecognitionIcon(recognition.type)}
+                      </span>
+                      <span className='max-w-[120px] truncate text-xs text-gray-700'>
+                        {recognition.message ||
+                          `${recognition.type} recognition`}
+                      </span>
+                    </div>
+                    <div className='flex space-x-1'>
+                      <button className='text-xs text-gray-400 transition-colors hover:text-red-500'>
+                        ❤️
+                      </button>
+                      <button className='text-xs text-gray-400 transition-colors hover:text-blue-500'>
+                        👏
+                      </button>
+                    </div>
                   </div>
                 ))}
+              </div>
+            ) : (
+              <div className='rounded-lg bg-gray-50 p-3 text-center'>
+                <p className='text-xs text-gray-500'>No recent activity</p>
+                <p className='mt-1 text-xs text-gray-400'>
+                  Start engaging with your team!
+                </p>
               </div>
             )}
           </div>
 
           {/* Quick Actions */}
-          <div className='space-y-2'>
-            <Button size='sm' className='w-full' asChild>
-              <Link href='/team-challenges'>
-                <Trophy className='mr-2 h-4 w-4' />
-                View All Challenges
+          <div className='border-t pt-3'>
+            <div className='grid grid-cols-2 gap-2'>
+              <Link href='/team'>
+                <Button variant='outline' size='sm' className='w-full'>
+                  <Plus className='mr-1 h-3 w-3' />
+                  Create
+                </Button>
               </Link>
-            </Button>
-            <Button variant='outline' size='sm' className='w-full' asChild>
-              <Link href='/team-challenges?tab=create'>
-                <Plus className='mr-2 h-4 w-4' />
-                Create New
+              <Link href='/team'>
+                <Button variant='outline' size='sm' className='w-full'>
+                  <Users className='mr-1 h-3 w-3' />
+                  View All
+                </Button>
               </Link>
-            </Button>
+            </div>
           </div>
         </div>
       </WidgetCard>

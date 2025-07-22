@@ -3,40 +3,6 @@ import { logger } from '@/lib/logger';
 import { NotificationService } from './notification-service';
 
 // Types for team challenges
-export interface TeamQuest {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  pointValue: number;
-  duration: 'daily' | 'weekly' | 'monthly';
-  startDate: string;
-  endDate: string;
-  teamId: string;
-  createdBy: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface TeamQuestAssignment {
-  id: string;
-  questId: string;
-  userId: string;
-  assignedAt: string;
-  status: 'assigned' | 'accepted' | 'declined' | 'completed';
-}
-
-export interface TeamQuestCompletion {
-  id: string;
-  questId: string;
-  userId: string;
-  completedAt: string;
-  notes?: string;
-  evidence?: string;
-}
-
 export interface TeamChallenge {
   id: string;
   title: string;
@@ -84,19 +50,6 @@ export interface UserRecognitionLimit {
   trophiesUsed: number;
 }
 
-export interface CreateQuestData {
-  title: string;
-  description: string;
-  category: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  pointValue: number;
-  duration: 'daily' | 'weekly' | 'monthly';
-  startDate: string;
-  endDate: string;
-  teamId: string;
-  userIds: string[];
-}
-
 export interface CreateChallengeData {
   title: string;
   description: string;
@@ -120,86 +73,35 @@ export interface TeamChallengesServiceResponse<T> {
   isLoading: boolean;
 }
 
-// Mock data
-const mockTeamQuests: TeamQuest[] = [
-  {
-    id: 'quest-1',
-    title: 'Weekly Step Challenge',
-    description: 'Complete 50,000 steps this week to earn bonus points',
-    category: 'Endurance',
-    difficulty: 'medium',
-    pointValue: 100,
-    duration: 'weekly',
-    startDate: '2024-01-15T00:00:00Z',
-    endDate: '2024-01-22T00:00:00Z',
-    teamId: 'team-1',
-    createdBy: 'user-1',
-    isActive: true,
-    createdAt: '2024-01-15T00:00:00Z',
-    updatedAt: '2024-01-15T00:00:00Z',
-  },
-  {
-    id: 'quest-2',
-    title: 'Daily Hydration Goal',
-    description: 'Drink 8 glasses of water every day this week',
-    category: 'Health',
-    difficulty: 'easy',
-    pointValue: 50,
-    duration: 'daily',
-    startDate: '2024-01-15T00:00:00Z',
-    endDate: '2024-01-22T00:00:00Z',
-    teamId: 'team-1',
-    createdBy: 'user-2',
-    isActive: true,
-    createdAt: '2024-01-15T00:00:00Z',
-    updatedAt: '2024-01-15T00:00:00Z',
-  },
-  {
-    id: 'quest-3',
-    title: 'Strength Training Challenge',
-    description: 'Complete 3 strength training sessions this week',
-    category: 'Strength',
-    difficulty: 'hard',
-    pointValue: 150,
-    duration: 'weekly',
-    startDate: '2024-01-15T00:00:00Z',
-    endDate: '2024-01-22T00:00:00Z',
-    teamId: 'team-1',
-    createdBy: 'user-1',
-    isActive: true,
-    createdAt: '2024-01-15T00:00:00Z',
-    updatedAt: '2024-01-15T00:00:00Z',
-  },
-];
-
+// Mock data for development
 const mockTeamChallenges: TeamChallenge[] = [
   {
     id: 'challenge-1',
-    title: '1-on-1 Step Battle',
-    description: 'Challenge your teammate to a step competition',
+    title: 'Step Competition',
+    description: 'Who can get the most steps this week?',
     type: 'step_competition',
     duration: 7,
     createdBy: 'user-1',
     teamId: 'team-1',
     isActive: true,
-    startDate: '2024-01-15T00:00:00Z',
-    endDate: '2024-01-22T00:00:00Z',
-    createdAt: '2024-01-15T00:00:00Z',
-    updatedAt: '2024-01-15T00:00:00Z',
+    startDate: new Date().toISOString(),
+    endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
   {
     id: 'challenge-2',
-    title: 'Group Workout Challenge',
-    description: 'Complete a group workout session together',
+    title: 'Workout Warriors',
+    description: 'Complete 3 workouts this week',
     type: 'workout',
-    duration: 3,
+    duration: 7,
     createdBy: 'user-2',
     teamId: 'team-1',
     isActive: true,
-    startDate: '2024-01-15T00:00:00Z',
-    endDate: '2024-01-18T00:00:00Z',
-    createdAt: '2024-01-15T00:00:00Z',
-    updatedAt: '2024-01-15T00:00:00Z',
+    startDate: new Date().toISOString(),
+    endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
 ];
 
@@ -209,150 +111,58 @@ const mockTeamRecognitions: TeamRecognition[] = [
     fromUserId: 'user-1',
     toUserId: 'user-2',
     teamId: 'team-1',
-    type: 'fire',
-    message: 'Amazing performance in the step challenge!',
-    createdAt: '2024-01-15T10:00:00Z',
+    type: 'clap',
+    message: 'Great job on the workout today!',
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'recognition-2',
     fromUserId: 'user-2',
-    toUserId: 'user-1',
+    toUserId: 'user-3',
     teamId: 'team-1',
-    type: 'clap',
-    message: 'Great leadership this week!',
-    createdAt: '2024-01-15T09:00:00Z',
+    type: 'fire',
+    message: 'You crushed that challenge!',
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'recognition-3',
     fromUserId: 'user-3',
     toUserId: 'user-1',
     teamId: 'team-1',
-    type: 'trophy',
-    message: 'Champion of the week!',
-    createdAt: '2024-01-15T08:00:00Z',
+    type: 'heart',
+    message: 'Thanks for being such a great teammate!',
+    createdAt: new Date().toISOString(),
   },
 ];
 
-/**
- * Team Challenges Service - Handles all team challenges, quests, and recognition
- */
+const mockUserRecognitionLimits: UserRecognitionLimit = {
+  id: 'limit-1',
+  userId: 'user-1',
+  date: new Date().toISOString().split('T')[0],
+  clapsUsed: 2,
+  firesUsed: 1,
+  heartsUsed: 3,
+  flexesUsed: 0,
+  zapsUsed: 1,
+  trophiesUsed: 0,
+};
+
 export class TeamChallengesService {
-  /**
-   * Get team quests
-   */
-  static async getTeamQuests(
-    teamId: string
-  ): Promise<TeamChallengesServiceResponse<TeamQuest[]>> {
-    try {
-      logger.debug('TeamChallengesService: Fetching team quests', { teamId });
+  // Team Challenges Methods
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      const quests = mockTeamQuests.filter(quest => quest.teamId === teamId);
-
-      logger.info('TeamChallengesService: Successfully fetched team quests', {
-        teamId,
-        questCount: quests.length,
-      });
-
-      return {
-        data: quests,
-        error: null,
-        isLoading: false,
-      };
-    } catch (error) {
-      logger.error('TeamChallengesService: Error fetching team quests', {
-        teamId,
-        error,
-      });
-      return {
-        data: null,
-        error: 'Failed to load team quests',
-        isLoading: false,
-      };
-    }
-  }
-
-  /**
-   * Create a new team quest
-   */
-  static async createQuest(
-    data: CreateQuestData
-  ): Promise<TeamChallengesServiceResponse<TeamQuest>> {
-    try {
-      logger.debug('TeamChallengesService: Creating team quest', { data });
-
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const newQuest: TeamQuest = {
-        id: `quest-${Date.now()}`,
-        title: data.title,
-        description: data.description,
-        category: data.category,
-        difficulty: data.difficulty,
-        pointValue: data.pointValue,
-        duration: data.duration,
-        startDate: data.startDate,
-        endDate: data.endDate,
-        teamId: data.teamId,
-        createdBy: 'current-user', // This would come from auth
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      // Add to mock data
-      mockTeamQuests.push(newQuest);
-
-      logger.info('TeamChallengesService: Successfully created team quest', {
-        questId: newQuest.id,
-        teamId: data.teamId,
-      });
-
-      return {
-        data: newQuest,
-        error: null,
-        isLoading: false,
-      };
-    } catch (error) {
-      logger.error('TeamChallengesService: Error creating team quest', {
-        data,
-        error,
-      });
-      return {
-        data: null,
-        error: 'Failed to create team quest',
-        isLoading: false,
-      };
-    }
-  }
-
-  /**
-   * Get team challenges
-   */
   static async getTeamChallenges(
     teamId: string
   ): Promise<TeamChallengesServiceResponse<TeamChallenge[]>> {
     try {
-      logger.debug('TeamChallengesService: Fetching team challenges', {
-        teamId,
-      });
+      logger.info('Fetching team challenges', { teamId });
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // TODO: Replace with actual API call
+      // const response = await apiClient.get(`/teams/${teamId}/challenges`);
+      // return { data: response.data, error: null, isLoading: false };
 
+      // Mock response for development
       const challenges = mockTeamChallenges.filter(
         challenge => challenge.teamId === teamId
-      );
-
-      logger.info(
-        'TeamChallengesService: Successfully fetched team challenges',
-        {
-          teamId,
-          challengeCount: challenges.length,
-        }
       );
 
       return {
@@ -361,38 +171,34 @@ export class TeamChallengesService {
         isLoading: false,
       };
     } catch (error) {
-      logger.error('TeamChallengesService: Error fetching team challenges', {
-        teamId,
-        error,
-      });
+      logger.error('Failed to fetch team challenges', { error, teamId });
       return {
         data: null,
-        error: 'Failed to load team challenges',
+        error: 'Failed to fetch team challenges',
         isLoading: false,
       };
     }
   }
 
-  /**
-   * Create a new team challenge
-   */
   static async createChallenge(
     data: CreateChallengeData
   ): Promise<TeamChallengesServiceResponse<TeamChallenge>> {
     try {
-      logger.debug('TeamChallengesService: Creating team challenge', { data });
+      logger.info('Creating team challenge', { data });
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // TODO: Replace with actual API call
+      // const response = await apiClient.post(`/teams/${data.teamId}/challenges`, data);
+      // return { data: response.data, error: null, isLoading: false };
 
+      // Mock response for development
       const newChallenge: TeamChallenge = {
         id: `challenge-${Date.now()}`,
         title: data.title,
         description: data.description,
         type: data.type,
         duration: data.duration,
+        createdBy: data.userIds[0] || 'system',
         teamId: data.teamId,
-        createdBy: 'current-user', // This would come from auth
         isActive: true,
         startDate: new Date().toISOString(),
         endDate: new Date(
@@ -405,13 +211,22 @@ export class TeamChallengesService {
       // Add to mock data
       mockTeamChallenges.push(newChallenge);
 
-      logger.info(
-        'TeamChallengesService: Successfully created team challenge',
-        {
-          challengeId: newChallenge.id,
-          teamId: data.teamId,
-        }
-      );
+      // Create notifications for team members (skip creator)
+      const notificationPromises = data.userIds
+        .filter(userId => userId !== newChallenge.createdBy)
+        .map(userId =>
+          NotificationService.createNotification({
+            userId,
+            message: `New team challenge: ${newChallenge.title}`,
+            type: 'team_challenge',
+            link: `/team-challenges?tab=challenges`,
+            actorId: newChallenge.createdBy,
+          })
+        );
+
+      if (notificationPromises.length > 0) {
+        await Promise.all(notificationPromises);
+      }
 
       return {
         data: newChallenge,
@@ -419,10 +234,7 @@ export class TeamChallengesService {
         isLoading: false,
       };
     } catch (error) {
-      logger.error('TeamChallengesService: Error creating team challenge', {
-        data,
-        error,
-      });
+      logger.error('Failed to create team challenge', { error, data });
       return {
         data: null,
         error: 'Failed to create team challenge',
@@ -431,30 +243,21 @@ export class TeamChallengesService {
     }
   }
 
-  /**
-   * Get team recognitions
-   */
+  // Team Recognition Methods
+
   static async getTeamRecognitions(
     teamId: string
   ): Promise<TeamChallengesServiceResponse<TeamRecognition[]>> {
     try {
-      logger.debug('TeamChallengesService: Fetching team recognitions', {
-        teamId,
-      });
+      logger.info('Fetching team recognitions', { teamId });
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // TODO: Replace with actual API call
+      // const response = await apiClient.get(`/teams/${teamId}/recognitions`);
+      // return { data: response.data, error: null, isLoading: false };
 
+      // Mock response for development
       const recognitions = mockTeamRecognitions.filter(
         recognition => recognition.teamId === teamId
-      );
-
-      logger.info(
-        'TeamChallengesService: Successfully fetched team recognitions',
-        {
-          teamId,
-          recognitionCount: recognitions.length,
-        }
       );
 
       return {
@@ -463,30 +266,26 @@ export class TeamChallengesService {
         isLoading: false,
       };
     } catch (error) {
-      logger.error('TeamChallengesService: Error fetching team recognitions', {
-        teamId,
-        error,
-      });
+      logger.error('Failed to fetch team recognitions', { error, teamId });
       return {
         data: null,
-        error: 'Failed to load team recognitions',
+        error: 'Failed to fetch team recognitions',
         isLoading: false,
       };
     }
   }
 
-  /**
-   * Give recognition to a teammate
-   */
   static async giveRecognition(
     data: RecognitionData
   ): Promise<TeamChallengesServiceResponse<TeamRecognition>> {
     try {
-      logger.debug('TeamChallengesService: Giving recognition', { data });
+      logger.info('Giving recognition', { data });
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // TODO: Replace with actual API call
+      // const response = await apiClient.post(`/teams/${data.teamId}/recognitions`, data);
+      // return { data: response.data, error: null, isLoading: false };
 
+      // Mock response for development
       const newRecognition: TeamRecognition = {
         id: `recognition-${Date.now()}`,
         fromUserId: data.fromUserId,
@@ -500,25 +299,13 @@ export class TeamChallengesService {
       // Add to mock data
       mockTeamRecognitions.push(newRecognition);
 
-      // Create notification for the recipient
-      try {
-        await NotificationService.createNotification({
-          userId: data.toUserId,
-          message: `${data.fromUserId} gave you a ${data.type} for ${data.message || 'your performance'}!`,
-          type: 'team_recognition',
-          link: '/team-challenges',
-          actorId: data.fromUserId,
-        });
-      } catch (notificationError) {
-        logger.warn('Failed to create recognition notification', {
-          notificationError,
-        });
-      }
-
-      logger.info('TeamChallengesService: Successfully gave recognition', {
-        recognitionId: newRecognition.id,
-        fromUserId: data.fromUserId,
-        toUserId: data.toUserId,
+      // Create notification for recipient
+      await NotificationService.createNotification({
+        userId: data.toUserId,
+        message: `You received a ${data.type} recognition!`,
+        type: 'team_recognition',
+        link: `/team-challenges?tab=recognition`,
+        actorId: data.fromUserId,
       });
 
       return {
@@ -527,10 +314,7 @@ export class TeamChallengesService {
         isLoading: false,
       };
     } catch (error) {
-      logger.error('TeamChallengesService: Error giving recognition', {
-        data,
-        error,
-      });
+      logger.error('Failed to give recognition', { error, data });
       return {
         data: null,
         error: 'Failed to give recognition',
@@ -539,42 +323,35 @@ export class TeamChallengesService {
     }
   }
 
-  /**
-   * Get user recognition limits
-   */
   static async getUserRecognitionLimits(
     userId: string,
     date: Date
   ): Promise<TeamChallengesServiceResponse<UserRecognitionLimit>> {
     try {
-      logger.debug('TeamChallengesService: Fetching user recognition limits', {
-        userId,
-        date: date.toISOString(),
-      });
+      logger.info('Fetching user recognition limits', { userId, date });
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // TODO: Replace with actual API call
+      // const dateString = date.toISOString().split('T')[0];
+      // const response = await apiClient.get(`/users/${userId}/recognition-limits?date=${dateString}`);
+      // return { data: response.data, error: null, isLoading: false };
 
+      // Mock response for development
       const dateString = date.toISOString().split('T')[0];
-      const limits: UserRecognitionLimit = {
-        id: `limit-${userId}-${dateString}`,
-        userId,
-        date: dateString,
-        clapsUsed: 3,
-        firesUsed: 2,
-        heartsUsed: 1,
-        flexesUsed: 0,
-        zapsUsed: 1,
-        trophiesUsed: 0,
-      };
-
-      logger.info(
-        'TeamChallengesService: Successfully fetched user recognition limits',
-        {
-          userId,
-          date: dateString,
-        }
-      );
+      const limits =
+        mockUserRecognitionLimits.userId === userId &&
+        mockUserRecognitionLimits.date === dateString
+          ? mockUserRecognitionLimits
+          : {
+              id: `limit-${userId}-${dateString}`,
+              userId,
+              date: dateString,
+              clapsUsed: 0,
+              firesUsed: 0,
+              heartsUsed: 0,
+              flexesUsed: 0,
+              zapsUsed: 0,
+              trophiesUsed: 0,
+            };
 
       return {
         data: limits,
@@ -582,56 +359,44 @@ export class TeamChallengesService {
         isLoading: false,
       };
     } catch (error) {
-      logger.error(
-        'TeamChallengesService: Error fetching user recognition limits',
-        {
-          userId,
-          date: date.toISOString(),
-          error,
-        }
-      );
+      logger.error('Failed to fetch user recognition limits', {
+        error,
+        userId,
+        date,
+      });
       return {
         data: null,
-        error: 'Failed to load recognition limits',
+        error: 'Failed to fetch user recognition limits',
         isLoading: false,
       };
     }
   }
 
-  /**
-   * Check if user can give a specific type of recognition
-   */
   static async checkRecognitionLimit(
     userId: string,
     type: string
   ): Promise<boolean> {
     try {
-      const limits = await this.getUserRecognitionLimits(userId, new Date());
+      logger.info('Checking recognition limit', { userId, type });
 
-      if (!limits.data) {
-        return false;
-      }
+      // TODO: Replace with actual API call
+      // const response = await apiClient.get(`/users/${userId}/recognition-limits`);
+      // const limits = response.data;
+      // const limitField = `${type}sUsed`;
+      // return limits[limitField] < 5; // Daily limit per type
 
-      const dailyLimits = {
-        clap: 10,
-        fire: 5,
-        heart: 8,
-        flex: 3,
-        zap: 5,
-        trophy: 2,
-      };
+      // Mock response for development
+      const limits = mockUserRecognitionLimits;
+      const limitField = `${type}sUsed` as keyof UserRecognitionLimit;
+      const currentCount = limits[limitField] as number;
+      const maxLimit = 5; // Daily limit per type
 
-      const currentUsage = limits.data[
-        `${type}sUsed` as keyof UserRecognitionLimit
-      ] as number;
-      const limit = dailyLimits[type as keyof typeof dailyLimits] || 0;
-
-      return currentUsage < limit;
+      return currentCount < maxLimit;
     } catch (error) {
-      logger.error('TeamChallengesService: Error checking recognition limit', {
+      logger.error('Failed to check recognition limit', {
+        error,
         userId,
         type,
-        error,
       });
       return false;
     }

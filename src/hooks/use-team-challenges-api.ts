@@ -2,14 +2,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import {
   TeamChallengesService,
-  type CreateQuestData,
   type CreateChallengeData,
   type RecognitionData,
 } from '@/lib/services/team-challenges-service';
 
 // Query keys
 export const teamChallengesQueryKeys = {
-  teamQuests: (teamId: string) => ['team-challenges', 'quests', teamId],
   teamChallenges: (teamId: string) => ['team-challenges', 'challenges', teamId],
   teamRecognitions: (teamId: string) => [
     'team-challenges',
@@ -23,19 +21,6 @@ export const teamChallengesQueryKeys = {
     date,
   ],
 };
-
-/**
- * Hook to get team quests
- */
-export function useTeamQuests(teamId: string | null) {
-  return useQuery({
-    queryKey: teamChallengesQueryKeys.teamQuests(teamId || ''),
-    queryFn: () => TeamChallengesService.getTeamQuests(teamId || ''),
-    enabled: !!teamId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
-  });
-}
 
 /**
  * Hook to get team challenges
@@ -83,26 +68,6 @@ export function useUserRecognitionLimits(userId: string | null, date: Date) {
 }
 
 /**
- * Hook to create a team quest
- */
-export function useCreateTeamQuest() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: CreateQuestData) =>
-      TeamChallengesService.createQuest(data),
-    onSuccess: (result, variables) => {
-      if (result.data) {
-        // Invalidate team quests query
-        queryClient.invalidateQueries({
-          queryKey: teamChallengesQueryKeys.teamQuests(variables.teamId),
-        });
-      }
-    },
-  });
-}
-
-/**
  * Hook to create a team challenge
  */
 export function useCreateTeamChallenge() {
@@ -139,7 +104,8 @@ export function useGiveRecognition() {
         });
 
         // Invalidate user recognition limits
-        const dateString = new Date().toISOString().split('T')[0];
+        const today = new Date();
+        const dateString = today.toISOString().split('T')[0];
         queryClient.invalidateQueries({
           queryKey: teamChallengesQueryKeys.userRecognitionLimits(
             variables.fromUserId,
@@ -156,59 +122,20 @@ export function useGiveRecognition() {
  */
 export function useCheckRecognitionLimit() {
   return useMutation({
-    mutationFn: ({ userId, type }: { userId: string; type: string }) =>
-      TeamChallengesService.checkRecognitionLimit(userId, type),
+    mutationFn: (data: { userId: string; type: string }) =>
+      TeamChallengesService.checkRecognitionLimit(data.userId, data.type),
   });
 }
 
 /**
- * Hook to invalidate team challenges queries
+ * Hook to invalidate all team challenges queries
  */
 export function useInvalidateTeamChallengesQueries() {
   const queryClient = useQueryClient();
 
-  return {
-    invalidateTeamQuests: (teamId: string) => {
-      queryClient.invalidateQueries({
-        queryKey: teamChallengesQueryKeys.teamQuests(teamId),
-      });
-    },
-    invalidateTeamChallenges: (teamId: string) => {
-      queryClient.invalidateQueries({
-        queryKey: teamChallengesQueryKeys.teamChallenges(teamId),
-      });
-    },
-    invalidateTeamRecognitions: (teamId: string) => {
-      queryClient.invalidateQueries({
-        queryKey: teamChallengesQueryKeys.teamRecognitions(teamId),
-      });
-    },
-    invalidateUserRecognitionLimits: (userId: string) => {
-      const dateString = new Date().toISOString().split('T')[0];
-      queryClient.invalidateQueries({
-        queryKey: teamChallengesQueryKeys.userRecognitionLimits(
-          userId,
-          dateString
-        ),
-      });
-    },
-    invalidateAll: (teamId: string, userId: string) => {
-      queryClient.invalidateQueries({
-        queryKey: teamChallengesQueryKeys.teamQuests(teamId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: teamChallengesQueryKeys.teamChallenges(teamId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: teamChallengesQueryKeys.teamRecognitions(teamId),
-      });
-      const dateString = new Date().toISOString().split('T')[0];
-      queryClient.invalidateQueries({
-        queryKey: teamChallengesQueryKeys.userRecognitionLimits(
-          userId,
-          dateString
-        ),
-      });
-    },
+  return () => {
+    queryClient.invalidateQueries({
+      queryKey: ['team-challenges'],
+    });
   };
 }
