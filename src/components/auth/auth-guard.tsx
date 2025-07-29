@@ -54,13 +54,14 @@ export function AuthGuard({
   redirectTo = '/',
   maxRetries = 3,
   retryDelay = 1000,
-  initialLoadDelay = 300, // Reduced from 1000ms to 300ms
+  initialLoadDelay = 500, // Increased from 300ms to 500ms for more stability
   showSkeleton = true,
 }: AuthGuardProps) {
   const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const [retryCount, setRetryCount] = useState(0);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
   useEffect(() => {
     logger.debug('🔐 AuthGuard: Auth state changed', {
@@ -70,6 +71,7 @@ export function AuthGuard({
       userId: user?.id,
       retryCount,
       isInitialLoad,
+      shouldRedirect,
     });
 
     // Give some time for auth to initialize on first load
@@ -80,8 +82,19 @@ export function AuthGuard({
       return () => clearTimeout(timer);
     }
 
-    if (!isLoading && !isAuthenticated && !isInitialLoad) {
-      // If we've retried a few times and still no auth, redirect
+    // If we're still loading, don't make any decisions yet
+    if (isLoading) {
+      return;
+    }
+
+    // If we have a user and are authenticated, we're good
+    if (isAuthenticated && user) {
+      setShouldRedirect(false);
+      return;
+    }
+
+    // If we're not loading and not authenticated, handle retry logic
+    if (!isAuthenticated || !user) {
       if (retryCount < maxRetries) {
         logger.debug('🔄 AuthGuard: Auth not ready, retrying...', {
           retryCount,
@@ -93,8 +106,9 @@ export function AuthGuard({
         return () => clearTimeout(timer);
       } else {
         logger.debug(
-          `🚫 AuthGuard: User not authenticated after ${maxRetries} retries, redirecting to ${redirectTo}`
+          `🚫 AuthGuard: User not authenticated after ${maxRetries} retries, will redirect to ${redirectTo}`
         );
+        setShouldRedirect(true);
         router.push(redirectTo);
       }
     }
@@ -109,6 +123,7 @@ export function AuthGuard({
     retryDelay,
     initialLoadDelay,
     redirectTo,
+    shouldRedirect,
   ]);
 
   // Show skeleton loading state while auth is initializing
@@ -132,9 +147,9 @@ export function AuthGuard({
     );
   }
 
-  // Don't render children if not authenticated (will redirect)
-  if (!isAuthenticated || !user) {
-    logger.debug('🚫 AuthGuard: Not authenticated, will redirect');
+  // Don't render children if not authenticated or if we should redirect
+  if (!isAuthenticated || !user || shouldRedirect) {
+    logger.debug('🚫 AuthGuard: Not authenticated or should redirect, not rendering children');
     return null;
   }
 

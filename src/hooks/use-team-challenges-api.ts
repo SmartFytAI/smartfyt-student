@@ -36,6 +36,40 @@ export function useTeamChallenges(teamId: string | null) {
 }
 
 /**
+ * Hook to get categorized team challenges (active vs available)
+ */
+export function useCategorizedTeamChallenges(
+  teamId: string | null,
+  userId: string | null
+) {
+  return useQuery({
+    queryKey: [
+      ...teamChallengesQueryKeys.teamChallenges(teamId || ''),
+      'categorized',
+      userId,
+    ],
+    queryFn: async () => {
+      const response = await TeamChallengesService.getTeamChallenges(
+        teamId || ''
+      );
+      if (response.data && userId) {
+        return {
+          ...response,
+          data: TeamChallengesService.categorizeChallenges(
+            response.data,
+            userId
+          ),
+        };
+      }
+      return response;
+    },
+    enabled: !!teamId && !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
+/**
  * Hook to get team recognitions
  */
 export function useTeamRecognitions(teamId: string | null) {
@@ -124,6 +158,33 @@ export function useCheckRecognitionLimit() {
   return useMutation({
     mutationFn: (data: { userId: string; type: string }) =>
       TeamChallengesService.checkRecognitionLimit(data.userId, data.type),
+  });
+}
+
+/**
+ * Hook to join a team challenge
+ */
+export function useJoinTeamChallenge() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      challengeId,
+      userId,
+      teamId,
+    }: {
+      challengeId: string;
+      userId: string;
+      teamId: string;
+    }) => TeamChallengesService.joinChallenge(challengeId, userId, teamId),
+    onSuccess: (result, variables) => {
+      if (result.data) {
+        // Invalidate team challenges queries
+        queryClient.invalidateQueries({
+          queryKey: ['team-challenges', 'challenges'],
+        });
+      }
+    },
   });
 }
 

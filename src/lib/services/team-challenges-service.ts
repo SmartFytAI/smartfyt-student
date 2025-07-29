@@ -1,6 +1,10 @@
 import { logger } from '@/lib/logger';
+import { ApiClient } from '@/lib/api-client';
 
 import { NotificationService } from './notification-service';
+
+// Create API client instance
+const apiClient = new ApiClient();
 
 // Types for team challenges
 export interface TeamChallenge {
@@ -16,6 +20,13 @@ export interface TeamChallenge {
   endDate: string;
   createdAt: string;
   updatedAt: string;
+  creator?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    profileImage?: string;
+  };
+  participants?: TeamChallengeParticipant[];
 }
 
 export interface TeamChallengeParticipant {
@@ -36,6 +47,18 @@ export interface TeamRecognition {
   type: 'clap' | 'fire' | 'heart' | 'flex' | 'zap' | 'trophy';
   message?: string;
   createdAt: string;
+  fromUser?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    profileImage?: string;
+  };
+  toUser?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    profileImage?: string;
+  };
 }
 
 export interface UserRecognitionLimit {
@@ -73,81 +96,66 @@ export interface TeamChallengesServiceResponse<T> {
   isLoading: boolean;
 }
 
-// Mock data for development
-const mockTeamChallenges: TeamChallenge[] = [
-  {
-    id: 'challenge-1',
-    title: 'Step Competition',
-    description: 'Who can get the most steps this week?',
-    type: 'step_competition',
-    duration: 7,
-    createdBy: 'user-1',
-    teamId: 'team-1',
-    isActive: true,
-    startDate: new Date().toISOString(),
-    endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'challenge-2',
-    title: 'Workout Warriors',
-    description: 'Complete 3 workouts this week',
-    type: 'workout',
-    duration: 7,
-    createdBy: 'user-2',
-    teamId: 'team-1',
-    isActive: true,
-    startDate: new Date().toISOString(),
-    endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+export interface CategorizedChallenges {
+  activeChallenges: TeamChallenge[];
+  availableChallenges: TeamChallenge[];
+}
 
-const mockTeamRecognitions: TeamRecognition[] = [
-  {
-    id: 'recognition-1',
-    fromUserId: 'user-1',
-    toUserId: 'user-2',
-    teamId: 'team-1',
-    type: 'clap',
-    message: 'Great job on the workout today!',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'recognition-2',
-    fromUserId: 'user-2',
-    toUserId: 'user-3',
-    teamId: 'team-1',
-    type: 'fire',
-    message: 'You crushed that challenge!',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'recognition-3',
-    fromUserId: 'user-3',
-    toUserId: 'user-1',
-    teamId: 'team-1',
-    type: 'heart',
-    message: 'Thanks for being such a great teammate!',
-    createdAt: new Date().toISOString(),
-  },
-];
-
-const mockUserRecognitionLimits: UserRecognitionLimit = {
-  id: 'limit-1',
-  userId: 'user-1',
-  date: new Date().toISOString().split('T')[0],
-  clapsUsed: 2,
-  firesUsed: 1,
-  heartsUsed: 3,
-  flexesUsed: 0,
-  zapsUsed: 1,
-  trophiesUsed: 0,
-};
+export interface ChallengeWithParticipation extends TeamChallenge {
+  isParticipating: boolean;
+  participationStatus?: 'invited' | 'accepted' | 'declined' | 'completed';
+}
 
 export class TeamChallengesService {
+  /**
+   * Categorize challenges into active (participating) and available (not participating)
+   */
+  static categorizeChallenges(
+    challenges: TeamChallenge[],
+    currentUserId: string
+  ): CategorizedChallenges {
+    const challengesWithParticipation: ChallengeWithParticipation[] =
+      challenges.map(challenge => {
+        const isParticipating =
+          challenge.participants?.some(
+            participant => participant.userId === currentUserId
+          ) || false;
+
+        const participationStatus = challenge.participants?.find(
+          participant => participant.userId === currentUserId
+        )?.status;
+
+        return {
+          ...challenge,
+          isParticipating,
+          participationStatus,
+        };
+      });
+
+    // Sort by end date (earliest first for active challenges)
+    const sortedChallenges = challengesWithParticipation.sort((a, b) => {
+      const aEndDate = new Date(a.endDate);
+      const bEndDate = new Date(b.endDate);
+      return aEndDate.getTime() - bEndDate.getTime();
+    });
+
+    const activeChallenges = sortedChallenges.filter(
+      challenge =>
+        challenge.participationStatus === 'accepted' && challenge.isActive
+    );
+
+    const availableChallenges = sortedChallenges.filter(
+      challenge =>
+        (challenge.participationStatus === 'invited' ||
+          !challenge.participationStatus) &&
+        challenge.isActive
+    );
+
+    return {
+      activeChallenges,
+      availableChallenges,
+    };
+  }
   // Team Challenges Methods
 
   static async getTeamChallenges(
@@ -156,17 +164,21 @@ export class TeamChallengesService {
     try {
       logger.info('Fetching team challenges', { teamId });
 
-      // TODO: Replace with actual API call
-      // const response = await apiClient.get(`/teams/${teamId}/challenges`);
-      // return { data: response.data, error: null, isLoading: false };
+      const response = await apiClient.getTeamChallenges(teamId);
 
-      // Mock response for development
-      const challenges = mockTeamChallenges.filter(
-        challenge => challenge.teamId === teamId
-      );
+      // Handle API response structure: { success: true, data: challenges[] }
+      if (response.error) {
+        return {
+          data: null,
+          error: response.error,
+          isLoading: false,
+        };
+      }
+
+      const challenges = (response.data as any)?.data || response.data || [];
 
       return {
-        data: challenges,
+        data: challenges as TeamChallenge[],
         error: null,
         isLoading: false,
       };
@@ -186,50 +198,19 @@ export class TeamChallengesService {
     try {
       logger.info('Creating team challenge', { data });
 
-      // TODO: Replace with actual API call
-      // const response = await apiClient.post(`/teams/${data.teamId}/challenges`, data);
-      // return { data: response.data, error: null, isLoading: false };
+      const response = await apiClient.createTeamChallenge(data.teamId, data);
 
-      // Mock response for development
-      const newChallenge: TeamChallenge = {
-        id: `challenge-${Date.now()}`,
-        title: data.title,
-        description: data.description,
-        type: data.type,
-        duration: data.duration,
-        createdBy: data.userIds[0] || 'system',
-        teamId: data.teamId,
-        isActive: true,
-        startDate: new Date().toISOString(),
-        endDate: new Date(
-          Date.now() + data.duration * 24 * 60 * 60 * 1000
-        ).toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      // Add to mock data
-      mockTeamChallenges.push(newChallenge);
-
-      // Create notifications for team members (skip creator)
-      const notificationPromises = data.userIds
-        .filter(userId => userId !== newChallenge.createdBy)
-        .map(userId =>
-          NotificationService.createNotification({
-            userId,
-            message: `New team challenge: ${newChallenge.title}`,
-            type: 'team_challenge',
-            link: `/team-challenges?tab=challenges`,
-            actorId: newChallenge.createdBy,
-          })
-        );
-
-      if (notificationPromises.length > 0) {
-        await Promise.all(notificationPromises);
+      if (response.error) {
+        return {
+          data: null,
+          error: response.error,
+          isLoading: false,
+        };
       }
 
+      const challenge = (response.data as any)?.data || response.data;
       return {
-        data: newChallenge,
+        data: challenge as TeamChallenge,
         error: null,
         isLoading: false,
       };
@@ -251,17 +232,19 @@ export class TeamChallengesService {
     try {
       logger.info('Fetching team recognitions', { teamId });
 
-      // TODO: Replace with actual API call
-      // const response = await apiClient.get(`/teams/${teamId}/recognitions`);
-      // return { data: response.data, error: null, isLoading: false };
+      const response = await apiClient.getTeamRecognitions(teamId);
 
-      // Mock response for development
-      const recognitions = mockTeamRecognitions.filter(
-        recognition => recognition.teamId === teamId
-      );
+      if (response.error) {
+        return {
+          data: null,
+          error: response.error,
+          isLoading: false,
+        };
+      }
 
+      const recognitions = (response.data as any)?.data || response.data || [];
       return {
-        data: recognitions,
+        data: recognitions as TeamRecognition[],
         error: null,
         isLoading: false,
       };
@@ -281,35 +264,19 @@ export class TeamChallengesService {
     try {
       logger.info('Giving recognition', { data });
 
-      // TODO: Replace with actual API call
-      // const response = await apiClient.post(`/teams/${data.teamId}/recognitions`, data);
-      // return { data: response.data, error: null, isLoading: false };
+      const response = await apiClient.giveRecognition(data.teamId, data);
 
-      // Mock response for development
-      const newRecognition: TeamRecognition = {
-        id: `recognition-${Date.now()}`,
-        fromUserId: data.fromUserId,
-        toUserId: data.toUserId,
-        teamId: data.teamId,
-        type: data.type,
-        message: data.message,
-        createdAt: new Date().toISOString(),
-      };
+      if (response.error) {
+        return {
+          data: null,
+          error: response.error,
+          isLoading: false,
+        };
+      }
 
-      // Add to mock data
-      mockTeamRecognitions.push(newRecognition);
-
-      // Create notification for recipient
-      await NotificationService.createNotification({
-        userId: data.toUserId,
-        message: `You received a ${data.type} recognition!`,
-        type: 'team_recognition',
-        link: `/team-challenges?tab=recognition`,
-        actorId: data.fromUserId,
-      });
-
+      const recognition = (response.data as any)?.data || response.data;
       return {
-        data: newRecognition,
+        data: recognition as TeamRecognition,
         error: null,
         isLoading: false,
       };
@@ -330,31 +297,23 @@ export class TeamChallengesService {
     try {
       logger.info('Fetching user recognition limits', { userId, date });
 
-      // TODO: Replace with actual API call
-      // const dateString = date.toISOString().split('T')[0];
-      // const response = await apiClient.get(`/users/${userId}/recognition-limits?date=${dateString}`);
-      // return { data: response.data, error: null, isLoading: false };
-
-      // Mock response for development
       const dateString = date.toISOString().split('T')[0];
-      const limits =
-        mockUserRecognitionLimits.userId === userId &&
-        mockUserRecognitionLimits.date === dateString
-          ? mockUserRecognitionLimits
-          : {
-              id: `limit-${userId}-${dateString}`,
-              userId,
-              date: dateString,
-              clapsUsed: 0,
-              firesUsed: 0,
-              heartsUsed: 0,
-              flexesUsed: 0,
-              zapsUsed: 0,
-              trophiesUsed: 0,
-            };
+      const response = await apiClient.getUserRecognitionLimits(
+        userId,
+        dateString
+      );
 
+      if (response.error) {
+        return {
+          data: null,
+          error: response.error,
+          isLoading: false,
+        };
+      }
+
+      const limits = (response.data as any)?.data || response.data;
       return {
-        data: limits,
+        data: limits as UserRecognitionLimit,
         error: null,
         isLoading: false,
       };
@@ -379,19 +338,19 @@ export class TeamChallengesService {
     try {
       logger.info('Checking recognition limit', { userId, type });
 
-      // TODO: Replace with actual API call
-      // const response = await apiClient.get(`/users/${userId}/recognition-limits`);
-      // const limits = response.data;
-      // const limitField = `${type}sUsed`;
-      // return limits[limitField] < 5; // Daily limit per type
+      const response = await apiClient.getUserRecognitionLimits(
+        userId,
+        new Date().toISOString().split('T')[0]
+      );
 
-      // Mock response for development
-      const limits = mockUserRecognitionLimits;
+      if (response.error) {
+        return false;
+      }
+
+      const limits =
+        (response.data as any)?.data || (response.data as UserRecognitionLimit);
       const limitField = `${type}sUsed` as keyof UserRecognitionLimit;
-      const currentCount = limits[limitField] as number;
-      const maxLimit = 5; // Daily limit per type
-
-      return currentCount < maxLimit;
+      return (limits[limitField] as number) < 5; // Daily limit per type
     } catch (error) {
       logger.error('Failed to check recognition limit', {
         error,
@@ -399,6 +358,52 @@ export class TeamChallengesService {
         type,
       });
       return false;
+    }
+  }
+
+  /**
+   * Join a team challenge
+   */
+  static async joinChallenge(
+    challengeId: string,
+    userId: string,
+    teamId: string
+  ): Promise<TeamChallengesServiceResponse<TeamChallengeParticipant>> {
+    try {
+      logger.info('Joining team challenge', { challengeId, userId, teamId });
+
+      const response = await apiClient.joinTeamChallenge(
+        teamId,
+        challengeId,
+        userId
+      );
+
+      if (response.error) {
+        return {
+          data: null,
+          error: response.error,
+          isLoading: false,
+        };
+      }
+
+      const participant = (response.data as any)?.data || response.data;
+      return {
+        data: participant as TeamChallengeParticipant,
+        error: null,
+        isLoading: false,
+      };
+    } catch (error) {
+      logger.error('Failed to join team challenge', {
+        error,
+        challengeId,
+        userId,
+        teamId,
+      });
+      return {
+        data: null,
+        error: 'Failed to join team challenge',
+        isLoading: false,
+      };
     }
   }
 }

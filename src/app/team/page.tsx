@@ -15,6 +15,7 @@ import React, { useState, useEffect } from 'react';
 
 import { AuthGuard } from '@/components/auth';
 import { PageLayout } from '@/components/layout/page-layout';
+import { useNotifications } from '@/components/notifications/notification-provider';
 import { TeamLeaderboardPage } from '@/components/team/team-leaderboard-page';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -39,23 +40,24 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserTeams } from '@/hooks/use-team-api';
 import {
-  useTeamChallenges,
+  useCategorizedTeamChallenges,
   useTeamRecognitions,
   useUserRecognitionLimits,
   useCreateTeamChallenge,
   useGiveRecognition,
+  useJoinTeamChallenge,
 } from '@/hooks/use-team-challenges-api';
 import { trackPageView } from '@/lib/analytics';
 import { logger } from '@/lib/logger';
 
 export default function TeamPage() {
   const { user } = useAuth();
+  const { markAllAsRead } = useNotifications();
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
   const [isOverviewExpanded, setIsOverviewExpanded] = useState(true);
-
-  // Inline form states
   const [showChallengeForm, setShowChallengeForm] = useState(false);
   const [showRecognitionForm, setShowRecognitionForm] = useState(false);
+  const [activeTab, setActiveTab] = useState('challenges');
 
   // Form data states
   const [challengeFormData, setChallengeFormData] = useState({
@@ -100,7 +102,7 @@ export default function TeamPage() {
     data: teamChallengesResponse,
     isLoading: teamChallengesLoading,
     error: teamChallengesError,
-  } = useTeamChallenges(selectedTeamId);
+  } = useCategorizedTeamChallenges(selectedTeamId, user?.id || null);
 
   const {
     data: teamRecognitionsResponse,
@@ -117,6 +119,7 @@ export default function TeamPage() {
   // Mutations
   const createChallengeMutation = useCreateTeamChallenge();
   const giveRecognitionMutation = useGiveRecognition();
+  const joinChallengeMutation = useJoinTeamChallenge();
 
   // Loading and error states
   const isLoading =
@@ -130,15 +133,74 @@ export default function TeamPage() {
     teamChallengesError?.message ||
     teamRecognitionsError?.message;
 
-  const teamChallenges = teamChallengesResponse?.data || [];
-  const teamRecognitions = teamRecognitionsResponse?.data || [];
+  const categorizedChallenges = teamChallengesResponse?.data;
+
+  // Handle both old format (array) and new format (categorized)
+  const isCategorized =
+    categorizedChallenges &&
+    typeof categorizedChallenges === 'object' &&
+    'activeChallenges' in categorizedChallenges &&
+    'availableChallenges' in categorizedChallenges;
+
+  // Ensure we have arrays to work with
+  const activeChallenges = isCategorized
+    ? Array.isArray((categorizedChallenges as any).activeChallenges)
+      ? (categorizedChallenges as any).activeChallenges
+      : []
+    : Array.isArray(categorizedChallenges)
+      ? (categorizedChallenges as any[]).filter(c => c.isActive)
+      : [];
+
+  const availableChallenges = isCategorized
+    ? Array.isArray((categorizedChallenges as any).availableChallenges)
+      ? (categorizedChallenges as any).availableChallenges
+      : []
+    : [];
+
+  // Ensure all challenges are properly typed and have required properties
+  const safeActiveChallenges = activeChallenges.filter(
+    (challenge: any) =>
+      challenge &&
+      typeof challenge === 'object' &&
+      'id' in challenge &&
+      'title' in challenge
+  );
+
+  const safeAvailableChallenges = availableChallenges.filter(
+    (challenge: any) =>
+      challenge &&
+      typeof challenge === 'object' &&
+      'id' in challenge &&
+      'title' in challenge
+  );
+
+  const allChallenges = [...safeActiveChallenges, ...safeAvailableChallenges];
+
+  const teamRecognitions = Array.isArray(teamRecognitionsResponse?.data)
+    ? teamRecognitionsResponse?.data
+    : [];
+
+  // Filter recognitions for the current user (sent and received)
+  const userRecognitions = teamRecognitions.filter(
+    recognition =>
+      recognition.fromUserId === user?.id || recognition.toUserId === user?.id
+  );
+
+  // Separate sent and received recognitions
+  const sentRecognitions = userRecognitions.filter(
+    recognition => recognition.fromUserId === user?.id
+  );
+  const receivedRecognitions = userRecognitions.filter(
+    recognition => recognition.toUserId === user?.id
+  );
+
   const recognitionLimits = recognitionLimitsResponse?.data;
 
   // Calculate stats
-  const totalChallenges = teamChallenges.length;
-  const activeChallenges = teamChallenges.filter(c => c.isActive).length;
+  const totalChallenges = allChallenges.length;
+  const activeChallengesCount = safeActiveChallenges.length;
   const completionRate =
-    totalChallenges > 0 ? (activeChallenges / totalChallenges) * 100 : 0;
+    totalChallenges > 0 ? (activeChallengesCount / totalChallenges) * 100 : 0;
 
   const handleCreateChallenge = async () => {
     if (!selectedTeamId || !user?.id) return;
@@ -196,6 +258,38 @@ export default function TeamPage() {
       }
     } catch (error) {
       logger.error('Failed to give recognition', { error });
+    }
+  };
+
+  const handleJoinChallenge = async (challengeId: string) => {
+    if (!user?.id || !selectedTeamId) return;
+
+    try {
+      const result = await joinChallengeMutation.mutateAsync({
+        challengeId,
+        userId: user.id,
+        teamId: selectedTeamId,
+      });
+
+      if (result.data) {
+        logger.info('Joined team challenge successfully', {
+          challengeId,
+          participantId: result.data.id,
+        });
+      }
+    } catch (error) {
+      logger.error('Failed to join team challenge', { error, challengeId });
+    }
+  };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+
+    // Mark recognition notifications as read when visiting recognition tab
+    if (value === 'recognition' && user?.id) {
+      markAllAsRead().catch(error => {
+        logger.error('Failed to mark notifications as read', { error });
+      });
     }
   };
 
@@ -292,6 +386,8 @@ export default function TeamPage() {
       });
     }
   }, [user?.id, teams.length]);
+
+  // Get user teams
 
   if (isLoading) {
     return (
@@ -485,7 +581,7 @@ export default function TeamPage() {
                     </div>
                     <div className='text-center'>
                       <div className='text-2xl font-bold text-green-600'>
-                        {activeChallenges}
+                        {activeChallengesCount}
                       </div>
                       <div className='text-sm text-gray-600'>
                         Active Challenges
@@ -505,7 +601,11 @@ export default function TeamPage() {
             </Card>
 
             {/* Main Content Tabs */}
-            <Tabs defaultValue='challenges' className='space-y-4'>
+            <Tabs
+              value={activeTab}
+              onValueChange={handleTabChange}
+              className='space-y-4'
+            >
               <TabsList className='grid w-full grid-cols-2'>
                 <TabsTrigger value='challenges'>Team Challenges</TabsTrigger>
                 <TabsTrigger value='recognition'>Recognition</TabsTrigger>
@@ -638,8 +738,137 @@ export default function TeamPage() {
                 )}
 
                 {/* Challenges List */}
-                <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
-                  {teamChallenges.length === 0 ? (
+                <div className='space-y-6'>
+                  {/* Active Challenges Section */}
+                  {safeActiveChallenges.length > 0 && (
+                    <div>
+                      <h4 className='mb-4 text-lg font-semibold text-green-600'>
+                        Your Active Challenges
+                      </h4>
+                      <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+                        {safeActiveChallenges.map((challenge: any) => (
+                          <Card
+                            key={challenge.id}
+                            className='border-green-200 bg-green-50 transition-shadow hover:shadow-md'
+                          >
+                            <CardHeader>
+                              <div className='flex items-start justify-between'>
+                                <div className='flex items-center gap-2'>
+                                  {getChallengeTypeIcon(challenge.type)}
+                                  <Badge
+                                    className={getChallengeTypeColor(
+                                      challenge.type
+                                    )}
+                                  >
+                                    {challenge.type.replace('_', ' ')}
+                                  </Badge>
+                                </div>
+                                <Badge
+                                  variant='default'
+                                  className='bg-green-600'
+                                >
+                                  Active
+                                </Badge>
+                              </div>
+                              <CardTitle className='text-lg'>
+                                {challenge.title}
+                              </CardTitle>
+                              <CardDescription>
+                                {challenge.description}
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <div className='space-y-2 text-sm text-gray-600'>
+                                <div>Duration: {challenge.duration} days</div>
+                                <div>
+                                  Ends:{' '}
+                                  {new Date(
+                                    challenge.endDate
+                                  ).toLocaleDateString()}
+                                </div>
+                                <div>
+                                  Created by: {challenge.creator?.firstName}{' '}
+                                  {challenge.creator?.lastName}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Available Challenges Section */}
+                  {safeAvailableChallenges.length > 0 && (
+                    <div>
+                      <h4 className='mb-4 text-lg font-semibold text-blue-600'>
+                        Available Challenges to Join
+                      </h4>
+                      <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+                        {safeAvailableChallenges.map((challenge: any) => (
+                          <Card
+                            key={challenge.id}
+                            className='border-blue-200 bg-blue-50 transition-shadow hover:shadow-md'
+                          >
+                            <CardHeader>
+                              <div className='flex items-start justify-between'>
+                                <div className='flex items-center gap-2'>
+                                  {getChallengeTypeIcon(challenge.type)}
+                                  <Badge
+                                    className={getChallengeTypeColor(
+                                      challenge.type
+                                    )}
+                                  >
+                                    {challenge.type.replace('_', ' ')}
+                                  </Badge>
+                                </div>
+                                <Badge
+                                  variant='secondary'
+                                  className='bg-blue-600 text-white'
+                                >
+                                  Available
+                                </Badge>
+                              </div>
+                              <CardTitle className='text-lg'>
+                                {challenge.title}
+                              </CardTitle>
+                              <CardDescription>
+                                {challenge.description}
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <div className='space-y-2 text-sm text-gray-600'>
+                                <div>Duration: {challenge.duration} days</div>
+                                <div>
+                                  Ends:{' '}
+                                  {new Date(
+                                    challenge.endDate
+                                  ).toLocaleDateString()}
+                                </div>
+                                <div>
+                                  Created by: {challenge.creator?.firstName}{' '}
+                                  {challenge.creator?.lastName}
+                                </div>
+                              </div>
+                              <div className='mt-4'>
+                                <Button
+                                  className='w-full'
+                                  onClick={() =>
+                                    handleJoinChallenge(challenge.id)
+                                  }
+                                >
+                                  Join Challenge
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* No Challenges State */}
+                  {allChallenges.length === 0 && (
                     <Card className='col-span-full'>
                       <CardContent className='py-8 text-center'>
                         <Target className='mx-auto mb-4 h-12 w-12 text-gray-400' />
@@ -655,52 +884,6 @@ export default function TeamPage() {
                         </Button>
                       </CardContent>
                     </Card>
-                  ) : (
-                    teamChallenges.map(challenge => (
-                      <Card
-                        key={challenge.id}
-                        className='transition-shadow hover:shadow-md'
-                      >
-                        <CardHeader>
-                          <div className='flex items-start justify-between'>
-                            <div className='flex items-center gap-2'>
-                              {getChallengeTypeIcon(challenge.type)}
-                              <Badge
-                                className={getChallengeTypeColor(
-                                  challenge.type
-                                )}
-                              >
-                                {challenge.type.replace('_', ' ')}
-                              </Badge>
-                            </div>
-                            <Badge
-                              variant={
-                                challenge.isActive ? 'default' : 'secondary'
-                              }
-                            >
-                              {challenge.isActive ? 'Active' : 'Inactive'}
-                            </Badge>
-                          </div>
-                          <CardTitle className='text-lg'>
-                            {challenge.title}
-                          </CardTitle>
-                          <CardDescription>
-                            {challenge.description}
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className='space-y-2 text-sm text-gray-600'>
-                            <div>Duration: {challenge.duration} days</div>
-                            <div>
-                              Created:{' '}
-                              {new Date(
-                                challenge.createdAt
-                              ).toLocaleDateString()}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))
                   )}
                 </div>
               </TabsContent>
@@ -826,7 +1009,8 @@ export default function TeamPage() {
 
                 {/* Recognition List */}
                 <div className='space-y-4'>
-                  {teamRecognitions.length === 0 ? (
+                  {sentRecognitions.length === 0 &&
+                  receivedRecognitions.length === 0 ? (
                     <Card>
                       <CardContent className='py-8 text-center'>
                         <Heart className='mx-auto mb-4 h-12 w-12 text-gray-400' />
@@ -843,47 +1027,114 @@ export default function TeamPage() {
                       </CardContent>
                     </Card>
                   ) : (
-                    teamRecognitions.map(recognition => (
-                      <Card
-                        key={recognition.id}
-                        className='transition-shadow hover:shadow-md'
-                      >
-                        <CardContent className='pt-6'>
-                          <div className='flex items-start gap-4'>
-                            <div className='flex-shrink-0'>
-                              <span
-                                className={getRecognitionColor(
-                                  recognition.type
-                                )}
+                    <>
+                      {sentRecognitions.length > 0 && (
+                        <div>
+                          <h4 className='mb-4 text-lg font-semibold text-blue-600'>
+                            Sent Recognition
+                          </h4>
+                          <div className='space-y-4'>
+                            {sentRecognitions.map(recognition => (
+                              <Card
+                                key={recognition.id}
+                                className='transition-shadow hover:shadow-md'
                               >
-                                {getRecognitionIcon(recognition.type)}
-                              </span>
-                            </div>
-                            <div className='min-w-0 flex-1'>
-                              <div className='mb-1 flex items-center gap-2'>
-                                <span className='font-medium'>
-                                  {recognition.fromUserId} →{' '}
-                                  {recognition.toUserId}
-                                </span>
-                                <Badge variant='outline' className='text-xs'>
-                                  {recognition.type}
-                                </Badge>
-                              </div>
-                              {recognition.message && (
-                                <p className='mb-2 text-sm text-gray-600'>
-                                  {recognition.message}
-                                </p>
-                              )}
-                              <div className='text-xs text-gray-500'>
-                                {new Date(
-                                  recognition.createdAt
-                                ).toLocaleString()}
-                              </div>
-                            </div>
+                                <CardContent className='pt-6'>
+                                  <div className='flex items-start gap-4'>
+                                    <div className='flex-shrink-0'>
+                                      <span
+                                        className={getRecognitionColor(
+                                          recognition.type
+                                        )}
+                                      >
+                                        {getRecognitionIcon(recognition.type)}
+                                      </span>
+                                    </div>
+                                    <div className='min-w-0 flex-1'>
+                                      <div className='mb-1 flex items-center gap-2'>
+                                        <span className='font-medium'>
+                                          You → {recognition.toUser?.firstName}{' '}
+                                          {recognition.toUser?.lastName}
+                                        </span>
+                                        <Badge
+                                          variant='outline'
+                                          className='text-xs'
+                                        >
+                                          {recognition.type}
+                                        </Badge>
+                                      </div>
+                                      {recognition.message && (
+                                        <p className='mb-2 text-sm text-gray-600'>
+                                          {recognition.message}
+                                        </p>
+                                      )}
+                                      <div className='text-xs text-gray-500'>
+                                        {new Date(
+                                          recognition.createdAt
+                                        ).toLocaleString()}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))
+                        </div>
+                      )}
+                      {receivedRecognitions.length > 0 && (
+                        <div>
+                          <h4 className='mb-4 text-lg font-semibold text-green-600'>
+                            Received Recognition
+                          </h4>
+                          <div className='space-y-4'>
+                            {receivedRecognitions.map(recognition => (
+                              <Card
+                                key={recognition.id}
+                                className='transition-shadow hover:shadow-md'
+                              >
+                                <CardContent className='pt-6'>
+                                  <div className='flex items-start gap-4'>
+                                    <div className='flex-shrink-0'>
+                                      <span
+                                        className={getRecognitionColor(
+                                          recognition.type
+                                        )}
+                                      >
+                                        {getRecognitionIcon(recognition.type)}
+                                      </span>
+                                    </div>
+                                    <div className='min-w-0 flex-1'>
+                                      <div className='mb-1 flex items-center gap-2'>
+                                        <span className='font-medium'>
+                                          {recognition.fromUser?.firstName}{' '}
+                                          {recognition.fromUser?.lastName} → You
+                                        </span>
+                                        <Badge
+                                          variant='outline'
+                                          className='text-xs'
+                                        >
+                                          {recognition.type}
+                                        </Badge>
+                                      </div>
+                                      {recognition.message && (
+                                        <p className='mb-2 text-sm text-gray-600'>
+                                          {recognition.message}
+                                        </p>
+                                      )}
+                                      <div className='text-xs text-gray-500'>
+                                        {new Date(
+                                          recognition.createdAt
+                                        ).toLocaleString()}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </TabsContent>

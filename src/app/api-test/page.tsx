@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
+import { AuthGuard } from '@/components/auth';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -485,725 +486,727 @@ export default function ApiTestPage() {
   };
 
   return (
-    <div className='api-test-page container mx-auto space-y-6 p-4'>
-      <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-3xl font-bold'>API Testing Console</h1>
-          <p className='text-muted-foreground'>
-            Test SmartFyt API endpoints in development mode
-          </p>
-          {user && (
-            <div className='mt-2 rounded-lg bg-muted p-3'>
-              <p className='text-sm font-medium'>Logged in as:</p>
-              <div className='mt-1 flex items-center gap-2'>
-                <Badge variant='secondary' className='text-xs'>
-                  ID: {user.id}
-                </Badge>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => copyToClipboard(user.id)}
-                  className='h-6 px-2 text-xs'
-                >
-                  Copy ID
-                </Button>
-                <Badge variant='outline' className='text-xs'>
-                  {user.email}
-                </Badge>
-                {user.name && (
-                  <Badge variant='outline' className='text-xs'>
-                    {user.name}
+    <AuthGuard>
+      <div className='api-test-page container mx-auto space-y-6 p-4'>
+        <div className='flex items-center justify-between'>
+          <div>
+            <h1 className='text-3xl font-bold'>API Testing Console</h1>
+            <p className='text-muted-foreground'>
+              Test SmartFyt API endpoints in development mode
+            </p>
+            {user && (
+              <div className='mt-2 rounded-lg bg-muted p-3'>
+                <p className='text-sm font-medium'>Logged in as:</p>
+                <div className='mt-1 flex items-center gap-2'>
+                  <Badge variant='secondary' className='text-xs'>
+                    ID: {user.id}
                   </Badge>
-                )}
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    onClick={() => copyToClipboard(user.id)}
+                    className='h-6 px-2 text-xs'
+                  >
+                    Copy ID
+                  </Button>
+                  <Badge variant='outline' className='text-xs'>
+                    {user.email}
+                  </Badge>
+                  {user.name && (
+                    <Badge variant='outline' className='text-xs'>
+                      {user.name}
+                    </Badge>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+          <Badge variant='outline' className='text-xs'>
+            Development Only
+          </Badge>
         </div>
-        <Badge variant='outline' className='text-xs'>
-          Development Only
-        </Badge>
-      </div>
 
-      <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
-        {/* Left Panel - Endpoint Selection */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Endpoint</CardTitle>
-            <CardDescription>Select an API endpoint to test</CardDescription>
-          </CardHeader>
-          <CardContent className='space-y-4'>
-            <Select
-              value={selectedEndpoint}
-              onValueChange={setSelectedEndpoint}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className='max-h-96'>
-                {/* Health & Public */}
-                <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
-                  HEALTH & PUBLIC
-                </div>
-                {Object.entries(API_ENDPOINTS)
-                  .filter(([key]) =>
-                    [
-                      'health',
-                      'motivationalQuotesDaily',
-                      'motivationalQuotesRandom',
-                    ].includes(key)
-                  )
-                  .map(([key, config]) => (
-                    <SelectItem key={key} value={key} className='ml-2'>
-                      <div className='flex items-center gap-2'>
-                        <Badge variant='outline' className='text-xs'>
-                          {config.method}
-                        </Badge>
-                        <span className='truncate'>{config.description}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-
-                {/* User Management */}
-                <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
-                  USER MANAGEMENT
-                </div>
-                {Object.entries(API_ENDPOINTS)
-                  .filter(([key]) =>
-                    [
-                      'createUser',
-                      'getUserData',
-                      'getUserTeams',
-                      'getUserSnapshot',
-                    ].includes(key)
-                  )
-                  .map(([key, config]) => (
-                    <SelectItem key={key} value={key} className='ml-2'>
-                      <div className='flex items-center gap-2'>
-                        <Badge variant='outline' className='text-xs'>
-                          {config.method}
-                        </Badge>
-                        <span className='truncate'>{config.description}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-
-                {/* Sports & Schools */}
-                <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
-                  SPORTS & SCHOOLS
-                </div>
-                {Object.entries(API_ENDPOINTS)
-                  .filter(([key]) => ['getSports', 'getSchools'].includes(key))
-                  .map(([key, config]) => (
-                    <SelectItem key={key} value={key} className='ml-2'>
-                      <div className='flex items-center gap-2'>
-                        <Badge variant='outline' className='text-xs'>
-                          {config.method}
-                        </Badge>
-                        <span className='truncate'>{config.description}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-
-                {/* Journals */}
-                <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
-                  JOURNALS
-                </div>
-                {Object.entries(API_ENDPOINTS)
-                  .filter(([key]) =>
-                    [
-                      'getJournals',
-                      'getJournalDates',
-                      'getJournalForDate',
-                      'createJournal',
-                    ].includes(key)
-                  )
-                  .map(([key, config]) => (
-                    <SelectItem key={key} value={key} className='ml-2'>
-                      <div className='flex items-center gap-2'>
-                        <Badge variant='outline' className='text-xs'>
-                          {config.method}
-                        </Badge>
-                        <span className='truncate'>{config.description}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-
-                {/* Quests */}
-                <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
-                  QUESTS
-                </div>
-                {Object.entries(API_ENDPOINTS)
-                  .filter(([key]) =>
-                    ['getUserQuests', 'completeQuest'].includes(key)
-                  )
-                  .map(([key, config]) => (
-                    <SelectItem key={key} value={key} className='ml-2'>
-                      <div className='flex items-center gap-2'>
-                        <Badge variant='outline' className='text-xs'>
-                          {config.method}
-                        </Badge>
-                        <span className='truncate'>{config.description}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-
-                {/* Dashboard & Metrics */}
-                <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
-                  DASHBOARD & METRICS
-                </div>
-                {Object.entries(API_ENDPOINTS)
-                  .filter(([key]) =>
-                    [
-                      'getDashboard',
-                      'getUserMetrics',
-                      'getHealthData',
-                    ].includes(key)
-                  )
-                  .map(([key, config]) => (
-                    <SelectItem key={key} value={key} className='ml-2'>
-                      <div className='flex items-center gap-2'>
-                        <Badge variant='outline' className='text-xs'>
-                          {config.method}
-                        </Badge>
-                        <span className='truncate'>{config.description}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-
-                {/* Leaderboards */}
-                <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
-                  LEADERBOARDS
-                </div>
-                {Object.entries(API_ENDPOINTS)
-                  .filter(([key]) =>
-                    [
-                      'getUserTeamsForLeaderboard',
-                      'getTeamLeaderboard',
-                      'getSchoolLeaderboard',
-                    ].includes(key)
-                  )
-                  .map(([key, config]) => (
-                    <SelectItem key={key} value={key} className='ml-2'>
-                      <div className='flex items-center gap-2'>
-                        <Badge variant='outline' className='text-xs'>
-                          {config.method}
-                        </Badge>
-                        <span className='truncate'>{config.description}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-
-                {/* Team Management */}
-                <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
-                  TEAM MANAGEMENT
-                </div>
-                {Object.entries(API_ENDPOINTS)
-                  .filter(([key]) =>
-                    [
-                      'getAllTeams',
-                      'getTeamMembers',
-                      'createTeam',
-                      'addUserToTeam',
-                      'removeUserFromTeam',
-                      'updateUserRole',
-                    ].includes(key)
-                  )
-                  .map(([key, config]) => (
-                    <SelectItem key={key} value={key} className='ml-2'>
-                      <div className='flex items-center gap-2'>
-                        <Badge variant='outline' className='text-xs'>
-                          {config.method}
-                        </Badge>
-                        <span className='truncate'>{config.description}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-
-                {/* Contact & Upload */}
-                <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
-                  CONTACT & UPLOAD
-                </div>
-                {Object.entries(API_ENDPOINTS)
-                  .filter(([key]) =>
-                    [
-                      'submitContact',
-                      'getContactInquiries',
-                      'getUploadUrl',
-                    ].includes(key)
-                  )
-                  .map(([key, config]) => (
-                    <SelectItem key={key} value={key} className='ml-2'>
-                      <div className='flex items-center gap-2'>
-                        <Badge variant='outline' className='text-xs'>
-                          {config.method}
-                        </Badge>
-                        <span className='truncate'>{config.description}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-
-                {/* Debug & Testing */}
-                <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
-                  DEBUG & TESTING
-                </div>
-                {Object.entries(API_ENDPOINTS)
-                  .filter(([key]) =>
-                    ['debugS3Test', 'debugStats'].includes(key)
-                  )
-                  .map(([key, config]) => (
-                    <SelectItem key={key} value={key} className='ml-2'>
-                      <div className='flex items-center gap-2'>
-                        <Badge variant='outline' className='text-xs'>
-                          {config.method}
-                        </Badge>
-                        <span className='truncate'>{config.description}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-
-            <div className='text-sm text-muted-foreground'>
-              <p>
-                <strong>Method:</strong>{' '}
-                {API_ENDPOINTS[selectedEndpoint]?.method}
-              </p>
-              <p>
-                <strong>Path:</strong> {API_ENDPOINTS[selectedEndpoint]?.path}
-              </p>
-              <p>
-                <strong>Auth Required:</strong>{' '}
-                {API_ENDPOINTS[selectedEndpoint]?.requiresAuth ? 'Yes' : 'No'}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Middle Panel - Request Configuration */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Request</CardTitle>
-            <CardDescription>Configure your API request</CardDescription>
-          </CardHeader>
-          <CardContent className='space-y-4'>
-            <Tabs defaultValue='params' className='w-full'>
-              <TabsList className='grid w-full grid-cols-3'>
-                <TabsTrigger value='params'>Parameters</TabsTrigger>
-                <TabsTrigger value='body'>Body</TabsTrigger>
-                <TabsTrigger value='auth'>Auth</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value='params' className='space-y-4'>
-                {API_ENDPOINTS[selectedEndpoint]?.params?.map(param => (
-                  <div key={param} className='space-y-2'>
-                    <label className='text-sm font-medium'>{param}</label>
-                    <Input
-                      placeholder={`Enter ${param}`}
-                      value={urlParams[param] || ''}
-                      onChange={e =>
-                        setUrlParams(prev => ({
-                          ...prev,
-                          [param]: e.target.value,
-                        }))
-                      }
-                    />
+        <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
+          {/* Left Panel - Endpoint Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Endpoint</CardTitle>
+              <CardDescription>Select an API endpoint to test</CardDescription>
+            </CardHeader>
+            <CardContent className='space-y-4'>
+              <Select
+                value={selectedEndpoint}
+                onValueChange={setSelectedEndpoint}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className='max-h-96'>
+                  {/* Health & Public */}
+                  <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
+                    HEALTH & PUBLIC
                   </div>
-                ))}
-                {!API_ENDPOINTS[selectedEndpoint]?.params?.length && (
-                  <p className='text-sm text-muted-foreground'>
-                    No parameters required for this endpoint
-                  </p>
-                )}
-              </TabsContent>
+                  {Object.entries(API_ENDPOINTS)
+                    .filter(([key]) =>
+                      [
+                        'health',
+                        'motivationalQuotesDaily',
+                        'motivationalQuotesRandom',
+                      ].includes(key)
+                    )
+                    .map(([key, config]) => (
+                      <SelectItem key={key} value={key} className='ml-2'>
+                        <div className='flex items-center gap-2'>
+                          <Badge variant='outline' className='text-xs'>
+                            {config.method}
+                          </Badge>
+                          <span className='truncate'>{config.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
 
-              <TabsContent value='body' className='space-y-4'>
-                {API_ENDPOINTS[selectedEndpoint]?.bodySchema ? (
-                  <>
-                    <div className='text-sm text-muted-foreground'>
-                      <p>
-                        <strong>Expected Schema:</strong>
-                      </p>
-                      <pre className='mt-2 rounded bg-muted p-2 text-xs'>
-                        {formatJson(
-                          API_ENDPOINTS[selectedEndpoint]?.bodySchema
-                        )}
-                      </pre>
+                  {/* User Management */}
+                  <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
+                    USER MANAGEMENT
+                  </div>
+                  {Object.entries(API_ENDPOINTS)
+                    .filter(([key]) =>
+                      [
+                        'createUser',
+                        'getUserData',
+                        'getUserTeams',
+                        'getUserSnapshot',
+                      ].includes(key)
+                    )
+                    .map(([key, config]) => (
+                      <SelectItem key={key} value={key} className='ml-2'>
+                        <div className='flex items-center gap-2'>
+                          <Badge variant='outline' className='text-xs'>
+                            {config.method}
+                          </Badge>
+                          <span className='truncate'>{config.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+
+                  {/* Sports & Schools */}
+                  <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
+                    SPORTS & SCHOOLS
+                  </div>
+                  {Object.entries(API_ENDPOINTS)
+                    .filter(([key]) => ['getSports', 'getSchools'].includes(key))
+                    .map(([key, config]) => (
+                      <SelectItem key={key} value={key} className='ml-2'>
+                        <div className='flex items-center gap-2'>
+                          <Badge variant='outline' className='text-xs'>
+                            {config.method}
+                          </Badge>
+                          <span className='truncate'>{config.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+
+                  {/* Journals */}
+                  <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
+                    JOURNALS
+                  </div>
+                  {Object.entries(API_ENDPOINTS)
+                    .filter(([key]) =>
+                      [
+                        'getJournals',
+                        'getJournalDates',
+                        'getJournalForDate',
+                        'createJournal',
+                      ].includes(key)
+                    )
+                    .map(([key, config]) => (
+                      <SelectItem key={key} value={key} className='ml-2'>
+                        <div className='flex items-center gap-2'>
+                          <Badge variant='outline' className='text-xs'>
+                            {config.method}
+                          </Badge>
+                          <span className='truncate'>{config.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+
+                  {/* Quests */}
+                  <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
+                    QUESTS
+                  </div>
+                  {Object.entries(API_ENDPOINTS)
+                    .filter(([key]) =>
+                      ['getUserQuests', 'completeQuest'].includes(key)
+                    )
+                    .map(([key, config]) => (
+                      <SelectItem key={key} value={key} className='ml-2'>
+                        <div className='flex items-center gap-2'>
+                          <Badge variant='outline' className='text-xs'>
+                            {config.method}
+                          </Badge>
+                          <span className='truncate'>{config.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+
+                  {/* Dashboard & Metrics */}
+                  <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
+                    DASHBOARD & METRICS
+                  </div>
+                  {Object.entries(API_ENDPOINTS)
+                    .filter(([key]) =>
+                      [
+                        'getDashboard',
+                        'getUserMetrics',
+                        'getHealthData',
+                      ].includes(key)
+                    )
+                    .map(([key, config]) => (
+                      <SelectItem key={key} value={key} className='ml-2'>
+                        <div className='flex items-center gap-2'>
+                          <Badge variant='outline' className='text-xs'>
+                            {config.method}
+                          </Badge>
+                          <span className='truncate'>{config.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+
+                  {/* Leaderboards */}
+                  <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
+                    LEADERBOARDS
+                  </div>
+                  {Object.entries(API_ENDPOINTS)
+                    .filter(([key]) =>
+                      [
+                        'getUserTeamsForLeaderboard',
+                        'getTeamLeaderboard',
+                        'getSchoolLeaderboard',
+                      ].includes(key)
+                    )
+                    .map(([key, config]) => (
+                      <SelectItem key={key} value={key} className='ml-2'>
+                        <div className='flex items-center gap-2'>
+                          <Badge variant='outline' className='text-xs'>
+                            {config.method}
+                          </Badge>
+                          <span className='truncate'>{config.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+
+                  {/* Team Management */}
+                  <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
+                    TEAM MANAGEMENT
+                  </div>
+                  {Object.entries(API_ENDPOINTS)
+                    .filter(([key]) =>
+                      [
+                        'getAllTeams',
+                        'getTeamMembers',
+                        'createTeam',
+                        'addUserToTeam',
+                        'removeUserFromTeam',
+                        'updateUserRole',
+                      ].includes(key)
+                    )
+                    .map(([key, config]) => (
+                      <SelectItem key={key} value={key} className='ml-2'>
+                        <div className='flex items-center gap-2'>
+                          <Badge variant='outline' className='text-xs'>
+                            {config.method}
+                          </Badge>
+                          <span className='truncate'>{config.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+
+                  {/* Contact & Upload */}
+                  <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
+                    CONTACT & UPLOAD
+                  </div>
+                  {Object.entries(API_ENDPOINTS)
+                    .filter(([key]) =>
+                      [
+                        'submitContact',
+                        'getContactInquiries',
+                        'getUploadUrl',
+                      ].includes(key)
+                    )
+                    .map(([key, config]) => (
+                      <SelectItem key={key} value={key} className='ml-2'>
+                        <div className='flex items-center gap-2'>
+                          <Badge variant='outline' className='text-xs'>
+                            {config.method}
+                          </Badge>
+                          <span className='truncate'>{config.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+
+                  {/* Debug & Testing */}
+                  <div className='border-b bg-muted/50 px-2 py-1.5 text-xs font-semibold text-muted-foreground'>
+                    DEBUG & TESTING
+                  </div>
+                  {Object.entries(API_ENDPOINTS)
+                    .filter(([key]) =>
+                      ['debugS3Test', 'debugStats'].includes(key)
+                    )
+                    .map(([key, config]) => (
+                      <SelectItem key={key} value={key} className='ml-2'>
+                        <div className='flex items-center gap-2'>
+                          <Badge variant='outline' className='text-xs'>
+                            {config.method}
+                          </Badge>
+                          <span className='truncate'>{config.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+
+              <div className='text-sm text-muted-foreground'>
+                <p>
+                  <strong>Method:</strong>{' '}
+                  {API_ENDPOINTS[selectedEndpoint]?.method}
+                </p>
+                <p>
+                  <strong>Path:</strong> {API_ENDPOINTS[selectedEndpoint]?.path}
+                </p>
+                <p>
+                  <strong>Auth Required:</strong>{' '}
+                  {API_ENDPOINTS[selectedEndpoint]?.requiresAuth ? 'Yes' : 'No'}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Middle Panel - Request Configuration */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Request</CardTitle>
+              <CardDescription>Configure your API request</CardDescription>
+            </CardHeader>
+            <CardContent className='space-y-4'>
+              <Tabs defaultValue='params' className='w-full'>
+                <TabsList className='grid w-full grid-cols-3'>
+                  <TabsTrigger value='params'>Parameters</TabsTrigger>
+                  <TabsTrigger value='body'>Body</TabsTrigger>
+                  <TabsTrigger value='auth'>Auth</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value='params' className='space-y-4'>
+                  {API_ENDPOINTS[selectedEndpoint]?.params?.map(param => (
+                    <div key={param} className='space-y-2'>
+                      <label className='text-sm font-medium'>{param}</label>
+                      <Input
+                        placeholder={`Enter ${param}`}
+                        value={urlParams[param] || ''}
+                        onChange={e =>
+                          setUrlParams(prev => ({
+                            ...prev,
+                            [param]: e.target.value,
+                          }))
+                        }
+                      />
                     </div>
-                    <Textarea
-                      placeholder='Enter JSON request body...'
-                      value={requestBody}
-                      onChange={e => setRequestBody(e.target.value)}
-                      rows={8}
-                      className='select-text'
-                    />
-                  </>
-                ) : (
-                  <p className='text-sm text-muted-foreground'>
-                    No request body required for this endpoint
-                  </p>
-                )}
-              </TabsContent>
-
-              <TabsContent value='auth' className='space-y-4'>
-                <div className='space-y-2'>
-                  <label className='text-sm font-medium'>JWT Token</label>
-                  <Textarea
-                    placeholder='Enter your JWT token...'
-                    value={authToken}
-                    onChange={e => setAuthToken(e.target.value)}
-                    rows={4}
-                    className='select-text'
-                  />
-                  {user && (
-                    <p className='text-xs text-muted-foreground'>
-                      Logged in as: {user.email}
+                  ))}
+                  {!API_ENDPOINTS[selectedEndpoint]?.params?.length && (
+                    <p className='text-sm text-muted-foreground'>
+                      No parameters required for this endpoint
                     </p>
                   )}
-                </div>
-              </TabsContent>
-            </Tabs>
+                </TabsContent>
 
-            <Button
-              onClick={makeApiCall}
-              disabled={isLoading}
-              className='w-full'
-            >
-              {isLoading ? 'Sending Request...' : 'Send Request'}
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Right Panel - Response */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Response</CardTitle>
-            <CardDescription>View API response</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {response ? (
-              <div className='space-y-4'>
-                <div className='flex items-center gap-2'>
-                  <Badge className={getStatusColor(response.status)}>
-                    {response.status}
-                  </Badge>
-                  {response.duration && (
-                    <Badge variant='outline'>{response.duration}ms</Badge>
+                <TabsContent value='body' className='space-y-4'>
+                  {API_ENDPOINTS[selectedEndpoint]?.bodySchema ? (
+                    <>
+                      <div className='text-sm text-muted-foreground'>
+                        <p>
+                          <strong>Expected Schema:</strong>
+                        </p>
+                        <pre className='mt-2 rounded bg-muted p-2 text-xs'>
+                          {formatJson(
+                            API_ENDPOINTS[selectedEndpoint]?.bodySchema
+                          )}
+                        </pre>
+                      </div>
+                      <Textarea
+                        placeholder='Enter JSON request body...'
+                        value={requestBody}
+                        onChange={e => setRequestBody(e.target.value)}
+                        rows={8}
+                        className='select-text'
+                      />
+                    </>
+                  ) : (
+                    <p className='text-sm text-muted-foreground'>
+                      No request body required for this endpoint
+                    </p>
                   )}
-                </div>
+                </TabsContent>
 
-                <Tabs defaultValue='data' className='w-full'>
-                  <TabsList className='grid w-full grid-cols-2'>
-                    <TabsTrigger value='data'>Data</TabsTrigger>
-                    <TabsTrigger value='headers'>Headers</TabsTrigger>
-                  </TabsList>
-                  <div className='mt-2 flex justify-end'>
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      onClick={() =>
-                        copyToClipboard(
-                          response.error
-                            ? response.error
-                            : formatJson(response.data)
-                        )
-                      }
-                    >
-                      Copy Response
-                    </Button>
+                <TabsContent value='auth' className='space-y-4'>
+                  <div className='space-y-2'>
+                    <label className='text-sm font-medium'>JWT Token</label>
+                    <Textarea
+                      placeholder='Enter your JWT token...'
+                      value={authToken}
+                      onChange={e => setAuthToken(e.target.value)}
+                      rows={4}
+                      className='select-text'
+                    />
+                    {user && (
+                      <p className='text-xs text-muted-foreground'>
+                        Logged in as: {user.email}
+                      </p>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
+
+              <Button
+                onClick={makeApiCall}
+                disabled={isLoading}
+                className='w-full'
+              >
+                {isLoading ? 'Sending Request...' : 'Send Request'}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Right Panel - Response */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Response</CardTitle>
+              <CardDescription>View API response</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {response ? (
+                <div className='space-y-4'>
+                  <div className='flex items-center gap-2'>
+                    <Badge className={getStatusColor(response.status)}>
+                      {response.status}
+                    </Badge>
+                    {response.duration && (
+                      <Badge variant='outline'>{response.duration}ms</Badge>
+                    )}
                   </div>
 
-                  <TabsContent value='data'>
-                    <div className='h-64 w-full overflow-auto'>
-                      <pre className='select-text rounded bg-muted p-4 text-xs'>
-                        {response.error
-                          ? response.error
-                          : formatJson(response.data)}
-                      </pre>
+                  <Tabs defaultValue='data' className='w-full'>
+                    <TabsList className='grid w-full grid-cols-2'>
+                      <TabsTrigger value='data'>Data</TabsTrigger>
+                      <TabsTrigger value='headers'>Headers</TabsTrigger>
+                    </TabsList>
+                    <div className='mt-2 flex justify-end'>
+                      <Button
+                        variant='outline'
+                        size='sm'
+                        onClick={() =>
+                          copyToClipboard(
+                            response.error
+                              ? response.error
+                              : formatJson(response.data)
+                          )
+                        }
+                      >
+                        Copy Response
+                      </Button>
                     </div>
-                  </TabsContent>
 
-                  <TabsContent value='headers'>
-                    <div className='h-64 w-full overflow-auto'>
-                      <pre className='select-text rounded bg-muted p-4 text-xs'>
-                        {formatJson(response.headers)}
-                      </pre>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </div>
-            ) : (
-              <p className='text-sm text-muted-foreground'>
-                Send a request to see the response here
-              </p>
-            )}
+                    <TabsContent value='data'>
+                      <div className='h-64 w-full overflow-auto'>
+                        <pre className='select-text rounded bg-muted p-4 text-xs'>
+                          {response.error
+                            ? response.error
+                            : formatJson(response.data)}
+                        </pre>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value='headers'>
+                      <div className='h-64 w-full overflow-auto'>
+                        <pre className='select-text rounded bg-muted p-4 text-xs'>
+                          {formatJson(response.headers)}
+                        </pre>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              ) : (
+                <p className='text-sm text-muted-foreground'>
+                  Send a request to see the response here
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Common testing scenarios</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className='flex flex-wrap gap-2'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('health');
+                  setRequestBody('');
+                  setUrlParams({});
+                }}
+              >
+                Test Health
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('createUser');
+                  setRequestBody(
+                    JSON.stringify(
+                      {
+                        id: `test-user-${Date.now()}`,
+                        email: `test-${Date.now()}@example.com`,
+                        firstName: 'Test',
+                        lastName: 'User',
+                        profileImage: 'https://example.com/avatar.jpg',
+                        username: `testuser${Date.now()}`,
+                      },
+                      null,
+                      2
+                    )
+                  );
+                }}
+              >
+                Create Test User
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('getUserData');
+                  setUrlParams({ userId: user?.id || 'test-user-123' });
+                }}
+              >
+                Get My User Data
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('getUserData');
+                  setUrlParams({ userId: 'test-user-123' });
+                }}
+              >
+                Get Test User Data
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('createJournal');
+                  setRequestBody(
+                    JSON.stringify(
+                      {
+                        authorID: user?.id || 'test-user-123',
+                        title: 'Test Journal Entry',
+                        wentWell: 'Had a great workout',
+                        notWell: 'Could have slept better',
+                        goals: 'Improve sleep quality',
+                        sleepHours: 7,
+                        activeHours: 2,
+                        stress: 3,
+                        screenTime: 4,
+                        studyHours: 3,
+                      },
+                      null,
+                      2
+                    )
+                  );
+                }}
+              >
+                Create My Journal
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('createJournal');
+                  setRequestBody(
+                    JSON.stringify(
+                      {
+                        authorID: 'test-user-123',
+                        title: 'Test Journal Entry',
+                        wentWell: 'Had a great workout',
+                        notWell: 'Could have slept better',
+                        goals: 'Improve sleep quality',
+                        sleepHours: 7,
+                        activeHours: 2,
+                        stress: 3,
+                        screenTime: 4,
+                        studyHours: 3,
+                      },
+                      null,
+                      2
+                    )
+                  );
+                }}
+              >
+                Create Test Journal
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('motivationalQuotesDaily');
+                  setRequestBody('');
+                  setUrlParams({});
+                }}
+              >
+                Get Daily Quote
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('motivationalQuotesRandom');
+                  setRequestBody('');
+                  setUrlParams({});
+                }}
+              >
+                Get Random Quote
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('getUserTeams');
+                  setUrlParams({ userId: user?.id || 'test-user-123' });
+                }}
+              >
+                Get My Teams
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('getDashboard');
+                  setUrlParams({ userId: user?.id || 'test-user-123' });
+                }}
+              >
+                Get My Dashboard
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('getAllTeams');
+                  setRequestBody('');
+                  setUrlParams({});
+                }}
+              >
+                Get All Teams
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('createTeam');
+                  setRequestBody(
+                    JSON.stringify(
+                      {
+                        name: 'Test Team',
+                        sportID: '1', // You'll need to get a real sport ID
+                        creatorId: user?.id || 'test-user-123',
+                      },
+                      null,
+                      2
+                    )
+                  );
+                }}
+              >
+                Create Test Team
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('addUserToTeam');
+                  setUrlParams({ teamId: 'test-team-id' });
+                  setRequestBody(
+                    JSON.stringify(
+                      {
+                        userId: user?.id || 'test-user-123',
+                        role: 'member',
+                      },
+                      null,
+                      2
+                    )
+                  );
+                }}
+              >
+                Add User to Team
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('submitContact');
+                  setRequestBody(
+                    JSON.stringify(
+                      {
+                        name: 'Test User',
+                        email: 'test@example.com',
+                        organization: 'Test Org',
+                        planType: 'Basic',
+                        message: 'This is a test contact inquiry',
+                      },
+                      null,
+                      2
+                    )
+                  );
+                }}
+              >
+                Submit Contact
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('getUploadUrl');
+                  setRequestBody(
+                    JSON.stringify(
+                      {
+                        fileName: 'test-audio.wav',
+                        fileType: 'audio/wav',
+                      },
+                      null,
+                      2
+                    )
+                  );
+                }}
+              >
+                Get Upload URL
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setSelectedEndpoint('debugS3Test');
+                  setRequestBody('');
+                  setUrlParams({});
+                }}
+              >
+                Debug Test
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common testing scenarios</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className='flex flex-wrap gap-2'>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('health');
-                setRequestBody('');
-                setUrlParams({});
-              }}
-            >
-              Test Health
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('createUser');
-                setRequestBody(
-                  JSON.stringify(
-                    {
-                      id: `test-user-${Date.now()}`,
-                      email: `test-${Date.now()}@example.com`,
-                      firstName: 'Test',
-                      lastName: 'User',
-                      profileImage: 'https://example.com/avatar.jpg',
-                      username: `testuser${Date.now()}`,
-                    },
-                    null,
-                    2
-                  )
-                );
-              }}
-            >
-              Create Test User
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('getUserData');
-                setUrlParams({ userId: user?.id || 'test-user-123' });
-              }}
-            >
-              Get My User Data
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('getUserData');
-                setUrlParams({ userId: 'test-user-123' });
-              }}
-            >
-              Get Test User Data
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('createJournal');
-                setRequestBody(
-                  JSON.stringify(
-                    {
-                      authorID: user?.id || 'test-user-123',
-                      title: 'Test Journal Entry',
-                      wentWell: 'Had a great workout',
-                      notWell: 'Could have slept better',
-                      goals: 'Improve sleep quality',
-                      sleepHours: 7,
-                      activeHours: 2,
-                      stress: 3,
-                      screenTime: 4,
-                      studyHours: 3,
-                    },
-                    null,
-                    2
-                  )
-                );
-              }}
-            >
-              Create My Journal
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('createJournal');
-                setRequestBody(
-                  JSON.stringify(
-                    {
-                      authorID: 'test-user-123',
-                      title: 'Test Journal Entry',
-                      wentWell: 'Had a great workout',
-                      notWell: 'Could have slept better',
-                      goals: 'Improve sleep quality',
-                      sleepHours: 7,
-                      activeHours: 2,
-                      stress: 3,
-                      screenTime: 4,
-                      studyHours: 3,
-                    },
-                    null,
-                    2
-                  )
-                );
-              }}
-            >
-              Create Test Journal
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('motivationalQuotesDaily');
-                setRequestBody('');
-                setUrlParams({});
-              }}
-            >
-              Get Daily Quote
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('motivationalQuotesRandom');
-                setRequestBody('');
-                setUrlParams({});
-              }}
-            >
-              Get Random Quote
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('getUserTeams');
-                setUrlParams({ userId: user?.id || 'test-user-123' });
-              }}
-            >
-              Get My Teams
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('getDashboard');
-                setUrlParams({ userId: user?.id || 'test-user-123' });
-              }}
-            >
-              Get My Dashboard
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('getAllTeams');
-                setRequestBody('');
-                setUrlParams({});
-              }}
-            >
-              Get All Teams
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('createTeam');
-                setRequestBody(
-                  JSON.stringify(
-                    {
-                      name: 'Test Team',
-                      sportID: '1', // You'll need to get a real sport ID
-                      creatorId: user?.id || 'test-user-123',
-                    },
-                    null,
-                    2
-                  )
-                );
-              }}
-            >
-              Create Test Team
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('addUserToTeam');
-                setUrlParams({ teamId: 'test-team-id' });
-                setRequestBody(
-                  JSON.stringify(
-                    {
-                      userId: user?.id || 'test-user-123',
-                      role: 'member',
-                    },
-                    null,
-                    2
-                  )
-                );
-              }}
-            >
-              Add User to Team
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('submitContact');
-                setRequestBody(
-                  JSON.stringify(
-                    {
-                      name: 'Test User',
-                      email: 'test@example.com',
-                      organization: 'Test Org',
-                      planType: 'Basic',
-                      message: 'This is a test contact inquiry',
-                    },
-                    null,
-                    2
-                  )
-                );
-              }}
-            >
-              Submit Contact
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('getUploadUrl');
-                setRequestBody(
-                  JSON.stringify(
-                    {
-                      fileName: 'test-audio.wav',
-                      fileType: 'audio/wav',
-                    },
-                    null,
-                    2
-                  )
-                );
-              }}
-            >
-              Get Upload URL
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                setSelectedEndpoint('debugS3Test');
-                setRequestBody('');
-                setUrlParams({});
-              }}
-            >
-              Debug Test
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    </AuthGuard>
   );
 }

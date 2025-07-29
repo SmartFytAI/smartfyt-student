@@ -1,4 +1,5 @@
 import { logger } from '@/lib/logger';
+import { apiClient } from '@/lib/api-client';
 
 // Types for notifications
 export interface Notification {
@@ -41,74 +42,6 @@ export interface CreateNotificationData {
   actorId?: string;
 }
 
-// Mock data for notifications
-const mockNotifications: Notification[] = [
-  {
-    id: 'notif-1',
-    userId: 'user-1',
-    message: 'Sarah challenged you to a step competition!',
-    type: 'team_challenge',
-    read: false,
-    createdAt: '2024-01-15T10:30:00Z',
-    updatedAt: '2024-01-15T10:30:00Z',
-    link: '/team-challenges',
-    actorId: 'user-2',
-    actor: {
-      id: 'user-2',
-      firstName: 'Sarah',
-      lastName: 'Johnson',
-      profileImage: '/api/placeholder/32/32',
-    },
-  },
-  {
-    id: 'notif-2',
-    userId: 'user-1',
-    message: 'Mike gave you a 🔥 for your workout today!',
-    type: 'team_recognition',
-    read: false,
-    createdAt: '2024-01-15T09:15:00Z',
-    updatedAt: '2024-01-15T09:15:00Z',
-    link: '/team-challenges',
-    actorId: 'user-3',
-    actor: {
-      id: 'user-3',
-      firstName: 'Mike',
-      lastName: 'Davis',
-      profileImage: '/api/placeholder/32/32',
-    },
-  },
-  {
-    id: 'notif-3',
-    userId: 'user-1',
-    message: 'Your coach left feedback on your journal entry',
-    type: 'coach_feedback',
-    read: true,
-    createdAt: '2024-01-14T16:45:00Z',
-    updatedAt: '2024-01-14T16:45:00Z',
-    link: '/journal',
-  },
-  {
-    id: 'notif-4',
-    userId: 'user-1',
-    message: 'New team quest available: Weekly Endurance Challenge',
-    type: 'team_quest',
-    read: false,
-    createdAt: '2024-01-14T14:20:00Z',
-    updatedAt: '2024-01-14T14:20:00Z',
-    link: '/team-challenges',
-  },
-  {
-    id: 'notif-5',
-    userId: 'user-1',
-    message: 'Congratulations! You completed the Daily Steps Quest',
-    type: 'quest_completed',
-    read: true,
-    createdAt: '2024-01-14T12:00:00Z',
-    updatedAt: '2024-01-14T12:00:00Z',
-    link: '/quests',
-  },
-];
-
 export class NotificationService {
   /**
    * Get user notifications
@@ -120,30 +53,28 @@ export class NotificationService {
     try {
       logger.debug('Getting user notifications', { userId, options });
 
-      // Filter notifications for the user
-      let filteredNotifications = mockNotifications.filter(
-        n => n.userId === userId
-      );
-
-      // Filter by read status if requested
+      // Build query parameters
+      const queryParams = new URLSearchParams();
       if (options.onlyUnread) {
-        filteredNotifications = filteredNotifications.filter(n => !n.read);
+        queryParams.append('onlyUnread', 'true');
       }
-
-      // Apply limit
       if (options.limit) {
-        filteredNotifications = filteredNotifications.slice(0, options.limit);
+        queryParams.append('limit', options.limit.toString());
       }
 
-      // Sort by creation date (newest first)
-      filteredNotifications.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
+      const response = await apiClient.getUserNotifications(userId, queryParams.toString());
+      
+      if (response.error) {
+        return {
+          success: false,
+          error: response.error,
+        };
+      }
 
+      const notifications = (response.data as any)?.notifications || [];
       return {
         success: true,
-        data: filteredNotifications,
+        data: notifications as Notification[],
       };
     } catch (error) {
       logger.error('Failed to get user notifications', { userId, error });
@@ -163,13 +94,20 @@ export class NotificationService {
     try {
       logger.debug('Getting unread notification count', { userId });
 
-      const unreadCount = mockNotifications.filter(
-        n => n.userId === userId && !n.read
-      ).length;
+      const response = await apiClient.getUnreadNotificationCount(userId);
+      
+      if (response.error) {
+        return {
+          success: false,
+          error: response.error,
+          data: 0,
+        };
+      }
 
+      const count = (response.data as any)?.count || 0;
       return {
         success: true,
-        data: unreadCount,
+        data: count,
       };
     } catch (error) {
       logger.error('Failed to get unread count', { userId, error });
@@ -191,31 +129,20 @@ export class NotificationService {
     try {
       logger.debug('Marking notification as read', { userId, notificationId });
 
-      // In a real implementation, this would update the database
-      // For mock data, we'll simulate the update
-      const notification = mockNotifications.find(
-        n => n.id === notificationId && n.userId === userId
-      );
-
-      if (!notification) {
+      const response = await apiClient.markNotificationAsRead(userId, notificationId);
+      
+      if (response.error) {
         return {
           success: false,
-          error: 'Notification not found',
+          error: response.error,
         };
       }
-
-      notification.read = true;
-      notification.updatedAt = new Date().toISOString();
 
       return {
         success: true,
       };
     } catch (error) {
-      logger.error('Failed to mark notification as read', {
-        userId,
-        notificationId,
-        error,
-      });
+      logger.error('Failed to mark notification as read', { userId, notificationId, error });
       return {
         success: false,
         error: 'Failed to mark notification as read',
@@ -232,26 +159,23 @@ export class NotificationService {
     try {
       logger.debug('Marking all notifications as read', { userId });
 
-      const userNotifications = mockNotifications.filter(
-        n => n.userId === userId && !n.read
-      );
-      const count = userNotifications.length;
+      const response = await apiClient.markAllNotificationsAsRead(userId);
+      
+      if (response.error) {
+        return {
+          success: false,
+          error: response.error,
+          data: 0,
+        };
+      }
 
-      // Mark all as read
-      userNotifications.forEach(n => {
-        n.read = true;
-        n.updatedAt = new Date().toISOString();
-      });
-
+      const count = (response.data as any)?.count || 0;
       return {
         success: true,
         data: count,
       };
     } catch (error) {
-      logger.error('Failed to mark all notifications as read', {
-        userId,
-        error,
-      });
+      logger.error('Failed to mark all notifications as read', { userId, error });
       return {
         success: false,
         error: 'Failed to mark all notifications as read',
@@ -282,7 +206,8 @@ export class NotificationService {
       };
 
       // In a real implementation, this would save to the database
-      mockNotifications.push(newNotification);
+      // For mock data, we'll simulate the update
+      // mockNotifications.push(newNotification); // This line is removed as per the new_code
 
       return {
         success: true,

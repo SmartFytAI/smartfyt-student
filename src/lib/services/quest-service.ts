@@ -14,6 +14,15 @@ export interface Quest {
   status?: 'assigned' | 'completed' | 'expired';
 }
 
+export interface AvailableQuest {
+  id: string;
+  title: string;
+  description: string;
+  pointValue: number;
+  categoryName: string;
+  isNew: boolean;
+}
+
 export interface UserStat {
   id: string;
   categoryId: string;
@@ -56,7 +65,7 @@ export async function getCurrentQuests(userId: string): Promise<Quest[]> {
       return [];
     }
 
-    const quests = response.data || [];
+    const quests = (response.data as Quest[]) || [];
     logger.debug('✅ Found current quests:', quests.length);
     return quests;
   } catch (error) {
@@ -79,12 +88,61 @@ export async function getCompletedQuests(userId: string): Promise<Quest[]> {
       return [];
     }
 
-    const quests = response.data || [];
+    const quests = (response.data as Quest[]) || [];
     logger.debug('✅ Found completed quests:', quests.length);
     return quests;
   } catch (error) {
     logger.error('❌ Error fetching completed quests:', error);
     return [];
+  }
+}
+
+/**
+ * Get available quests that user hasn't joined or completed
+ */
+export async function getAvailableQuests(userId: string): Promise<AvailableQuest[]> {
+  try {
+    logger.debug('🔍 Fetching available quests for user:', userId);
+
+    const response = await apiClient.getAvailableQuests(userId);
+
+    if (response.error) {
+      logger.error('❌ Failed to fetch available quests:', response.error);
+      return [];
+    }
+
+    const quests = (response.data as AvailableQuest[]) || [];
+    logger.debug('✅ Found available quests:', quests.length);
+    return quests;
+  } catch (error) {
+    logger.error('❌ Error fetching available quests:', error);
+    return [];
+  }
+}
+
+/**
+ * Join/assign a specific quest to a user
+ */
+export async function joinQuest(
+  userId: string,
+  questId: string
+): Promise<Quest | null> {
+  try {
+    logger.debug('🔍 Joining quest for user:', { userId, questId });
+
+    const response = await apiClient.joinQuest(userId, questId);
+
+    if (response.error) {
+      logger.error('❌ Failed to join quest:', response.error);
+      return null;
+    }
+
+    const quest = response.data as Quest;
+    logger.debug('✅ Successfully joined quest:', quest?.title);
+    return quest;
+  } catch (error) {
+    logger.error('❌ Error joining quest:', error);
+    return null;
   }
 }
 
@@ -102,7 +160,7 @@ export async function getUserStats(userId: string): Promise<UserStat[]> {
       return [];
     }
 
-    const stats = response.data || [];
+    const stats = (response.data as UserStat[]) || [];
     logger.debug('✅ Found user stats:', stats.length);
     return stats;
   } catch (error) {
@@ -388,41 +446,53 @@ export function useTotalQuestScore(userId: string | null) {
 }
 
 /**
- * React Query hook for team leaderboard with caching
+ * React Query hook for available quests with caching
  */
-export function useTeamLeaderboard(teamId: string | null) {
+export function useAvailableQuests(userId: string | null) {
   return useQuery({
-    queryKey: ['leaderboard', 'team', teamId],
-    queryFn: () => getTeamLeaderboard(teamId!),
-    enabled: !!teamId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    queryKey: ['quests', 'available', userId],
+    queryFn: () => getAvailableQuests(userId!),
+    enabled: !!userId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
   });
 }
 
 /**
- * React Query hook for school leaderboard with caching
+ * React Query hook for joining quests with cache invalidation
  */
-export function useSchoolLeaderboard(userId: string | null) {
-  return useQuery({
-    queryKey: ['leaderboard', 'school', userId],
-    queryFn: () => getSchoolLeaderboard(userId!),
-    enabled: !!userId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
-  });
-}
+export function useJoinQuest() {
+  const queryClient = useQueryClient();
 
-/**
- * React Query hook for quest leaderboard with caching
- */
-export function useQuestLeaderboard(userId: string | null, teamId?: string) {
-  return useQuery({
-    queryKey: ['leaderboard', 'quest', userId, teamId],
-    queryFn: () => getQuestLeaderboard(userId!, teamId),
-    enabled: !!userId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+  return useMutation({
+    mutationFn: ({
+      userId,
+      questId,
+    }: {
+      userId: string;
+      questId: string;
+    }) => joinQuest(userId, questId),
+    onSuccess: (data, variables) => {
+      if (data) {
+        // Invalidate current quests to show new assignments
+        queryClient.invalidateQueries({
+          queryKey: ['quests', 'current', variables.userId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['quests', 'available', variables.userId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['quests', 'completion', variables.userId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['quests', 'score', variables.userId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['user', 'stats', variables.userId],
+        });
+        queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+      }
+    },
   });
 }
 

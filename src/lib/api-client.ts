@@ -43,9 +43,13 @@ export class ApiClient {
     const url = `${this.baseUrl}${endpoint}`;
 
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
       ...(options.headers as Record<string, string>),
     };
+
+    // Only add Content-Type if there's a body or if it's explicitly set
+    if (options.body || headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
+    }
 
     // Try to get token from provider first, then fallback to stored token
     let token = this.authToken;
@@ -157,11 +161,21 @@ export class ApiClient {
 
   // Quest endpoints
   async getUserQuests(userId: string) {
-    return this.request<QuestResponse[]>(`/users/${userId}/quests`);
+    return this.request(`/users/${userId}/quests`);
+  }
+
+  async getAvailableQuests(userId: string) {
+    return this.request(`/users/${userId}/quests/available`);
+  }
+
+  async joinQuest(userId: string, questId: string) {
+    return this.request(`/users/${userId}/quests/${questId}/join`, {
+      method: 'POST',
+    });
   }
 
   async getUserStats(userId: string) {
-    return this.request<UserStat[]>(`/users/${userId}/stats`);
+    return this.request(`/users/${userId}/stats`);
   }
 
   async completeQuest(userId: string, questId: string, notes: string) {
@@ -241,7 +255,63 @@ export class ApiClient {
     return this.request(`/users/${userId}/metrics`);
   }
 
-  // Motivational quotes endpoints (public - no authentication required)
+  // Team challenges endpoints
+  async getTeamChallenges(teamId: string) {
+    return this.request(`/teams/${teamId}/challenges`);
+  }
+
+  async createTeamChallenge(teamId: string, challengeData: any) {
+    return this.request(`/teams/${teamId}/challenges`, {
+      method: 'POST',
+      body: JSON.stringify(challengeData),
+    });
+  }
+
+  async joinTeamChallenge(teamId: string, challengeId: string, userId: string) {
+    return this.request(`/teams/${teamId}/challenges/${challengeId}/join`, {
+      method: 'POST',
+      body: JSON.stringify({ userId }),
+    });
+  }
+
+  async getTeamRecognitions(teamId: string) {
+    return this.request(`/teams/${teamId}/recognitions`);
+  }
+
+  async giveRecognition(teamId: string, recognitionData: any) {
+    return this.request(`/teams/${teamId}/recognitions`, {
+      method: 'POST',
+      body: JSON.stringify(recognitionData),
+    });
+  }
+
+  // Recognition limits
+  async getUserRecognitionLimits(userId: string, date: string) {
+    return this.request(`/users/${userId}/recognition-limits?date=${date}`);
+  }
+
+  // Notifications
+  async getUserNotifications(userId: string, queryParams?: string) {
+    return this.request(`/users/${userId}/notifications${queryParams ? `?${queryParams}` : ''}`);
+  }
+
+  async getUnreadNotificationCount(userId: string) {
+    return this.request(`/users/${userId}/notifications/count`);
+  }
+
+  async markNotificationAsRead(userId: string, notificationId: string) {
+    return this.request(`/users/${userId}/notifications/${notificationId}/read`, {
+      method: 'PUT',
+    });
+  }
+
+  async markAllNotificationsAsRead(userId: string) {
+    return this.request(`/users/${userId}/notifications/read-all`, {
+      method: 'PUT',
+    });
+  }
+
+  // Motivational quotes endpoints
   async getDailyQuote() {
     try {
       const url = `${this.baseUrl}/api/motivational-quotes/daily`;

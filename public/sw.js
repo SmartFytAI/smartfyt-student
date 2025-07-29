@@ -1,64 +1,46 @@
-// SmartFyt Student PWA Service Worker
-const CACHE_NAME = 'smartfyt-student-v2'; // Increment version to force cache refresh
-const API_CACHE_NAME = 'smartfyt-api-v1';
+// Service Worker for SmartFyt PWA
+const CACHE_NAME = 'smartfyt-v1';
+const STATIC_CACHE = 'smartfyt-static-v1';
+const DYNAMIC_CACHE = 'smartfyt-dynamic-v1';
 
-// Static assets to cache
-const STATIC_ASSETS = [
+// Files to cache immediately
+const STATIC_FILES = [
   '/',
+  '/offline',
   '/manifest.json',
-  '/logos/smartfyt-brain.png',
-  '/offline.html'
+  '/icons/notification-icon.png',
+  '/icons/badge-icon.png',
 ];
 
-// API endpoints to cache for offline
-const API_ENDPOINTS = [
-  '/health',
-  '/sports',
-  '/schools'
-];
-
-// Install event - cache static assets
+// Install event - cache static files
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker...');
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('[SW] Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .then(() => {
-        console.log('[SW] Static assets cached successfully');
-        return self.skipWaiting();
-      })
-      .catch((error) => {
-        console.error('[SW] Failed to cache static assets:', error);
-      })
+    caches.open(STATIC_CACHE).then((cache) => {
+      return cache.addAll(STATIC_FILES);
+    })
   );
+  self.skipWaiting();
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating service worker...');
   event.waitUntil(
-    caches.keys()
-      .then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => {
-            if (cacheName !== CACHE_NAME && cacheName !== API_CACHE_NAME) {
-              console.log('[SW] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            }
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((cacheName) => {
+            return cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE;
           })
-        );
-      })
-      .then(() => {
-        console.log('[SW] Service worker activated');
-        return self.clients.claim();
-      })
+          .map((cacheName) => {
+            return caches.delete(cacheName);
+          })
+      );
+    })
   );
+  self.clients.claim();
 });
 
-// Fetch event - implement caching strategies
+// Fetch event - serve from cache when offline
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -68,210 +50,154 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle CSS files with network-first strategy to prevent stale styles
-  if (url.pathname.includes('/_next/static/css/') || 
-      url.pathname.includes('/_next/static/chunks/') ||
-      url.pathname.endsWith('.css')) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Only cache successful responses
-          if (response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(request, responseClone);
-              });
-          }
-          return response;
-        })
-        .catch(() => {
-          // Fallback to cache if network fails
-          return caches.match(request);
-        })
-    );
+  // Skip external requests
+  if (url.origin !== self.location.origin) {
     return;
   }
 
-  // Handle API requests with network-first strategy
-  if (url.origin === self.location.origin && url.pathname.startsWith('/api/')) {
-    event.respondWith(
-      caches.open(API_CACHE_NAME)
-        .then((cache) => {
-          return fetch(request)
-            .then((response) => {
-              // Cache successful responses
-              if (response.status === 200) {
-                cache.put(request, response.clone());
-              }
-              return response;
-            })
-            .catch(() => {
-              // Return cached version on network failure
-              return cache.match(request)
-                .then((cached) => {
-                  if (cached) {
-                    console.log('[SW] Serving cached API response:', request.url);
-                    return cached;
-                  }
-                  // Return offline page for failed API requests
-                  return new Response(
-                    JSON.stringify({ 
-                      error: 'Offline - No cached data available',
-                      status: 503 
-                    }),
-                    {
-                      status: 503,
-                      headers: { 'Content-Type': 'application/json' }
-                    }
-                  );
-                });
-            });
-        })
-    );
+  // Handle API requests differently
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(handleApiRequest(request));
     return;
   }
 
-  // Handle external API requests (SmartFyt API)
-  if (url.hostname === 'localhost' && url.port === '3001') {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Cache successful API responses
-          if (response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(API_CACHE_NAME)
-              .then((cache) => {
-                cache.put(request, responseClone);
-              });
-          }
-          return response;
-        })
-        .catch(() => {
-          // Try to serve from cache
-          return caches.match(request)
-            .then((cached) => {
-              if (cached) {
-                console.log('[SW] Serving cached external API response:', request.url);
-                return cached;
-              }
-              // Return offline response
-              return new Response(
-                JSON.stringify({ 
-                  error: 'API offline - using cached data',
-                  status: 503 
-                }),
-                {
-                  status: 503,
-                  headers: { 'Content-Type': 'application/json' }
-                }
-              );
-            });
-        })
-    );
-    return;
-  }
-
-  // Handle static assets with cache-first strategy
+  // Handle static assets
   event.respondWith(
-    caches.match(request)
-      .then((cached) => {
-        if (cached) {
-          console.log('[SW] Serving cached asset:', request.url);
-          return cached;
+    caches.match(request).then((response) => {
+      if (response) {
+        return response;
+      }
+
+      return fetch(request).then((response) => {
+        // Don't cache non-successful responses
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response;
         }
 
-        // Fetch and cache new assets
-        return fetch(request)
-          .then((response) => {
-            // Only cache successful responses
-            if (response.status === 200) {
-              const responseClone = response.clone();
-              caches.open(CACHE_NAME)
-                .then((cache) => {
-                  cache.put(request, responseClone);
-                });
-            }
-            return response;
-          })
-          .catch(() => {
-            // Return offline page for failed navigation requests
-            if (request.destination === 'document') {
-              return caches.match('/offline.html');
-            }
-            // Return a basic offline response for other assets
-            return new Response('Offline', {
-              status: 503,
-              statusText: 'Service Unavailable'
-            });
-          });
-      })
+        // Clone the response
+        const responseToCache = response.clone();
+
+        caches.open(DYNAMIC_CACHE).then((cache) => {
+          cache.put(request, responseToCache);
+        });
+
+        return response;
+      });
+    })
   );
 });
 
-// Handle background sync for when connection is restored
-self.addEventListener('sync', (event) => {
-  console.log('[SW] Background sync triggered:', event.tag);
-  
-  if (event.tag === 'background-sync') {
-    event.waitUntil(
-      // Perform background tasks when online
-      self.clients.matchAll()
-        .then((clients) => {
-          clients.forEach((client) => {
-            client.postMessage({
-              type: 'SYNC_COMPLETE',
-              message: 'App is back online!'
-            });
-          });
-        })
+// Handle API requests with offline fallback
+async function handleApiRequest(request) {
+  try {
+    const response = await fetch(request);
+    return response;
+  } catch (error) {
+    // Return offline response for API requests
+    return new Response(
+      JSON.stringify({ error: 'You are offline' }),
+      {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+      }
     );
+  }
+}
+
+// Push event - handle push notifications
+self.addEventListener('push', (event) => {
+  if (!event.data) {
+    return;
+  }
+
+  try {
+    const data = event.data.json();
+    const options = {
+      body: data.body,
+      icon: data.icon || '/icons/notification-icon.png',
+      badge: data.badge || '/icons/badge-icon.png',
+      tag: data.tag,
+      data: data.data,
+      requireInteraction: false,
+      silent: false,
+      vibrate: [200, 100, 200],
+    };
+
+    event.waitUntil(
+      self.registration.showNotification(data.title, options)
+    );
+  } catch (error) {
+    console.error('Error handling push event:', error);
   }
 });
 
-// Handle push notifications (for future implementation)
-self.addEventListener('push', (event) => {
-  console.log('[SW] Push message received:', event);
-  
-  const options = {
-    body: event.data ? event.data.text() : 'New SmartFyt notification',
-    icon: '/logos/smartfyt-brain.png',
-    badge: '/logos/smartfyt-brain.png',
-    vibrate: [100, 50, 100],
-    data: {
-      dateOfArrival: Date.now(),
-      primaryKey: 1
-    },
-    actions: [
-      {
-        action: 'explore',
-        title: 'Open App',
-        icon: '/logos/smartfyt-brain.png'
-      },
-      {
-        action: 'close',
-        title: 'Close',
-        icon: '/logos/smartfyt-brain.png'
-      }
-    ]
-  };
-
-  event.waitUntil(
-    self.registration.showNotification('SmartFyt Student', options)
-  );
-});
-
-// Handle notification clicks
+// Notification click event
 self.addEventListener('notificationclick', (event) => {
-  console.log('[SW] Notification click received:', event);
-  
   event.notification.close();
 
-  if (event.action === 'explore') {
-    event.waitUntil(
-      self.clients.openWindow('/')
-    );
+  const urlToOpen = event.notification.data?.url || '/';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // Check if there's already a window/tab open with the target URL
+      for (const client of clientList) {
+        if (client.url === urlToOpen && 'focus' in client) {
+          return client.focus();
+        }
+      }
+
+      // If no window/tab is open, open a new one
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
+    })
+  );
+});
+
+// Background sync for offline actions
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'background-sync') {
+    event.waitUntil(doBackgroundSync());
   }
 });
 
-console.log('[SW] Service worker script loaded successfully'); 
+async function doBackgroundSync() {
+  try {
+    // Get stored offline actions
+    const offlineActions = await getOfflineActions();
+    
+    for (const action of offlineActions) {
+      try {
+        await fetch(action.url, {
+          method: action.method,
+          headers: action.headers,
+          body: action.body,
+        });
+        
+        // Remove successful action from storage
+        await removeOfflineAction(action.id);
+      } catch (error) {
+        console.error('Background sync failed for action:', action, error);
+      }
+    }
+  } catch (error) {
+    console.error('Background sync error:', error);
+  }
+}
+
+// Helper functions for offline storage
+async function getOfflineActions() {
+  // This would be implemented with IndexedDB or similar
+  return [];
+}
+
+async function removeOfflineAction(id) {
+  // This would be implemented with IndexedDB or similar
+}
+
+// Message event - handle messages from main thread
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+}); 
