@@ -121,13 +121,19 @@ export function JournalList({
       return 'bg-success-100 text-success-800 dark:bg-success-900/20 dark:text-success-400';
     if (stress <= 4)
       return 'bg-warning-100 text-warning-800 dark:bg-warning-900/20 dark:text-warning-400';
-    return 'bg-danger-100 text-danger-800 dark:bg-danger-900/20 dark:text-danger-400';
+    if (stress <= 6)
+      return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400';
+    if (stress <= 8)
+      return 'bg-danger-100 text-danger-800 dark:bg-danger-900/20 dark:text-danger-400';
+    return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
   };
 
   const getStressLevelText = (stress: number) => {
     if (stress <= 2) return 'Low';
-    if (stress <= 4) return 'Medium';
-    return 'High';
+    if (stress <= 4) return 'Moderate';
+    if (stress <= 6) return 'Elevated';
+    if (stress <= 8) return 'High';
+    return 'Very High';
   };
 
   if (isLoading) {

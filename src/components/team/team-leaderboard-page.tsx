@@ -262,7 +262,7 @@ export function TeamLeaderboardPage({
 
                       <div className='text-right'>
                         <p className='text-sm font-semibold text-primary-600'>
-                          {entry.engagementScore}
+                          {Math.round(entry.engagementScore)}
                         </p>
                         <p className='text-xs text-gray-500'>points</p>
                       </div>
@@ -340,7 +340,7 @@ export function TeamLeaderboardPage({
                         {entry.weeklySteps.toLocaleString()} steps
                       </p>
                       <p className='text-xs text-gray-500'>
-                        {entry.engagementScore} pts
+                        {Math.round(entry.engagementScore)} pts
                       </p>
                     </div>
                   </div>

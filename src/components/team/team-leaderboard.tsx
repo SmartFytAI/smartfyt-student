@@ -152,7 +152,7 @@ export function TeamLeaderboard({ userId, teams }: TeamLeaderboardProps) {
       {/* Score and Trend */}
       <div className='flex items-center space-x-2'>
         <div className='text-right'>
-          <p className='text-lg font-bold'>{entry.engagementScore}</p>
+          <p className='text-lg font-bold'>{Math.round(entry.engagementScore)}</p>
           <p className='text-xs text-gray-500'>points</p>
         </div>
         {getTrendIcon(entry.trend)}

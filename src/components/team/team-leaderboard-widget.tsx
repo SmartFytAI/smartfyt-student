@@ -240,7 +240,7 @@ function TeamLeaderboardWidgetContent({
 
               <div className='text-right'>
                 <p className='text-sm font-semibold text-primary-600 dark:text-primary-400'>
-                  {entry.engagementScore}
+                  {Math.round(entry.engagementScore)}
                 </p>
                 <p className='text-xs text-gray-500 dark:text-gray-400'>
                   points

@@ -411,8 +411,8 @@ function JournalDetail({ journal, onBack }: JournalDetailProps) {
 
   const getStressLevelText = (stress: number) => {
     if (stress <= 2) return 'Low';
-    if (stress <= 4) return 'Medium';
-    if (stress <= 6) return 'Moderate';
+    if (stress <= 4) return 'Moderate';
+    if (stress <= 6) return 'Elevated';
     if (stress <= 8) return 'High';
     return 'Very High';
   };
