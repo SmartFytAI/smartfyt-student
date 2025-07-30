@@ -1,7 +1,5 @@
-import { logger } from '@/lib/logger';
 import { ApiClient } from '@/lib/api-client';
-
-import { NotificationService } from './notification-service';
+import { logger } from '@/lib/logger';
 
 // Create API client instance
 const apiClient = new ApiClient();

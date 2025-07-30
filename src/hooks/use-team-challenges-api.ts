@@ -110,11 +110,11 @@ export function useCreateTeamChallenge() {
   return useMutation({
     mutationFn: (data: CreateChallengeData) =>
       TeamChallengesService.createChallenge(data),
-    onSuccess: (result, variables) => {
+    onSuccess: (result, _variables) => {
       if (result.data) {
         // Invalidate team challenges query
         queryClient.invalidateQueries({
-          queryKey: teamChallengesQueryKeys.teamChallenges(variables.teamId),
+          queryKey: teamChallengesQueryKeys.teamChallenges(_variables.teamId),
         });
       }
     },
@@ -130,11 +130,11 @@ export function useGiveRecognition() {
   return useMutation({
     mutationFn: (data: RecognitionData) =>
       TeamChallengesService.giveRecognition(data),
-    onSuccess: (result, variables) => {
+    onSuccess: (result, _variables) => {
       if (result.data) {
         // Invalidate team recognitions query
         queryClient.invalidateQueries({
-          queryKey: teamChallengesQueryKeys.teamRecognitions(variables.teamId),
+          queryKey: teamChallengesQueryKeys.teamRecognitions(_variables.teamId),
         });
 
         // Invalidate user recognition limits
@@ -142,7 +142,7 @@ export function useGiveRecognition() {
         const dateString = today.toISOString().split('T')[0];
         queryClient.invalidateQueries({
           queryKey: teamChallengesQueryKeys.userRecognitionLimits(
-            variables.fromUserId,
+            _variables.fromUserId,
             dateString
           ),
         });
@@ -177,7 +177,7 @@ export function useJoinTeamChallenge() {
       userId: string;
       teamId: string;
     }) => TeamChallengesService.joinChallenge(challengeId, userId, teamId),
-    onSuccess: (result, variables) => {
+    onSuccess: (result, _variables) => {
       if (result.data) {
         // Invalidate team challenges queries
         queryClient.invalidateQueries({

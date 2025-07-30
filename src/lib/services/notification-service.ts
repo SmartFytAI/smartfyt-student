@@ -1,5 +1,5 @@
-import { logger } from '@/lib/logger';
 import { apiClient } from '@/lib/api-client';
+import { logger } from '@/lib/logger';
 
 // Types for notifications
 export interface Notification {
@@ -62,8 +62,11 @@ export class NotificationService {
         queryParams.append('limit', options.limit.toString());
       }
 
-      const response = await apiClient.getUserNotifications(userId, queryParams.toString());
-      
+      const response = await apiClient.getUserNotifications(
+        userId,
+        queryParams.toString()
+      );
+
       if (response.error) {
         return {
           success: false,
@@ -95,7 +98,7 @@ export class NotificationService {
       logger.debug('Getting unread notification count', { userId });
 
       const response = await apiClient.getUnreadNotificationCount(userId);
-      
+
       if (response.error) {
         return {
           success: false,
@@ -129,8 +132,11 @@ export class NotificationService {
     try {
       logger.debug('Marking notification as read', { userId, notificationId });
 
-      const response = await apiClient.markNotificationAsRead(userId, notificationId);
-      
+      const response = await apiClient.markNotificationAsRead(
+        userId,
+        notificationId
+      );
+
       if (response.error) {
         return {
           success: false,
@@ -142,7 +148,11 @@ export class NotificationService {
         success: true,
       };
     } catch (error) {
-      logger.error('Failed to mark notification as read', { userId, notificationId, error });
+      logger.error('Failed to mark notification as read', {
+        userId,
+        notificationId,
+        error,
+      });
       return {
         success: false,
         error: 'Failed to mark notification as read',
@@ -160,7 +170,7 @@ export class NotificationService {
       logger.debug('Marking all notifications as read', { userId });
 
       const response = await apiClient.markAllNotificationsAsRead(userId);
-      
+
       if (response.error) {
         return {
           success: false,
@@ -175,7 +185,10 @@ export class NotificationService {
         data: count,
       };
     } catch (error) {
-      logger.error('Failed to mark all notifications as read', { userId, error });
+      logger.error('Failed to mark all notifications as read', {
+        userId,
+        error,
+      });
       return {
         success: false,
         error: 'Failed to mark all notifications as read',

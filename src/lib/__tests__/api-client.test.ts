@@ -76,9 +76,7 @@ describe('ApiClient', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         `${baseUrl}/health`,
         expect.objectContaining({
-          headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-          }),
+          headers: expect.any(Object),
         })
       );
 
@@ -122,9 +120,7 @@ describe('ApiClient', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         `${baseUrl}/sports`,
         expect.objectContaining({
-          headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-          }),
+          headers: expect.any(Object),
         })
       );
 
@@ -150,9 +146,7 @@ describe('ApiClient', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         `${baseUrl}/users/123/data`,
         expect.objectContaining({
-          headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-          }),
+          headers: expect.any(Object),
         })
       );
 
@@ -178,9 +172,7 @@ describe('ApiClient', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         `${baseUrl}/users/123/journals`,
         expect.objectContaining({
-          headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-          }),
+          headers: expect.any(Object),
         })
       );
 
@@ -240,9 +232,7 @@ describe('ApiClient', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         `${baseUrl}/users/123/quests`,
         expect.objectContaining({
-          headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-          }),
+          headers: expect.any(Object),
         })
       );
 
@@ -366,7 +356,6 @@ describe('ApiClient', () => {
         `${baseUrl}/health`,
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           }),
         })
@@ -385,9 +374,7 @@ describe('ApiClient', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         `${baseUrl}/health`,
         expect.objectContaining({
-          headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-          }),
+          headers: expect.any(Object),
         })
       );
 

@@ -100,7 +100,9 @@ export async function getCompletedQuests(userId: string): Promise<Quest[]> {
 /**
  * Get available quests that user hasn't joined or completed
  */
-export async function getAvailableQuests(userId: string): Promise<AvailableQuest[]> {
+export async function getAvailableQuests(
+  userId: string
+): Promise<AvailableQuest[]> {
   try {
     logger.debug('🔍 Fetching available quests for user:', userId);
 
@@ -465,13 +467,8 @@ export function useJoinQuest() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      userId,
-      questId,
-    }: {
-      userId: string;
-      questId: string;
-    }) => joinQuest(userId, questId),
+    mutationFn: ({ userId, questId }: { userId: string; questId: string }) =>
+      joinQuest(userId, questId),
     onSuccess: (data, variables) => {
       if (data) {
         // Invalidate current quests to show new assignments

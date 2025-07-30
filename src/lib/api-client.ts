@@ -3,7 +3,7 @@
  * Connects to the independent smartfyt-api backend
  */
 
-import type { QuestResponse, UserStat } from '@/types';
+import type { QuestResponse } from '@/types';
 
 import { logger } from './logger';
 
@@ -292,7 +292,9 @@ export class ApiClient {
 
   // Notifications
   async getUserNotifications(userId: string, queryParams?: string) {
-    return this.request(`/users/${userId}/notifications${queryParams ? `?${queryParams}` : ''}`);
+    return this.request(
+      `/users/${userId}/notifications${queryParams ? `?${queryParams}` : ''}`
+    );
   }
 
   async getUnreadNotificationCount(userId: string) {
@@ -300,9 +302,12 @@ export class ApiClient {
   }
 
   async markNotificationAsRead(userId: string, notificationId: string) {
-    return this.request(`/users/${userId}/notifications/${notificationId}/read`, {
-      method: 'PUT',
-    });
+    return this.request(
+      `/users/${userId}/notifications/${notificationId}/read`,
+      {
+        method: 'PUT',
+      }
+    );
   }
 
   async markAllNotificationsAsRead(userId: string) {

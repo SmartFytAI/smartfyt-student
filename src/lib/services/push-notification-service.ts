@@ -103,7 +103,9 @@ export class PushNotificationService {
   /**
    * Send subscription to backend
    */
-  private async sendSubscriptionToServer(subscription: PushSubscription): Promise<void> {
+  private async sendSubscriptionToServer(
+    subscription: PushSubscription
+  ): Promise<void> {
     const response = await fetch('/api/push/subscribe', {
       method: 'POST',
       headers: {
@@ -152,7 +154,9 @@ export class PushNotificationService {
    */
   async showNotification(data: PushNotificationData): Promise<void> {
     if (!this.swRegistration) {
-      logger.warn('Service Worker not registered, showing fallback notification');
+      logger.warn(
+        'Service Worker not registered, showing fallback notification'
+      );
       this.showFallbackNotification(data);
       return;
     }
@@ -196,7 +200,8 @@ export class PushNotificationService {
     }
 
     try {
-      const subscription = await this.swRegistration.pushManager.getSubscription();
+      const subscription =
+        await this.swRegistration.pushManager.getSubscription();
       if (subscription) {
         await subscription.unsubscribe();
         await this.removeSubscriptionFromServer(subscription);
@@ -210,7 +215,9 @@ export class PushNotificationService {
   /**
    * Remove subscription from backend
    */
-  private async removeSubscriptionFromServer(subscription: PushSubscription): Promise<void> {
+  private async removeSubscriptionFromServer(
+    subscription: PushSubscription
+  ): Promise<void> {
     const response = await fetch('/api/push/unsubscribe', {
       method: 'POST',
       headers: {
@@ -228,4 +235,4 @@ export class PushNotificationService {
   }
 }
 
-export const pushNotificationService = PushNotificationService.getInstance(); 
+export const pushNotificationService = PushNotificationService.getInstance();

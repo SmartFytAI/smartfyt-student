@@ -149,7 +149,9 @@ export function AuthGuard({
 
   // Don't render children if not authenticated or if we should redirect
   if (!isAuthenticated || !user || shouldRedirect) {
-    logger.debug('🚫 AuthGuard: Not authenticated or should redirect, not rendering children');
+    logger.debug(
+      '🚫 AuthGuard: Not authenticated or should redirect, not rendering children'
+    );
     return null;
   }
 

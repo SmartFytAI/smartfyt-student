@@ -594,7 +594,9 @@ export default function ApiTestPage() {
                     SPORTS & SCHOOLS
                   </div>
                   {Object.entries(API_ENDPOINTS)
-                    .filter(([key]) => ['getSports', 'getSchools'].includes(key))
+                    .filter(([key]) =>
+                      ['getSports', 'getSchools'].includes(key)
+                    )
                     .map(([key, config]) => (
                       <SelectItem key={key} value={key} className='ml-2'>
                         <div className='flex items-center gap-2'>
